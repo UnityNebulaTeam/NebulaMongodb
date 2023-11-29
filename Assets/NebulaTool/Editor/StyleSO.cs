@@ -9,8 +9,6 @@ using UnityEngine.UIElements;
 public class StyleSO : ScriptableObject
 {
     public List<StyleDatas> datas;
-
-
     public StyleSheet GetStyle(StyleType type) => type switch
     {
         StyleType.Manager => datas.FirstOrDefault(x => x.styleType == type).styles[0],
@@ -18,7 +16,6 @@ public class StyleSO : ScriptableObject
         StyleType.CreateWindow => datas.FirstOrDefault(x => x.styleType == type).styles[0],
         _ => throw new ArgumentNullException("Could not found this type style")
     };
-
 }
 
 [Serializable]
@@ -27,7 +24,6 @@ public struct StyleDatas
     public StyleType styleType;
     public List<StyleSheet> styles;
 }
-
 
 public enum StyleType
 {

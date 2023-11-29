@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using MongoDB.Bson;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,6 +9,7 @@ public class ApiController
 {
     private const string GetDatabasesUri = "http://localhost:5135/api/Mongo/db";
     private const string GetAllCollectionsUri = "http://localhost:5135/api/Mongo/table?dbName=";
+    private const string GetAllItemsUri = "http://localhost:5135/api/Mongo/item?DbName=";
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
     public IEnumerator GetAllDatabases()
@@ -36,8 +37,6 @@ public class ApiController
             }
         }
     }
-
-
     public IEnumerator GetAllCollections(string dbName)
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetAllCollectionsUri + dbName))
@@ -47,7 +46,6 @@ public class ApiController
             if (request.result is UnityWebRequest.Result.Success)
             {
                 var data = request.downloadHandler.text;
-
                 try
                 {
                     var collectionList = JsonUtility.FromJson<CollectionListWrapper>("{\"collections\":" + data + "}");
@@ -64,4 +62,33 @@ public class ApiController
             }
         }
     }
+
+    public IEnumerator GetAllItems(string dbName, string collectionName)
+    {
+        using (UnityWebRequest request = UnityWebRequest.Get(GetAllItemsUri + dbName + "&TableName=" + collectionName))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                var data = request.downloadHandler.text;
+                //var itemList = JsonUtility.FromJson<List<TableItemDto>>(data);
+                //TODO: Deserialize Hatası alıyorum
+                Debug.Log(data);
+            }
+            else
+            {
+                Debug.LogError(request.error);
+            }
+        }
+    }
 }
+
+[Serializable]
+public class TableItemDto
+{
+    public BsonDocument item;
+}
+
+
+

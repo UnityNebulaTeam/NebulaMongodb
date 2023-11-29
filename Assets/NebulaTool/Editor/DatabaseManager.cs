@@ -46,12 +46,14 @@ public class DatabaseManager : EditorWindow
     {
         databaseList.Clear();
         databaseList = list;
+        CustomRepaint();
     }
 
     private void GetCollectionList(List<CollectionDto> list)
     {
         collectionList.Clear();
         collectionList = list;
+        CustomRepaint();
     }
 
     private void OnFocus()
@@ -64,6 +66,9 @@ public class DatabaseManager : EditorWindow
         yield return apiController.GetAllDatabases();
         if (!string.IsNullOrEmpty(selectedDatabase))
             yield return apiController.GetAllCollections(selectedDatabase);
+
+        if (!string.IsNullOrEmpty(selectedCollection))
+            yield return apiController.GetAllItems(selectedDatabase, selectedCollection);
     }
 
     private void InitializeUI()
@@ -93,8 +98,11 @@ public class DatabaseManager : EditorWindow
         refreshButton.text = "R";
         refreshButton.clicked += delegate
         {
+            selectedDatabase = string.Empty;
+            selectedCollection = string.Empty;
+            collectionList.Clear();
+            databaseList.Clear();
             EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-            CustomRepaint();
         };
 
         var toolTitle = Create<Label>("CustomLabel");
@@ -163,12 +171,14 @@ public class DatabaseManager : EditorWindow
             databaseButton.clicked += delegate
             {
                 if (selectedDatabase == databaseButton.text)
+                {
                     selectedDatabase = string.Empty;
+                    collectionList.Clear();
+                }
                 else
                     selectedDatabase = databaseButton.text;
 
                 EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-                CustomRepaint();
             };
             var deleteOperation = Create<Button>("CustomOperationButton");
             deleteOperation.text = "X";
@@ -220,7 +230,11 @@ public class DatabaseManager : EditorWindow
                 if (selectedCollection == collectionButton.text)
                     selectedCollection = string.Empty;
                 else
+                {
                     selectedCollection = collectionButton.text;
+                    EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                }
+
                 CustomRepaint();
             };
 
@@ -232,8 +246,6 @@ public class DatabaseManager : EditorWindow
             var updateOperation = Create<Button>("CustomOperationButton");
             updateOperation.text = "U";
             updateOperation.clicked += delegate { Debug.Log(collectionButton.text); };
-
-
 
             itemContainer.Add(collectionButton);
             itemContainer.Add(deleteOperation);
