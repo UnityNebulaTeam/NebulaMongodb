@@ -1,17 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using UnityEngine;
 using UnityEngine.Networking;
-
+using Newtonsoft.Json;
 public class ApiController
 {
     private const string GetDatabasesUri = "http://localhost:5135/api/Mongo/db";
     private const string GetAllCollectionsUri = "http://localhost:5135/api/Mongo/table?dbName=";
     private const string GetAllItemsUri = "http://localhost:5135/api/Mongo/item?DbName=";
+    private const string PutItemUri = "";
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
+    public event Action<TableItemDto> itemListLoaded;
     public IEnumerator GetAllDatabases()
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetDatabasesUri))
@@ -72,9 +76,9 @@ public class ApiController
             if (result is UnityWebRequest.Result.Success)
             {
                 var data = request.downloadHandler.text;
-                //var itemList = JsonUtility.FromJson<List<TableItemDto>>(data);
-                //TODO: Deserialize Hatası alıyorum
-                Debug.Log(data);
+                var items = BsonSerializer.Deserialize<BsonArray>(data);
+                TableItemDto itemDto = new TableItemDto(items);
+                itemListLoaded?.Invoke(itemDto);
             }
             else
             {
@@ -82,13 +86,39 @@ public class ApiController
             }
         }
     }
+
+    public IEnumerator UpdateItem(UpdateTableItemDto dto)
+    {
+        string jsonData = "";
+        //TODO: putItemUri'yi değiştireceksin hatalı uri ---
+        using (UnityWebRequest request = UnityWebRequest.Put(PutItemUri, jsonData))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if(result is UnityWebRequest.Result.Success)
+                Debug.Log("Veri Güncellendi");
+            else
+                Debug.Log("Veri Güncellenmedi");
+        }
+    }
 }
 
-[Serializable]
 public class TableItemDto
 {
-    public BsonDocument item;
+    public BsonArray? Docs;
+
+    public TableItemDto(BsonArray _items)
+    {
+        Docs = new();
+        Docs = _items;
+    }
 }
 
+public class UpdateTableItemDto
+{
+    public string DbName;
+    public string TableName;
+    public BsonDocument newDoc;
+}
 
 

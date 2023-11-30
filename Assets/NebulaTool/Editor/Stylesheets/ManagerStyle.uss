@@ -57,6 +57,8 @@ border-color:black;
  height:100%;
 }
 
+
+
 .Container{
  flex-direction: row;
  flex-grow: 1;
@@ -77,6 +79,25 @@ border-color:black;
  background-color:#fab1a0;
  margin-bottom:2px;
  align-items:center;
+}
+
+
+.CustomContainer{
+flex-direction:column;
+width:100%;
+background-color:red;
+margin-bottom:2px;
+}
+
+
+.OperationButtonContainer{
+flex-direction:row;
+}
+
+
+.ContainerWrapper{
+width:100%;
+flex-direction:column;
 }
 
 .operationContainer{

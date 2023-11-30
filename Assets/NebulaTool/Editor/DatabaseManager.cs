@@ -7,6 +7,8 @@ using System.Collections;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using System;
+using Unity.VisualScripting;
+using MongoDB.Bson;
 
 public class DatabaseManager : EditorWindow
 {
@@ -19,6 +21,7 @@ public class DatabaseManager : EditorWindow
 
     private List<DatabaseDto> databaseList = new();
     private List<CollectionDto> collectionList = new();
+    private TableItemDto itemList;
 
     [MenuItem("Nebula/Mongodb Manager")]
     public static void Initialize()
@@ -34,12 +37,20 @@ public class DatabaseManager : EditorWindow
         InitializeUI();
         apiController.DatabaseListLoaded += GetDatabaseList;
         apiController.collectionListLoaded += GetCollectionList;
+        apiController.itemListLoaded += GetİtemList;
     }
 
     private void OnDestroy()
     {
         apiController.DatabaseListLoaded -= GetDatabaseList;
         apiController.collectionListLoaded -= GetCollectionList;
+        apiController.itemListLoaded -= GetİtemList;
+    }
+
+    private void GetİtemList(TableItemDto dto)
+    {
+        itemList = dto;
+        CustomRepaint();
     }
 
     private void GetDatabaseList(List<DatabaseDto> list)
@@ -64,6 +75,7 @@ public class DatabaseManager : EditorWindow
     private IEnumerator InitializeApiCoroutine()
     {
         yield return apiController.GetAllDatabases();
+
         if (!string.IsNullOrEmpty(selectedDatabase))
             yield return apiController.GetAllCollections(selectedDatabase);
 
@@ -180,15 +192,15 @@ public class DatabaseManager : EditorWindow
 
                 EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
             };
-            var deleteOperation = Create<Button>("CustomOperationButton");
-            deleteOperation.text = "X";
-            deleteOperation.clicked += delegate { Debug.Log(databaseButton.text); };
-            var updateOperation = Create<Button>("CustomOperationButton");
-            updateOperation.text = "U";
-            updateOperation.clicked += delegate { Debug.Log(databaseButton.text); };
+            var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
+            deleteOperationButtonOperation.text = "X";
+            deleteOperationButtonOperation.clicked += delegate { Debug.Log(databaseButton.text); };
+            var updateOperationButton = Create<Button>("CustomOperationButton");
+            updateOperationButton.text = "U";
+            updateOperationButton.clicked += delegate { Debug.Log(databaseButton.text); };
             itemContainer.Add(databaseButton);
-            itemContainer.Add(deleteOperation);
-            itemContainer.Add(updateOperation);
+            itemContainer.Add(deleteOperationButtonOperation);
+            itemContainer.Add(updateOperationButton);
 
             databaseScroll.Add(itemContainer);
         }
@@ -234,22 +246,20 @@ public class DatabaseManager : EditorWindow
                     selectedCollection = collectionButton.text;
                     EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
                 }
-
-                CustomRepaint();
             };
 
-            var deleteOperation = Create<Button>("CustomOperationButton");
-            deleteOperation.text = "X";
-            deleteOperation.clicked += delegate { Debug.Log(collectionButton.text); };
+            var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
+            deleteOperationButtonOperation.text = "X";
+            deleteOperationButtonOperation.clicked += delegate { Debug.Log(collectionButton.text); };
 
 
-            var updateOperation = Create<Button>("CustomOperationButton");
-            updateOperation.text = "U";
-            updateOperation.clicked += delegate { Debug.Log(collectionButton.text); };
+            var updateOperationButton = Create<Button>("CustomOperationButton");
+            updateOperationButton.text = "U";
+            updateOperationButton.clicked += delegate { Debug.Log(collectionButton.text); };
 
             itemContainer.Add(collectionButton);
-            itemContainer.Add(deleteOperation);
-            itemContainer.Add(updateOperation);
+            itemContainer.Add(deleteOperationButtonOperation);
+            itemContainer.Add(updateOperationButton);
 
             collectionScroll.Add(itemContainer);
         }
@@ -276,7 +286,6 @@ public class DatabaseManager : EditorWindow
         createItemButton.text = "+";
         createItemButton.clicked += delegate
         {
-
             if (string.IsNullOrEmpty(selectedCollection))
             {
                 EditorUtility.DisplayDialog("Null Collection", "You have to choose one collection", "Ok");
@@ -284,6 +293,65 @@ public class DatabaseManager : EditorWindow
         };
 
         var rightPanelScrollView = Create<VisualElement>("ScrollView");
+        var itemsScroll = Create<ScrollView>();
+
+        if (itemList != null && itemList.Docs != null)
+        {
+            foreach (var collection in itemList.Docs)
+            {
+                var document = collection.AsBsonDocument;
+                var containerWrapper = Create<VisualElement>("ContainerWrapper");
+                var itemContainer = Create<VisualElement>("CustomContainer");
+                List<FieldValuePair> fieldValues = new List<FieldValuePair>();
+                foreach (var item in document)
+                {
+                    var fieldValuePair = new FieldValuePair(item.Name, item.Value.ToString());
+                 
+                    var itemInputField = Create<TextField>();
+                    itemInputField.value = fieldValuePair.UpdatedValue;
+                    itemInputField.RegisterValueChangedCallback(e =>
+                    {
+                        fieldValuePair.UpdatedValue = e.newValue;
+                    });
+                    fieldValues.Add(fieldValuePair);
+
+                    itemContainer.Add(itemInputField);
+                    containerWrapper.Add(itemContainer);
+                }
+
+                var operationContainer = Create<VisualElement>("operationContainer");
+                var updateOperationButton = Create<Button>("CustomOperationButton");
+                updateOperationButton.text = "U";
+                updateOperationButton.clicked += delegate
+                {
+                    foreach (var item in fieldValues)
+                    {
+                        if (item.OriginalValue != item.UpdatedValue)
+                        {
+                            document[item.FieldName] = item.UpdatedValue;
+                            Debug.Log($"Güncellenecek kısım {item.FieldName}");
+                            EditorCoroutineUtility.StartCoroutineOwnerless(
+                                apiController.UpdateItem(new UpdateTableItemDto
+                                {
+                                    DbName = selectedDatabase,
+                                    TableName = selectedCollection,
+                                    newDoc = document
+                                }));
+                        }
+                        else
+                            Debug.Log($"Güncellenecek satır YOK! {item.FieldName}");
+                    }
+                };
+
+                var deleteOperationButton = Create<Button>("CustomOperationButton");
+                deleteOperationButton.text = "X";
+                operationContainer.Add(updateOperationButton);
+                operationContainer.Add(deleteOperationButton);
+                containerWrapper.Add(operationContainer);
+                itemsScroll.Add(containerWrapper);
+            }
+            rightPanelScrollView.Add(itemsScroll);
+        }
 
         rightTitlePanel.Add(rightPanelTitle);
         rightTitlePanel.Add(createItemButton);
@@ -300,5 +368,19 @@ public class DatabaseManager : EditorWindow
             element.AddToClassList(name);
 
         return element;
+    }
+}
+
+public class FieldValuePair
+{
+    public string FieldName { get; }
+    public string OriginalValue { get; }
+    public string UpdatedValue { get; set; }
+
+    public FieldValuePair(string fieldName, string originalValue)
+    {
+        FieldName = fieldName;
+        OriginalValue = originalValue;
+        UpdatedValue = originalValue;
     }
 }
