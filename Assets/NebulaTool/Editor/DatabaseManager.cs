@@ -306,16 +306,25 @@ public class DatabaseManager : EditorWindow
                 foreach (var item in document)
                 {
                     var fieldValuePair = new FieldValuePair(item.Name, item.Value.ToString());
-                 
-                    var itemInputField = Create<TextField>();
-                    itemInputField.value = fieldValuePair.UpdatedValue;
-                    itemInputField.RegisterValueChangedCallback(e =>
+                    if (item.Name == "_id")
                     {
-                        fieldValuePair.UpdatedValue = e.newValue;
-                    });
-                    fieldValues.Add(fieldValuePair);
+                        var idLabel = Create<Label>("CustomLabel");
+                        idLabel.text = $"ObjectId ({item.Value.ToString()})";
+                        itemContainer.Add(idLabel);
+                    }
+                    else
+                    {
+                        var itemInputField = Create<TextField>();
+                        itemInputField.value = fieldValuePair.UpdatedValue;
+                        itemInputField.RegisterValueChangedCallback(e =>
+                        {
+                            fieldValuePair.UpdatedValue = e.newValue;
+                        });
+                        fieldValues.Add(fieldValuePair);
+                        itemContainer.Add(itemInputField);
 
-                    itemContainer.Add(itemInputField);
+                    }
+
                     containerWrapper.Add(itemContainer);
                 }
 
@@ -330,13 +339,12 @@ public class DatabaseManager : EditorWindow
                         {
                             document[item.FieldName] = item.UpdatedValue;
                             Debug.Log($"Güncellenecek kısım {item.FieldName}");
-                            EditorCoroutineUtility.StartCoroutineOwnerless(
-                                apiController.UpdateItem(new UpdateTableItemDto
-                                {
-                                    DbName = selectedDatabase,
-                                    TableName = selectedCollection,
-                                    newDoc = document
-                                }));
+
+                            UpdateTableItemDto dto = new UpdateTableItemDto();
+                            dto.DbName=selectedDatabase;
+                            dto.TableName=selectedCollection;
+                            dto.doc=document;
+                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateItem(dto));
                         }
                         else
                             Debug.Log($"Güncellenecek satır YOK! {item.FieldName}");

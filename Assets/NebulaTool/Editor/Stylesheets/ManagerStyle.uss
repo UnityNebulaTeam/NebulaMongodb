@@ -85,8 +85,7 @@ border-color:black;
 .CustomContainer{
 flex-direction:column;
 width:100%;
-background-color:red;
-margin-bottom:2px;
+-unity-text-align:middle-center;
 }
 
 

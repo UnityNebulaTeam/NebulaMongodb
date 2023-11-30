@@ -7,12 +7,15 @@ using MongoDB.Bson.Serialization;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using MongoDB.Bson.IO;
+using System.IO;
+using UnityEditor.Overlays;
 public class ApiController
 {
     private const string GetDatabasesUri = "http://localhost:5135/api/Mongo/db";
     private const string GetAllCollectionsUri = "http://localhost:5135/api/Mongo/table?dbName=";
     private const string GetAllItemsUri = "http://localhost:5135/api/Mongo/item?DbName=";
-    private const string PutItemUri = "";
+    private const string itemUri = "http://localhost:5135/api/Mongo/item";
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
     public event Action<TableItemDto> itemListLoaded;
@@ -89,24 +92,33 @@ public class ApiController
 
     public IEnumerator UpdateItem(UpdateTableItemDto dto)
     {
-        string jsonData = "";
-        //TODO: putItemUri'yi değiştireceksin hatalı uri ---
-        using (UnityWebRequest request = UnityWebRequest.Put(PutItemUri, jsonData))
+        dto.doc["_id"] = dto.doc["_id"].ToString();
+        var json = ConvertTableItemDtoToJson(dto);
+        using (UnityWebRequest request = UnityWebRequest.Put(itemUri, json))
         {
+            request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
             var result = request.result;
-            if(result is UnityWebRequest.Result.Success)
+            if (result is UnityWebRequest.Result.Success)
                 Debug.Log("Veri Güncellendi");
             else
-                Debug.Log("Veri Güncellenmedi");
+                Debug.Log($"Veri Güncellenmedi {request.error}");
         }
+    }
+
+    static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
+    {
+        var bsonDocument = tableItemDto;
+        var settings = new JsonWriterSettings { Indent = true };
+        var jsonOutput = bsonDocument.ToJson(settings);
+
+        return jsonOutput;
     }
 }
 
 public class TableItemDto
 {
     public BsonArray? Docs;
-
     public TableItemDto(BsonArray _items)
     {
         Docs = new();
@@ -116,9 +128,12 @@ public class TableItemDto
 
 public class UpdateTableItemDto
 {
-    public string DbName;
-    public string TableName;
-    public BsonDocument newDoc;
+    public string DbName { get; set; }
+    public string TableName { get; set; }
+    public BsonDocument doc { get; set; }
 }
+
+
+
 
 
