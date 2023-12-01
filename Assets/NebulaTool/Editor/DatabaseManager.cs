@@ -273,6 +273,12 @@ public class DatabaseManager : EditorWindow
         colllectionsTitle.text = "Collections";
         var createCollectionButton = Create<Button>("CustomOperationButtonAdd");
         createCollectionButton.text = "+";
+        createCollectionButton.clicked += delegate
+        {
+            EditorPrefs.SetString("dbname", selectedDatabase);
+            CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.collection);
+            windowCreate.ShowWindow();
+        };
         middleTitlePanel.Add(colllectionsTitle);
         middleTitlePanel.Add(createCollectionButton);
         var middlePanelScrollView = Create<VisualElement>("ScrollView");
@@ -439,7 +445,7 @@ public class DatabaseManager : EditorWindow
                 deleteOperationButton.text = "X";
                 deleteOperationButton.clicked += delegate
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTableItem(selectedDatabase,selectedCollection,collection["_id"].AsString));
+                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTableItem(selectedDatabase, selectedCollection, collection["_id"].AsString));
                 };
                 operationContainer.Add(updateOperationButton);
                 operationContainer.Add(deleteOperationButton);

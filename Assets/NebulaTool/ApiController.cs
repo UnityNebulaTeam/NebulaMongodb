@@ -116,11 +116,6 @@ public class ApiController
     [Obsolete]
     public IEnumerator CreateDatabase(string dbName, string _tableName)
     {
-        /*
-        WWWForm form = new WWWForm();
-        form.AddField("name", dbName);
-        form.AddField("tableName", tableName);
-        */
         CreateDatabaseDto dto = new CreateDatabaseDto
         {
             Name = dbName,
@@ -233,6 +228,35 @@ public class ApiController
         }
     }
 
+    [Obsolete]
+    public IEnumerator CreateTable(string _dbName, string _name)
+    {
+        CreateTableDto dto = new CreateTableDto
+        {
+            dbName = _dbName,
+            name = _name
+        };
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        using (UnityWebRequest request = UnityWebRequest.Post(UpdateTableUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"{_dbName} veritabanına bağlı {_name} adında yeni bir koleksiyon oluşturuldu");
+            }
+            else
+            {
+                Debug.LogError($"koleksiyon oluşturulamadı Hata kodu {request.error}");
+            }
+        }
+
+    }
+
     static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
     {
         var bsonDocument = tableItemDto;
@@ -276,7 +300,6 @@ public class PropertyId
     public string id { get; set; }
 }
 
-
 public class UpdateTableDto
 {
     public string dbName { get; set; }
@@ -284,3 +307,8 @@ public class UpdateTableDto
     public string newTableName { get; set; }
 }
 
+public class CreateTableDto
+{
+    public string dbName { get; set; }
+    public string name { get; set; }
+}

@@ -7,6 +7,7 @@ using Unity.EditorCoroutines.Editor;
 public class CreateItemWindow : EditorWindow
 {
     private readonly CreateItemType createType;
+    private string SelectedDatabase;
     private ApiController apiController = new();
     public CreateItemWindow(CreateItemType _type) => createType = _type;
     /// <summary>
@@ -14,7 +15,10 @@ public class CreateItemWindow : EditorWindow
     /// </summary>
     /// <param name="_type">UI için type</param>
     /// <param name="selectedDatabase">Koleksiyon hangi veritabanına bağlı olacak</param>
-    public CreateItemWindow(CreateItemType _type, string selectedDatabase) => createType = _type;
+    public CreateItemWindow(CreateItemType _type, string selectedDatabase)
+    {
+        createType = _type;
+    }
     /// <summary>
     /// Item oluştururken kullanılan constructor
     /// </summary>
@@ -41,6 +45,7 @@ public class CreateItemWindow : EditorWindow
         rootVisualElement.styleSheets.Add(mainStyle);
     }
 
+    [Obsolete]
     private void CreateGUI()
     {
         switch (createType)
@@ -68,7 +73,6 @@ public class CreateItemWindow : EditorWindow
         var root = rootVisualElement;
         var container = Create<VisualElement>("Container");
 
-
         var dbName = Create<TextField>();
         var dbTitle = Create<Label>("CustomLabel");
         dbTitle.text = "Database Name";
@@ -88,31 +92,63 @@ public class CreateItemWindow : EditorWindow
         CreateButton.text = "+";
         CreateButton.clicked += delegate
         {
-            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateDatabase(dbName.value,collectionName.value));
+            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateDatabase(dbName.value, collectionName.value));
         };
 
         container.Add(CreateButton);
 
         var dbHelperBox = Create<HelpBox>();
-        dbHelperBox.messageType=HelpBoxMessageType.Info;
-        dbHelperBox.text="Veritabanı Adı Boş Olamaz";
+        dbHelperBox.messageType = HelpBoxMessageType.Info;
+        dbHelperBox.text = "Veritabanı Adı Boş Olamaz";
         var collectionHelperBox = Create<HelpBox>();
-        collectionHelperBox.messageType=HelpBoxMessageType.Info;
-        collectionHelperBox.text="Collection Adı Boş Olamaz. Collection oluşturmamız zorunlu çünkü Mongodb sisteminde veritabanı oluşturabilmeniz için bir adet koleksiyon oluşturmak zorundasınız";
-        
+        collectionHelperBox.messageType = HelpBoxMessageType.Info;
+        collectionHelperBox.text = "Collection Adı Boş Olamaz. Collection oluşturmamız zorunlu çünkü Mongodb sisteminde veritabanı oluşturabilmeniz için bir adet koleksiyon oluşturmak zorundasınız";
+
         container.Add(dbHelperBox);
         container.Add(collectionHelperBox);
-        
+
         root.Add(container);
     }
 
+    [Obsolete]
     private void CreateCollectionUI()
     {
+        var root = rootVisualElement;
+        var container = Create<VisualElement>("Container");
+
+        var dbTitle = Create<Label>("CustomLabel");
+        dbTitle.text = EditorPrefs.GetString("dbname");
+        container.Add(dbTitle);
+
+        var collectionNameInput = Create<TextField>("CustomTextField");
+        collectionNameInput.value = "Collection Name";
+        container.Add(collectionNameInput);
+
+        var createOperationButton = Create<Button>("CustomOperationButton");
+        createOperationButton.text = "+";
+        createOperationButton.clicked += delegate
+        {
+            Debug.Log(dbTitle.text);
+            Debug.Log(collectionNameInput.value);
+            if (!string.IsNullOrEmpty(collectionNameInput.value))
+            {
+                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateTable(dbTitle.text, collectionNameInput.value));
+            }
+        };
+        container.Add(createOperationButton);
+        root.Add(container);
     }
 
     private void CreateItemUI()
     {
     }
+
+    private void CloseWindow()
+    {
+        ClearAllPlayerPrefs();
+        Close();
+    }
+    private void ClearAllPlayerPrefs() => EditorPrefs.DeleteAll();
 
     private T Create<T>(params string[] classNames) where T : VisualElement, new()
     {
