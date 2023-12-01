@@ -1,14 +1,9 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
-using UnityEditor.TerrainTools;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
-using UnityEngine.Networking;
 using System.Collections.Generic;
-using System;
-using Unity.VisualScripting;
-using MongoDB.Bson;
 
 public class DatabaseManager : EditorWindow
 {
@@ -16,7 +11,6 @@ public class DatabaseManager : EditorWindow
     private StyleSheet mainStyle;
     private string selectedDatabase;
     private string selectedCollection;
-
     private ApiController apiController = new();
 
     private List<DatabaseDto> databaseList = new();
@@ -335,19 +329,16 @@ public class DatabaseManager : EditorWindow
                 {
                     foreach (var item in fieldValues)
                     {
+                        //Eğer mevcut veri üzerinde bir değişiklik yaptıysa apiye istek atsın
                         if (item.OriginalValue != item.UpdatedValue)
                         {
                             document[item.FieldName] = item.UpdatedValue;
-                            Debug.Log($"Güncellenecek kısım {item.FieldName}");
-
                             UpdateTableItemDto dto = new UpdateTableItemDto();
                             dto.DbName=selectedDatabase;
                             dto.TableName=selectedCollection;
                             dto.doc=document;
                             EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateItem(dto));
                         }
-                        else
-                            Debug.Log($"Güncellenecek satır YOK! {item.FieldName}");
                     }
                 };
 

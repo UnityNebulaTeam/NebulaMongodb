@@ -2,24 +2,26 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
 using System;
+using Unity.EditorCoroutines.Editor;
 
 public class CreateItemWindow : EditorWindow
 {
     private readonly CreateItemType createType;
+    private ApiController apiController = new();
     public CreateItemWindow(CreateItemType _type) => createType = _type;
     /// <summary>
     /// Collection Oluştururken kullanılan constructor
     /// </summary>
     /// <param name="_type">UI için type</param>
     /// <param name="selectedDatabase">Koleksiyon hangi veritabanına bağlı olacak</param>
-    public CreateItemWindow(CreateItemType _type,string selectedDatabase) => createType = _type;
+    public CreateItemWindow(CreateItemType _type, string selectedDatabase) => createType = _type;
     /// <summary>
     /// Item oluştururken kullanılan constructor
     /// </summary>
     /// <param name="_type">UI için tpye</param>
     /// <param name="selectedDatabase">Koleksiyonunun hangi veritabanına bağlı olduğunu belirt</param>
     /// <param name="selectedCollection">Veri hangi koleksiyon altında oluşturulacak</param>
-    public CreateItemWindow(CreateItemType _type,string selectedDatabase, string selectedCollection) => createType = _type;
+    public CreateItemWindow(CreateItemType _type, string selectedDatabase, string selectedCollection) => createType = _type;
     private StyleSheet mainStyle;
     public void ShowWindow()
     {
@@ -62,17 +64,53 @@ public class CreateItemWindow : EditorWindow
 
     private void CreateDatabaseUI()
     {
-        throw new NotImplementedException();
+        var root = rootVisualElement;
+        var container = Create<VisualElement>("Container");
+
+
+        var dbName = Create<TextField>();
+        var dbTitle = Create<Label>("CustomLabel");
+        dbTitle.text = "Database Name";
+
+        var collectionName = Create<TextField>();
+        var colletionTitle = Create<Label>("CustomLabel");
+        colletionTitle.text = "Collection Name";
+
+
+        container.Add(dbTitle);
+        container.Add(dbName);
+        container.Add(colletionTitle);
+        container.Add(collectionName);
+
+
+        var CreateButton = Create<Button>("CustomOperationButton");
+        CreateButton.text = "+";
+        CreateButton.clicked += delegate
+        {
+            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateDatabase(dbName.value,collectionName.value));
+        };
+
+        container.Add(CreateButton);
+
+        var dbHelperBox = Create<HelpBox>();
+        dbHelperBox.messageType=HelpBoxMessageType.Info;
+        dbHelperBox.text="Veritabanı Adı Boş Olamaz";
+        var collectionHelperBox = Create<HelpBox>();
+        collectionHelperBox.messageType=HelpBoxMessageType.Info;
+        collectionHelperBox.text="Collection Adı Boş Olamaz. Collection oluşturmamız zorunlu çünkü Mongodb sisteminde veritabanı oluşturabilmeniz için bir adet koleksiyon oluşturmak zorundasınız";
+        
+        container.Add(dbHelperBox);
+        container.Add(collectionHelperBox);
+        
+        root.Add(container);
     }
 
     private void CreateCollectionUI()
     {
-        throw new NotImplementedException();
     }
 
     private void CreateItemUI()
     {
-        throw new NotImplementedException();
     }
 
     private T Create<T>(params string[] classNames) where T : VisualElement, new()
