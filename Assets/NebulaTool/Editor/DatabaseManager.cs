@@ -16,6 +16,7 @@ public class DatabaseManager : EditorWindow
     private List<DatabaseDto> databaseList = new();
     private List<CollectionDto> collectionList = new();
     private TableItemDto itemList;
+    private bool isEditDB;
 
     [MenuItem("Nebula/Mongodb Manager")]
     public static void Initialize()
@@ -171,30 +172,82 @@ public class DatabaseManager : EditorWindow
         foreach (var db in databaseList)
         {
             var itemContainer = Create<VisualElement>("itemContainer");
-            var databaseButton = Create<Button>("CustomItemButton");
-            databaseButton.text = $"{db.name}";
-            databaseButton.style.backgroundColor = databaseButton.text == selectedDatabase ? Color.green : Color.gray;
-            databaseButton.clicked += delegate
-            {
-                if (selectedDatabase == databaseButton.text)
-                {
-                    selectedDatabase = string.Empty;
-                    collectionList.Clear();
-                }
-                else
-                    selectedDatabase = databaseButton.text;
 
-                EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-            };
-            var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
-            deleteOperationButtonOperation.text = "X";
-            deleteOperationButtonOperation.clicked += delegate { Debug.Log(databaseButton.text); };
-            var updateOperationButton = Create<Button>("CustomOperationButton");
-            updateOperationButton.text = "U";
-            updateOperationButton.clicked += delegate { Debug.Log(databaseButton.text); };
-            itemContainer.Add(databaseButton);
-            itemContainer.Add(deleteOperationButtonOperation);
-            itemContainer.Add(updateOperationButton);
+            if (selectedDatabase == db.name && isEditDB)
+            {
+                var dbTextField = Create<TextField>("CustomTextField");
+                dbTextField.value = selectedDatabase;
+                itemContainer.Add(dbTextField);
+
+
+                var cancelOperationButton = Create<Button>("CustomOperationButton");
+                cancelOperationButton.text = "C";
+                cancelOperationButton.clicked += delegate
+                {
+                    isEditDB = !isEditDB;
+                    CustomRepaint();
+                };
+
+
+                var updateItemOperationButton = Create<Button>("CustomOperationButton");
+                updateItemOperationButton.text = "✓";
+                updateItemOperationButton.clicked += delegate
+                {
+                    if (selectedDatabase != dbTextField.value)
+                    {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateDatabase(selectedDatabase, dbTextField.value));
+                        isEditDB = !isEditDB;
+                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                    }
+                    else
+                        Debug.Log("Herhangi bir veri güncellemesi yok");
+                };
+
+                itemContainer.Add(cancelOperationButton);
+                itemContainer.Add(updateItemOperationButton);
+            }
+            else
+            {
+                var databaseButton = Create<Button>("CustomItemButton");
+                databaseButton.text = $"{db.name}";
+                databaseButton.style.backgroundColor = databaseButton.text == selectedDatabase ? Color.green : Color.gray;
+                databaseButton.clicked += delegate
+                {
+                    if (selectedDatabase == databaseButton.text)
+                    {
+                        selectedDatabase = string.Empty;
+                        collectionList.Clear();
+                    }
+                    else
+                        selectedDatabase = databaseButton.text;
+
+                    EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                };
+                itemContainer.Add(databaseButton);
+                var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
+                deleteOperationButtonOperation.text = "X";
+                deleteOperationButtonOperation.clicked += delegate
+                {
+                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteDatabase(db.name));
+                    EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                    CustomRepaint();
+                };
+                var updateOperationButton = Create<Button>("CustomOperationButton");
+                updateOperationButton.text = "U";
+                updateOperationButton.style.backgroundColor = db.name == selectedDatabase && isEditDB ? Color.green : Color.blue;
+                updateOperationButton.clicked += delegate
+                {
+                    if (!string.IsNullOrEmpty(selectedDatabase))
+                    {
+                        isEditDB = !isEditDB;
+                        CustomRepaint();
+                    }
+                };
+                itemContainer.Add(deleteOperationButtonOperation);
+                itemContainer.Add(updateOperationButton);
+            }
+
+
 
             databaseScroll.Add(itemContainer);
         }
@@ -334,9 +387,9 @@ public class DatabaseManager : EditorWindow
                         {
                             document[item.FieldName] = item.UpdatedValue;
                             UpdateTableItemDto dto = new UpdateTableItemDto();
-                            dto.DbName=selectedDatabase;
-                            dto.TableName=selectedCollection;
-                            dto.doc=document;
+                            dto.DbName = selectedDatabase;
+                            dto.TableName = selectedCollection;
+                            dto.doc = document;
                             EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateItem(dto));
                         }
                     }

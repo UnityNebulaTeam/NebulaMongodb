@@ -15,6 +15,7 @@ public class ApiController
 {
     private const string GetDatabasesUri = "http://localhost:5135/api/Mongo/db";
     private const string CreateDatabaseUri = "http://localhost:5135/api/Mongo/db";
+    private const string UpdateDatabaseUri = "http://localhost:5135/api/Mongo/db";
     private const string GetAllCollectionsUri = "http://localhost:5135/api/Mongo/table?dbName=";
     private const string GetAllItemsUri = "http://localhost:5135/api/Mongo/item?DbName=";
     private const string itemUri = "http://localhost:5135/api/Mongo/item";
@@ -143,6 +144,45 @@ public class ApiController
             }
         }
     }
+    public IEnumerator UpdateDatabase(string _name, string newdbName)
+    {
+        UpdateDatabaseDto dto = new UpdateDatabaseDto
+        {
+            Name = _name,
+            NewDbName = newdbName
+        };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        using (UnityWebRequest request = UnityWebRequest.Put(UpdateDatabaseUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"{_name} Isimli veritabanı {newdbName} ismine başarıyla güncellendi");
+            }
+            else
+            {
+                Debug.Log($"Veritabanı Güncellenemedi {request.error}");
+            }
+        }
+    }
+
+    public IEnumerator DeleteDatabase(string _dbName)
+    {
+        using (UnityWebRequest request = UnityWebRequest.Delete(UpdateDatabaseUri + "?Name=" + _dbName))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} Silindi");
+            else
+                Debug.Log($"{_dbName} Silinemedi");
+        }
+    }
+
     static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
     {
         var bsonDocument = tableItemDto;
@@ -169,20 +209,22 @@ public class UpdateTableItemDto
     public string TableName { get; set; }
     public BsonDocument doc { get; set; }
 }
-
 public class CreateDatabaseDto
 {
     public string Name;
     public string TableName;
 }
 
+public class UpdateDatabaseDto
+{
+    public string Name { get; set; }
+    public string NewDbName { get; set; }
+}
 
 public class PropertyId
 {
     public string id { get; set; }
 }
-
-
 
 
 
