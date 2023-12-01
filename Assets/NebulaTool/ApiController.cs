@@ -19,6 +19,7 @@ public class ApiController
     private const string GetAllCollectionsUri = "http://localhost:5135/api/Mongo/table?dbName=";
     private const string GetAllItemsUri = "http://localhost:5135/api/Mongo/item?DbName=";
     private const string itemUri = "http://localhost:5135/api/Mongo/item";
+    private const string UpdateTableUri = "http://localhost:5135/api/Mongo/table";
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
     public event Action<TableItemDto> itemListLoaded;
@@ -183,6 +184,55 @@ public class ApiController
         }
     }
 
+    public IEnumerator UpdateTable(string _dbName, string _tableName, string _newTableName)
+    {
+        UpdateTableDto dto = new UpdateTableDto { dbName = _dbName, name = _tableName, newTableName = _newTableName };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+
+        using (UnityWebRequest request = UnityWebRequest.Put(UpdateTableUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} veritabanına bağlı {_tableName} koleksiyonu {_newTableName} olarak güncellendi");
+            else
+                Debug.LogError($"Koleksiyon Güncellenemedi HATA KODU ! : {request.error}");
+        }
+    }
+
+    public IEnumerator DeleteTable(string _dbName, string _tableName)
+    {
+        string uri = UpdateTableUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
+        using (UnityWebRequest request = UnityWebRequest.Delete(uri))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu başarıyla silindi");
+            else
+                Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu silinemedi. HATA KODU {request.error}");
+        }
+    }
+
+
+    public IEnumerator DeleteTableItem(string _dbName, string _tableName, string Id)
+    {
+        string uri = itemUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName + "&" + "Id=" + Id;
+        using (UnityWebRequest request = UnityWebRequest.Delete(uri))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu bağlı {Id} numaralı veri başarıyla silindi");
+            else
+                Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu bağlı {Id} numaralı veri silinemedi");
+        }
+    }
+
     static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
     {
         var bsonDocument = tableItemDto;
@@ -227,4 +277,10 @@ public class PropertyId
 }
 
 
+public class UpdateTableDto
+{
+    public string dbName { get; set; }
+    public string name { get; set; }
+    public string newTableName { get; set; }
+}
 

@@ -62,6 +62,7 @@ public class CreateItemWindow : EditorWindow
         };
     }
 
+    [Obsolete]
     private void CreateDatabaseUI()
     {
         var root = rootVisualElement;

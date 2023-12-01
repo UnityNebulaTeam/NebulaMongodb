@@ -17,6 +17,7 @@ public class DatabaseManager : EditorWindow
     private List<CollectionDto> collectionList = new();
     private TableItemDto itemList;
     private bool isEditDB;
+    private bool isEditCollection;
 
     [MenuItem("Nebula/Mongodb Manager")]
     public static void Initialize()
@@ -234,10 +235,9 @@ public class DatabaseManager : EditorWindow
                 };
                 var updateOperationButton = Create<Button>("CustomOperationButton");
                 updateOperationButton.text = "U";
-                updateOperationButton.style.backgroundColor = db.name == selectedDatabase && isEditDB ? Color.green : Color.blue;
                 updateOperationButton.clicked += delegate
                 {
-                    if (!string.IsNullOrEmpty(selectedDatabase))
+                    if (!string.IsNullOrEmpty(selectedDatabase) && selectedDatabase == db.name)
                     {
                         isEditDB = !isEditDB;
                         CustomRepaint();
@@ -281,32 +281,72 @@ public class DatabaseManager : EditorWindow
         foreach (var collection in collectionList)
         {
             var itemContainer = Create<VisualElement>("itemContainer");
-            var collectionButton = Create<Button>("CustomItemButton");
-            collectionButton.text = $"{collection.name}";
-            collectionButton.style.backgroundColor = collectionButton.text == selectedCollection ? Color.green : Color.gray;
-            collectionButton.clicked += delegate
+            if (!string.IsNullOrEmpty(selectedDatabase) && collection.name == selectedCollection && isEditCollection)
             {
-                if (selectedCollection == collectionButton.text)
-                    selectedCollection = string.Empty;
-                else
+                var collectionTextField = Create<TextField>("CustomTextField");
+                collectionTextField.value = collection.name;
+                itemContainer.Add(collectionTextField);
+
+                var cancelOperationButton = Create<Button>("CustomOperationButton");
+                cancelOperationButton.text = "C";
+                cancelOperationButton.clicked += delegate
                 {
-                    selectedCollection = collectionButton.text;
-                    EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-                }
-            };
-
-            var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
-            deleteOperationButtonOperation.text = "X";
-            deleteOperationButtonOperation.clicked += delegate { Debug.Log(collectionButton.text); };
+                    isEditCollection = !isEditCollection;
+                    CustomRepaint();
+                };
 
 
-            var updateOperationButton = Create<Button>("CustomOperationButton");
-            updateOperationButton.text = "U";
-            updateOperationButton.clicked += delegate { Debug.Log(collectionButton.text); };
+                var updateItemOperationButton = Create<Button>("CustomOperationButton");
+                updateItemOperationButton.text = "✓";
+                updateItemOperationButton.clicked += delegate
+                {
+                    if (selectedCollection != collectionTextField.value)
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateTable(selectedDatabase, selectedCollection, collectionTextField.value));
+                };
 
-            itemContainer.Add(collectionButton);
-            itemContainer.Add(deleteOperationButtonOperation);
-            itemContainer.Add(updateOperationButton);
+                itemContainer.Add(cancelOperationButton);
+                itemContainer.Add(updateItemOperationButton);
+            }
+            else
+            {
+                var collectionButton = Create<Button>("CustomItemButton");
+                collectionButton.text = $"{collection.name}";
+                collectionButton.style.backgroundColor = collectionButton.text == selectedCollection ? Color.green : Color.gray;
+                collectionButton.clicked += delegate
+                {
+                    if (selectedCollection == collectionButton.text)
+                        selectedCollection = string.Empty;
+                    else
+                    {
+                        selectedCollection = collectionButton.text;
+                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                    }
+                };
+
+                var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
+                deleteOperationButtonOperation.text = "X";
+                deleteOperationButtonOperation.clicked += delegate
+                {
+                    if (!string.IsNullOrEmpty(selectedDatabase))
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTable(selectedDatabase, collection.name));
+                };
+
+                var updateOperationButton = Create<Button>("CustomOperationButton");
+                updateOperationButton.text = "U";
+                updateOperationButton.clicked += delegate
+                {
+                    if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection) && selectedCollection == collection.name)
+                    {
+                        isEditCollection = !isEditCollection;
+                        CustomRepaint();
+                    }
+                };
+
+                itemContainer.Add(collectionButton);
+                itemContainer.Add(deleteOperationButtonOperation);
+                itemContainer.Add(updateOperationButton);
+
+            }
 
             collectionScroll.Add(itemContainer);
         }
@@ -397,6 +437,10 @@ public class DatabaseManager : EditorWindow
 
                 var deleteOperationButton = Create<Button>("CustomOperationButton");
                 deleteOperationButton.text = "X";
+                deleteOperationButton.clicked += delegate
+                {
+                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTableItem(selectedDatabase,selectedCollection,collection["_id"].AsString));
+                };
                 operationContainer.Add(updateOperationButton);
                 operationContainer.Add(deleteOperationButton);
                 containerWrapper.Add(operationContainer);
