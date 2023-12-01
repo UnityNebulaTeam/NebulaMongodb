@@ -2,7 +2,6 @@
 }
 
 .CustomLabel{
-color:#2d3436;
 -unity-font-style:bold;
 }
 
@@ -39,6 +38,7 @@ justify-content:center;
 background-color:#089000;
 border-bottom-width:1px;
 border-color:black;
+align-items:center;
 }
 
 .Title{
@@ -57,7 +57,21 @@ border-color:black;
  height:100%;
 }
 
+.ContainerPropItem{
+-unity-text-align:middle-center;
+flex-direction:row;
+width:100%;
+border-bottom-width:1px;
+border-color:black;
+}
 
+.CustomValueField{
+width:75%;
+}
+
+.CustomPropField{
+width:20%;
+}
 
 .Container{
  flex-direction: row;
@@ -89,8 +103,9 @@ border-color:black;
 }
 
 .buttonWrapper{
+ width:100%;
+ flex-direction:row;
  display: flex;
-  gap: 5px; 
 }
 
 
@@ -133,7 +148,6 @@ flex-direction:column;
 }
 
 .CustomOperationButtonDelete{
- margin-left: auto;
  width:20px;
  height:20px;
  border-radius:5px;

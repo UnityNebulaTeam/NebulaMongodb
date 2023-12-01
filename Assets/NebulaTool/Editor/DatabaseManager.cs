@@ -173,7 +173,7 @@ public class DatabaseManager : EditorWindow
         {
             var itemContainer = Create<VisualElement>("itemContainer");
             var buttonWrapper = Create<VisualElement>("buttonWrapper");
-            itemContainer.Add(buttonWrapper);
+
 
             if (selectedDatabase == db.name && isEditDB)
             {
@@ -212,6 +212,7 @@ public class DatabaseManager : EditorWindow
             {
                 var databaseButton = Create<Button>("CustomItemButton");
                 databaseButton.text = $"{db.name}";
+                databaseButton.style.color = databaseButton.text == selectedDatabase ? Color.black : Color.white;
                 databaseButton.style.backgroundColor = databaseButton.text == selectedDatabase ? Color.green : Color.gray;
                 databaseButton.clicked += delegate
                 {
@@ -219,20 +220,29 @@ public class DatabaseManager : EditorWindow
                     {
                         selectedDatabase = string.Empty;
                         collectionList.Clear();
+                        CustomRepaint();
                     }
                     else
+                    {
                         selectedDatabase = databaseButton.text;
-
-                    EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                    }
                 };
-                button.Add(databaseButton);
+                buttonWrapper.Add(databaseButton);
                 var deleteOperationButtonOperation = Create<Button>("CustomOperationButtonDelete");
                 deleteOperationButtonOperation.text = "X";
                 deleteOperationButtonOperation.clicked += delegate
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteDatabase(db.name));
-                    EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-                    CustomRepaint();
+                    if (ShowDisplayDialogForDelete("Are You Sure for delete this database ?", "Do you want to delete this db"))
+                    {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteDatabase(db.name));
+                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                        CustomRepaint();
+                    }
+                    else
+                    {
+                        Debug.Log("GO ON silme");
+                    }
                 };
                 var updateOperationButton = Create<Button>("CustomOperationButton");
                 updateOperationButton.text = "U";
@@ -248,8 +258,7 @@ public class DatabaseManager : EditorWindow
                 buttonWrapper.Add(updateOperationButton);
             }
 
-
-
+            itemContainer.Add(buttonWrapper);
             databaseScroll.Add(itemContainer);
         }
 
@@ -318,11 +327,16 @@ public class DatabaseManager : EditorWindow
             {
                 var collectionButton = Create<Button>("CustomItemButton");
                 collectionButton.text = $"{collection.name}";
+                collectionButton.style.color = collectionButton.text == selectedCollection ? Color.black : Color.white;
                 collectionButton.style.backgroundColor = collectionButton.text == selectedCollection ? Color.green : Color.gray;
                 collectionButton.clicked += delegate
                 {
                     if (selectedCollection == collectionButton.text)
+                    {
                         selectedCollection = string.Empty;
+                        itemList = null;
+                        CustomRepaint();
+                    }
                     else
                     {
                         selectedCollection = collectionButton.text;
@@ -330,12 +344,16 @@ public class DatabaseManager : EditorWindow
                     }
                 };
 
-                var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
+                var deleteOperationButtonOperation = Create<Button>("CustomOperationButtonDelete");
                 deleteOperationButtonOperation.text = "X";
                 deleteOperationButtonOperation.clicked += delegate
                 {
-                    if (!string.IsNullOrEmpty(selectedDatabase))
-                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTable(selectedDatabase, collection.name));
+
+                    if (ShowDisplayDialogForDelete("Delete Collection", "Are you sure delete this collection"))
+                        if (!string.IsNullOrEmpty(selectedDatabase))
+                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTable(selectedDatabase, collection.name));
+                        else
+                            Debug.Log("OKEYY LETS GO");
                 };
 
                 var updateOperationButton = Create<Button>("CustomOperationButton");
@@ -415,14 +433,24 @@ public class DatabaseManager : EditorWindow
                     }
                     else
                     {
-                        var itemInputField = Create<TextField>();
+                        var containerProp = Create<VisualElement>("ContainerPropItem");
+
+                        var itemInputField = Create<TextField>("CustomValueField");
                         itemInputField.value = fieldValuePair.UpdatedValue;
                         itemInputField.RegisterValueChangedCallback(e =>
                         {
                             fieldValuePair.UpdatedValue = e.newValue;
                         });
+
+                        var itemPropName = Create<Label>("CustomPropField");
+                        itemPropName.text = item.Name.ToString();
+
+                        containerProp.Add(itemPropName);
+                        containerProp.Add(itemInputField);
+
+
                         fieldValues.Add(fieldValuePair);
-                        itemContainer.Add(itemInputField);
+                        itemContainer.Add(containerProp);
 
                     }
 
@@ -449,11 +477,12 @@ public class DatabaseManager : EditorWindow
                     }
                 };
 
-                var deleteOperationButton = Create<Button>("CustomOperationButton");
+                var deleteOperationButton = Create<Button>("CustomOperationButtonDelete");
                 deleteOperationButton.text = "X";
                 deleteOperationButton.clicked += delegate
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTableItem(selectedDatabase, selectedCollection, collection["_id"].AsString));
+                    if (ShowDisplayDialogForDelete("Delete Item", "Are you sure delete this Item"))
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTableItem(selectedDatabase, selectedCollection, collection["_id"].AsString));
                 };
                 operationContainer.Add(updateOperationButton);
                 operationContainer.Add(deleteOperationButton);
@@ -471,6 +500,15 @@ public class DatabaseManager : EditorWindow
 
         return rightPanel;
     }
+
+
+    private bool ShowDisplayDialogForDelete(string title, string msg)
+    {
+        var result = EditorUtility.DisplayDialog(title, msg, "ok", "cancel");
+        return result;
+    }
+
+
     private T Create<T>(params string[] classNames) where T : VisualElement, new()
     {
         var element = new T();
