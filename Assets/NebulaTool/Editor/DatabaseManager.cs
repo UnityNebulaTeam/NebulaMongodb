@@ -172,6 +172,8 @@ public class DatabaseManager : EditorWindow
         foreach (var db in databaseList)
         {
             var itemContainer = Create<VisualElement>("itemContainer");
+            var buttonWrapper = Create<VisualElement>("buttonWrapper");
+            itemContainer.Add(buttonWrapper);
 
             if (selectedDatabase == db.name && isEditDB)
             {
@@ -180,7 +182,7 @@ public class DatabaseManager : EditorWindow
                 itemContainer.Add(dbTextField);
 
 
-                var cancelOperationButton = Create<Button>("CustomOperationButton");
+                var cancelOperationButton = Create<Button>("CustomOperationButtonCancel");
                 cancelOperationButton.text = "C";
                 cancelOperationButton.clicked += delegate
                 {
@@ -204,7 +206,7 @@ public class DatabaseManager : EditorWindow
                 };
 
                 itemContainer.Add(cancelOperationButton);
-                itemContainer.Add(updateItemOperationButton);
+                buttonWrapper.Add(updateItemOperationButton);
             }
             else
             {
@@ -223,8 +225,8 @@ public class DatabaseManager : EditorWindow
 
                     EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
                 };
-                itemContainer.Add(databaseButton);
-                var deleteOperationButtonOperation = Create<Button>("CustomOperationButton");
+                button.Add(databaseButton);
+                var deleteOperationButtonOperation = Create<Button>("CustomOperationButtonDelete");
                 deleteOperationButtonOperation.text = "X";
                 deleteOperationButtonOperation.clicked += delegate
                 {
@@ -242,8 +244,8 @@ public class DatabaseManager : EditorWindow
                         CustomRepaint();
                     }
                 };
-                itemContainer.Add(deleteOperationButtonOperation);
-                itemContainer.Add(updateOperationButton);
+                buttonWrapper.Add(deleteOperationButtonOperation);
+                buttonWrapper.Add(updateOperationButton);
             }
 
 
@@ -292,7 +294,7 @@ public class DatabaseManager : EditorWindow
                 collectionTextField.value = collection.name;
                 itemContainer.Add(collectionTextField);
 
-                var cancelOperationButton = Create<Button>("CustomOperationButton");
+                var cancelOperationButton = Create<Button>("CustomOperationButtonCancel");
                 cancelOperationButton.text = "C";
                 cancelOperationButton.clicked += delegate
                 {
