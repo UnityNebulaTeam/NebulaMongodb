@@ -3,22 +3,22 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using System;
 using Unity.EditorCoroutines.Editor;
+using MongoDB.Bson;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 public class CreateItemWindow : EditorWindow
 {
     private readonly CreateItemType createType;
     private string SelectedDatabase;
+    private string SelectedColection;
+    private BsonDocument doc = new();
+    private bool doesNotExistDoc;
     private ApiController apiController = new();
+    private int fieldCount;
     public CreateItemWindow(CreateItemType _type) => createType = _type;
-    /// <summary>
-    /// Collection Oluştururken kullanılan constructor
-    /// </summary>
-    /// <param name="_type">UI için type</param>
-    /// <param name="selectedDatabase">Koleksiyon hangi veritabanına bağlı olacak</param>
-    public CreateItemWindow(CreateItemType _type, string selectedDatabase)
-    {
-        createType = _type;
-    }
+
     /// <summary>
     /// Item oluştururken kullanılan constructor
     /// </summary>
@@ -31,12 +31,41 @@ public class CreateItemWindow : EditorWindow
     {
         var window = GetWindow<CreateItemWindow>();
         window.titleContent = new GUIContent($"Create {createType.ToString()}");
+        if (EditorPrefs.GetString("dbname") is not null)
+            SelectedDatabase = EditorPrefs.GetString("dbname");
+        if (EditorPrefs.GetString("collectionName") is not null)
+            SelectedColection = EditorPrefs.GetString("collectionName");
+
+        if (createType is CreateItemType.item)
+            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection));
         window.Show();
     }
 
     private void OnEnable()
     {
         InitializeUI();
+        apiController.itemLoaded += ItemLoad;
+        apiController.NoneItemLoaded += NoneItemLoad;
+    }
+
+    private void NoneItemLoad(bool result)
+    {
+        doesNotExistDoc = result;
+        CreateItemUI();
+    }
+
+    private void OnDestroy()
+    {
+        apiController.itemLoaded -= ItemLoad;
+        apiController.NoneItemLoaded -= NoneItemLoad;
+    }
+
+    private void ItemLoad(BsonDocument document)
+    {
+        Debug.Log(document);
+        document["_id"] = new ObjectId(document["_id"].AsString);
+        doc = document;
+        CreateItemUI();
     }
 
     private void InitializeUI()
@@ -139,8 +168,111 @@ public class CreateItemWindow : EditorWindow
         root.Add(container);
     }
 
+    [Obsolete]
     private void CreateItemUI()
     {
+        var root = rootVisualElement;
+        root.Clear();
+        var container = Create<VisualElement>("Container");
+        if (!doesNotExistDoc)
+        {
+            List<FieldValuePair> fields = new List<FieldValuePair>();
+            foreach (var key in doc)
+            {
+                var fieldValuePair = new FieldValuePair(key.Name, key.Value.ToString());
+                var propTextAndValueContainer = Create<VisualElement>("ContainerPropItem");
+                var propText = Create<TextField>("CustomPropField");
+                propText.value = key.Name;
+
+                var propvalue = Create<TextField>("CustomValueField");
+                propvalue.value = "";
+
+                propvalue.RegisterValueChangedCallback(e =>
+                       {
+                           fieldValuePair.UpdatedValue = e.newValue;
+                       });
+                propTextAndValueContainer.Add(propText);
+                propTextAndValueContainer.Add(propvalue);
+                container.Add(propTextAndValueContainer);
+
+                fields.Add(fieldValuePair);
+            }
+
+            var createOperationButton = Create<Button>("CustomOperationButton");
+            createOperationButton.text = "+";
+            createOperationButton.clicked += delegate
+            {
+                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
+            };
+
+            root.Add(container);
+            root.Add(createOperationButton);
+        }
+        if (doesNotExistDoc)
+        {
+            var propFieldContainer = Create<VisualElement>("ContainerPropItem");
+            var fieldCountLabel = Create<Label>("CustomLabel");
+            fieldCountLabel.text = $"Field Count {fieldCount}";
+
+            var addFieldButton = Create<Button>("CustomOperationButton");
+            addFieldButton.text = "+";
+            addFieldButton.clicked += delegate
+            {
+                fieldCount++;
+                CreateItemUI();
+            };
+
+            var minusFieldCount = Create<Button>("CustomOperationButton");
+            minusFieldCount.text = "-";
+            minusFieldCount.clicked += delegate
+            {
+                if (fieldCount > 0)
+                    fieldCount--;
+                CreateItemUI();
+            };
+            propFieldContainer.Add(fieldCountLabel); ;
+            propFieldContainer.Add(addFieldButton);
+            propFieldContainer.Add(minusFieldCount);
+
+            container.Add(propFieldContainer);
+            root.Add(container);
+
+
+
+            List<FieldValuePair> fields = new List<FieldValuePair>();
+            for (int i = 0; i < fieldCount; i++)
+            {
+                var propContainer = Create<VisualElement>("ContainerPropItem");
+                var fieldValuePair = new FieldValuePair("", "");
+                var propName = Create<TextField>("CustomPropField");
+                var propValue = Create<TextField>("CustomValueField");
+
+                propName.RegisterValueChangedCallback(e =>
+                {
+                    fieldValuePair.FieldName = e.newValue;
+                });
+
+                propValue.RegisterValueChangedCallback(e =>
+               {
+                   fieldValuePair.UpdatedValue = e.newValue;
+               });
+
+                propContainer.Add(propName);
+                propContainer.Add(propValue);
+
+                container.Add(propContainer);
+                root.Add(container);
+                fields.Add(fieldValuePair);
+            }
+
+            var createOperationButton = Create<Button>("CustomOperationButton");
+            createOperationButton.text = "Create";
+            createOperationButton.clicked += delegate
+            {
+                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
+            };
+            root.Add(createOperationButton);
+        }
     }
 
     private void CloseWindow()

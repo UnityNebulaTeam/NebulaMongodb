@@ -8,6 +8,21 @@ width:100%;
 border-width:1px;
 }
 
+.ContainerPropItem{
+-unity-text-align:middle-center;
+flex-direction:row;
+width:100%;
+border-bottom-width:1px;
+border-color:black;
+}
+
+.CustomValueField{
+width:75%;
+}
+
+.CustomPropField{
+width:20%;
+}
 
 .CustomLabel{
 color:black;

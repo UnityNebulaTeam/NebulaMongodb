@@ -1,16 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using MongoDB.Bson.IO;
-using System.IO;
-using UnityEditor.Overlays;
 using System.Text;
+using System.Linq;
+
 public class ApiController
 {
     private const string GetDatabasesUri = "http://localhost:5135/api/Mongo/db";
@@ -23,6 +22,8 @@ public class ApiController
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
     public event Action<TableItemDto> itemListLoaded;
+    public event Action<BsonDocument> itemLoaded;
+    public event Action<bool> NoneItemLoaded;
     public IEnumerator GetAllDatabases()
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetDatabasesUri))
@@ -90,6 +91,61 @@ public class ApiController
             else
             {
                 Debug.LogError(request.error);
+            }
+        }
+    }
+
+    public IEnumerator GetAllItemsTypeBsonDocument(string dbName, string collectionName)
+    {
+        using (UnityWebRequest request = UnityWebRequest.Get(GetAllItemsUri + dbName + "&TableName=" + collectionName))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                var data = request.downloadHandler.text;
+                var items = BsonSerializer.Deserialize<BsonArray>(data);
+                if (items.Count > 0)
+                    itemLoaded?.Invoke(items[0].AsBsonDocument);
+                else
+                    NoneItemLoaded?.Invoke(true);
+            }
+            else
+            {
+                Debug.LogError(request.error);
+            }
+        }
+    }
+
+    [Obsolete]
+    public IEnumerator CreateItem(string dbName, string tableName, List<FieldValuePair> fields)
+    {
+        Dictionary<string, string> docDictionary = new Dictionary<string, string>();
+        foreach (var item in fields)
+            docDictionary.Add(item.FieldName, item.UpdatedValue);
+
+        CreateItemDto dto = new CreateItemDto
+        {
+            DbName = dbName,
+            TableName = tableName,
+            Doc = docDictionary
+        };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        Debug.Log(json);
+        using (UnityWebRequest request = UnityWebRequest.Post(itemUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"Veri oluşturuldu");
+            }
+            else
+            {
+                Debug.Log($"Veri oluşturulamadı {request.error}");
             }
         }
     }
@@ -311,4 +367,11 @@ public class CreateTableDto
 {
     public string dbName { get; set; }
     public string name { get; set; }
+}
+
+public class CreateItemDto
+{
+    public string DbName { get; set; }
+    public string TableName { get; set; }
+    public Dictionary<string, string> Doc { get; set; }
 }

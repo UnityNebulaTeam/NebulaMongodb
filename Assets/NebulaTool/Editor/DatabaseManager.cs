@@ -4,7 +4,6 @@ using UnityEngine.UIElements;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using System.Collections.Generic;
-
 public class DatabaseManager : EditorWindow
 {
     private static DatabaseManager Window;
@@ -383,6 +382,13 @@ public class DatabaseManager : EditorWindow
             {
                 EditorUtility.DisplayDialog("Null Collection", "You have to choose one collection", "Ok");
             }
+            else
+            {
+                EditorPrefs.SetString("dbname", selectedDatabase);
+                EditorPrefs.SetString("collectionName", selectedCollection);
+                CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.item);
+                windowCreate.ShowWindow();
+            }
         };
 
         var rightPanelScrollView = Create<VisualElement>("ScrollView");
@@ -470,19 +476,5 @@ public class DatabaseManager : EditorWindow
             element.AddToClassList(name);
 
         return element;
-    }
-}
-
-public class FieldValuePair
-{
-    public string FieldName { get; }
-    public string OriginalValue { get; }
-    public string UpdatedValue { get; set; }
-
-    public FieldValuePair(string fieldName, string originalValue)
-    {
-        FieldName = fieldName;
-        OriginalValue = originalValue;
-        UpdatedValue = originalValue;
     }
 }
