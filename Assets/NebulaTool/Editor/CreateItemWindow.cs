@@ -122,6 +122,7 @@ public class CreateItemWindow : EditorWindow
         CreateButton.clicked += delegate
         {
             EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateDatabase(dbName.value, collectionName.value));
+            CloseWindow();
         };
 
         container.Add(CreateButton);
@@ -162,6 +163,7 @@ public class CreateItemWindow : EditorWindow
             if (!string.IsNullOrEmpty(collectionNameInput.value))
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateTable(dbTitle.text, collectionNameInput.value));
+                CloseWindow();
             }
         };
         container.Add(createOperationButton);
@@ -270,6 +272,7 @@ public class CreateItemWindow : EditorWindow
             createOperationButton.clicked += delegate
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
+                CloseWindow();
             };
             root.Add(createOperationButton);
         }
