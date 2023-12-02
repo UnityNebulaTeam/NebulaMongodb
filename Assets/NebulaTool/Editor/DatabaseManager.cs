@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UIElements.Experimental;
+using System;
 public class DatabaseManager : EditorWindow
 {
     private static DatabaseManager Window;
@@ -13,17 +13,20 @@ public class DatabaseManager : EditorWindow
     private string selectedDatabase;
     private string selectedCollection;
     private ApiController apiController = new();
-
     private List<DatabaseDto> databaseList = new();
     private List<CollectionDto> collectionList = new();
     private TableItemDto itemList;
-    private bool isEditDB;
-    private bool isEditCollection;
+    private bool isEditDB { get; set; }
+    private bool isEditCollection { get; set; }
+    private const string DatabaseManagerTitle = "Database Manager";
+    private const string NebulaToolPath = "Assets/NebulaTool/Editor/";
+
+    #region DefaultFuncs
 
     [MenuItem("Nebula/Mongodb Manager")]
     public static void Initialize()
     {
-        Window = GetWindow<DatabaseManager>("Database Manager");
+        Window = GetWindow<DatabaseManager>(DatabaseManagerTitle);
         EditorCoroutineUtility.StartCoroutineOwnerless(Window.InitializeApiCoroutine());
         Window.minSize = new Vector2(300, 200);
         Window.Show();
@@ -31,65 +34,15 @@ public class DatabaseManager : EditorWindow
 
     private void OnEnable()
     {
-        InitializeUI();
+        PrepareData();
         apiController.DatabaseListLoaded += GetDatabaseList;
         apiController.collectionListLoaded += GetCollectionList;
         apiController.itemListLoaded += GetİtemList;
     }
 
-    private void OnDestroy()
-    {
-        apiController.DatabaseListLoaded -= GetDatabaseList;
-        apiController.collectionListLoaded -= GetCollectionList;
-        apiController.itemListLoaded -= GetİtemList;
-    }
-
-    private void GetİtemList(TableItemDto dto)
-    {
-        itemList = dto;
-        CustomRepaint();
-    }
-
-    private void GetDatabaseList(List<DatabaseDto> list)
-    {
-        databaseList.Clear();
-        databaseList = list;
-        CustomRepaint();
-    }
-
-    private void GetCollectionList(List<CollectionDto> list)
-    {
-        collectionList.Clear();
-        collectionList = list;
-        CustomRepaint();
-    }
-
-    private void OnFocus()
-    {
-        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-    }
-
-    private IEnumerator InitializeApiCoroutine()
-    {
-        yield return apiController.GetAllDatabases();
-
-        if (!string.IsNullOrEmpty(selectedDatabase))
-            yield return apiController.GetAllCollections(selectedDatabase);
-
-        if (!string.IsNullOrEmpty(selectedCollection))
-            yield return apiController.GetAllItems(selectedDatabase, selectedCollection);
-    }
-
-    private void InitializeUI()
-    {
-        mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>("Assets/NebulaTool/Editor/StylesheetsData.asset").GetStyle(StyleType.Manager);
-        icons = AssetDatabase.LoadAssetAtPath<IconSO>("Assets/NebulaTool/Editor/IconData.asset");
-    }
-
     public void CreateGUI()
     {
         var Wrapper = InitializeRootVisualElement();
-
         var dbContainer = Create<VisualElement>("Container");
         dbContainer.Add(LeftPanel());
         dbContainer.Add(MiddlePanel());
@@ -99,6 +52,46 @@ public class DatabaseManager : EditorWindow
         Wrapper.Add(dbContainer);
     }
 
+    private void OnDestroy()
+    {
+        apiController.DatabaseListLoaded -= GetDatabaseList;
+        apiController.collectionListLoaded -= GetCollectionList;
+        apiController.itemListLoaded -= GetİtemList;
+    }
+
+    #endregion
+    #region Event Listeners
+    private void GetDatabaseList(List<DatabaseDto> list)
+    {
+        databaseList.Clear();
+        databaseList = list;
+        CustomRepaint();
+    }
+    private void GetCollectionList(List<CollectionDto> list)
+    {
+        collectionList.Clear();
+        collectionList = list;
+        CustomRepaint();
+    }
+
+    private void GetİtemList(TableItemDto dto)
+    {
+        itemList = dto;
+        CustomRepaint();
+    }
+    #endregion
+    #region  Panels
+
+    private VisualElement InitializeRootVisualElement()
+    {
+        var root = rootVisualElement;
+        root.styleSheets.Add(mainStyle);
+
+        var Container = Create<VisualElement>("Wrapper");
+        root.Add(Container);
+
+        return Container;
+    }
 
     private VisualElement UpPanel()
     {
@@ -108,11 +101,7 @@ public class DatabaseManager : EditorWindow
         refreshButton.text = "R";
         refreshButton.clicked += delegate
         {
-            selectedDatabase = string.Empty;
-            selectedCollection = string.Empty;
-            collectionList.Clear();
-            databaseList.Clear();
-            EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+            Refresh();
         };
 
         var toolTitle = Create<Label>("CustomLabel");
@@ -125,29 +114,6 @@ public class DatabaseManager : EditorWindow
         return upPanel;
     }
 
-    public void CustomRepaint()
-    {
-        rootVisualElement.Clear();
-        var Wrapper = InitializeRootVisualElement();
-
-        var dbContainer = Create<VisualElement>("Container");
-        dbContainer.Add(LeftPanel());
-        dbContainer.Add(MiddlePanel());
-        dbContainer.Add(RightPanel());
-
-        Wrapper.Add(UpPanel());
-        Wrapper.Add(dbContainer);
-    }
-    private VisualElement InitializeRootVisualElement()
-    {
-        var root = rootVisualElement;
-        root.styleSheets.Add(mainStyle);
-
-        var Container = Create<VisualElement>("Wrapper");
-        root.Add(Container);
-
-        return Container;
-    }
     private VisualElement LeftPanel()
     {
         var leftPanel = Create<VisualElement>("PanelStyle");
@@ -502,6 +468,48 @@ public class DatabaseManager : EditorWindow
 
         return rightPanel;
     }
+
+
+    #endregion
+    #region  CustomFunctions
+    private IEnumerator InitializeApiCoroutine()
+    {
+        yield return apiController.GetAllDatabases();
+
+        if (!string.IsNullOrEmpty(selectedDatabase))
+            yield return apiController.GetAllCollections(selectedDatabase);
+
+        if (!string.IsNullOrEmpty(selectedCollection))
+            yield return apiController.GetAllItems(selectedDatabase, selectedCollection);
+    }
+    private void Refresh()
+    {
+        selectedDatabase = string.Empty;
+        selectedCollection = string.Empty;
+        collectionList.Clear();
+        databaseList.Clear();
+        itemList = null;
+        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+    }
+    public void CustomRepaint()
+    {
+        rootVisualElement.Clear();
+        var Wrapper = InitializeRootVisualElement();
+
+        var dbContainer = Create<VisualElement>("Container");
+        dbContainer.Add(LeftPanel());
+        dbContainer.Add(MiddlePanel());
+        dbContainer.Add(RightPanel());
+
+        Wrapper.Add(UpPanel());
+        Wrapper.Add(dbContainer);
+    }
+
+    private void PrepareData()
+    {
+        mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaToolPath + "StylesheetsData.asset").GetStyle(StyleType.Manager);
+        icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaToolPath + "IconData.asset");
+    }
     private bool ShowDisplayDialogForDelete(string title, string msg)
     {
         var result = EditorUtility.DisplayDialog(title, msg, "ok", "cancel");
@@ -516,8 +524,5 @@ public class DatabaseManager : EditorWindow
         return element;
     }
 
-
-
-
-
+    #endregion
 }
