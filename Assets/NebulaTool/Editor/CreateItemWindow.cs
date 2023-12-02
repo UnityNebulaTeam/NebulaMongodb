@@ -5,8 +5,6 @@ using System;
 using Unity.EditorCoroutines.Editor;
 using MongoDB.Bson;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using MongoDB.Bson.Serialization.IdGenerators;
 
 public class CreateItemWindow : EditorWindow
 {

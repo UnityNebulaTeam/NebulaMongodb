@@ -450,7 +450,7 @@ public class DatabaseManager : EditorWindow
                 deleteOperationButton.clicked += delegate
                 {
                     if (ShowDisplayDialogForDelete("Delete Item", "Are you sure delete this Item"))
-                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTableItem(selectedDatabase, selectedCollection, collection["_id"].AsString));
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteItem(selectedDatabase, selectedCollection, collection["_id"].AsString));
                 };
                 operationContainer.Add(updateOperationButton);
                 operationContainer.Add(deleteOperationButton);

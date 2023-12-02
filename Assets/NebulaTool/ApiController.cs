@@ -14,12 +14,90 @@ public class ApiController
     private const string itemUri = "http://localhost:5135/api/Mongo/item";
     private const string dbUri = "http://localhost:5135/api/Mongo/db";
     private const string tableUri = "http://localhost:5135/api/Mongo/table";
-
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
     public event Action<TableItemDto> itemListLoaded;
     public event Action<BsonDocument> itemLoaded;
     public event Action<bool> NoneItemLoaded;
+    public event Action DrawLeftPanelListener;
+    public event Action DrawMiddlePanelListener;
+    public event Action DrawRightPanelListener;
+
+
+    #region Database
+
+    [Obsolete]
+    public IEnumerator CreateDatabase(string dbName, string _tableName)
+    {
+        CreateDatabaseDto dto = new CreateDatabaseDto
+        {
+            Name = dbName,
+            TableName = _tableName
+        };
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        using (UnityWebRequest request = UnityWebRequest.Post(dbUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"{request.downloadHandler.text} Isimli veritabanı başarıyla oluşturuldu");
+            }
+            else
+            {
+                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Veritabanı oluşturulamadı  - ApiErrorMessage {exception.Message}");
+            }
+        }
+    }
+    public IEnumerator UpdateDatabase(string _name, string newdbName)
+    {
+        //TEST EDİLDİ CUSTOM HANDLER
+        UpdateDatabaseDto dto = new UpdateDatabaseDto
+        {
+            Name = _name,
+            NewDbName = newdbName
+        };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        using (UnityWebRequest request = UnityWebRequest.Put(dbUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"{_name} veritabanı {request.downloadHandler.text} ismine başarıyla güncellendi");
+            }
+            else
+            {
+                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {exception.Message}");
+            }
+        }
+    }
+
+    public IEnumerator DeleteDatabase(string _dbName)
+    {
+        //TODO: Custom Error Handler'da hata var
+        using (UnityWebRequest request = UnityWebRequest.Delete(dbUri + "?Name=" + _dbName))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} isimli veritabanı başarıyla silindi");
+            else
+            {
+                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Veritabanı silinemedi  - ApiErrorMessage {exception.Message}");
+            }
+        }
+    }
 
     public IEnumerator GetAllDatabases()
     {
@@ -44,6 +122,81 @@ public class ApiController
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                 Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
+            }
+        }
+    }
+    #endregion
+
+    #region Collection
+
+    [Obsolete]
+    public IEnumerator CreateTable(string _dbName, string _name)
+    {
+        //Custom handler test edildi
+        CreateTableDto dto = new CreateTableDto
+        {
+            dbName = _dbName,
+            name = _name
+        };
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        using (UnityWebRequest request = UnityWebRequest.Post(tableUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"{_dbName} veritabanına bağlı {_name} adında yeni bir koleksiyon oluşturuldu");
+            }
+            else
+            {
+                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
+            }
+        }
+
+    }
+    public IEnumerator UpdateTable(string _dbName, string _tableName, string _newTableName)
+    {
+        //Test edildi custom error handler 
+        UpdateTableDto dto = new UpdateTableDto { dbName = _dbName, name = _tableName, newTableName = _newTableName };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+
+        using (UnityWebRequest request = UnityWebRequest.Put(tableUri, json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} veritabanına bağlı {_tableName} koleksiyonu {_newTableName} olarak güncellendi");
+            else
+            {
+                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Koleksiyon Güncellenmedi  - ApiErrorMessage {exception.Message}");
+            }
+        }
+    }
+
+    public IEnumerator DeleteTable(string _dbName, string _tableName)
+    {
+        //TODO: Custom Error Handler'da hata var
+        string uri = tableUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
+        using (UnityWebRequest request = UnityWebRequest.Delete(uri))
+        {
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu başarıyla silindi");
+            else
+            {
+                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Koleksiyon silinemedi  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -74,28 +227,9 @@ public class ApiController
             }
         }
     }
-    public IEnumerator GetAllItems(string dbName, string collectionName)
-    {
-        //Custom error handler test edildi
-        using (UnityWebRequest request = UnityWebRequest.Get(itemUri + "?DbName=" + dbName + "&TableName=" + collectionName))
-        {
-            yield return request.SendWebRequest();
-            var result = request.result;
-            if (result is UnityWebRequest.Result.Success)
-            {
-                var data = request.downloadHandler.text;
-                var items = BsonSerializer.Deserialize<BsonArray>(data);
-                TableItemDto itemDto = new TableItemDto(items);
-                itemListLoaded?.Invoke(itemDto);
-            }
-            else
-            {
-                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
-                Debug.LogError(request.error);
-            }
-        }
-    }
+    #endregion
+
+    #region Item
     public IEnumerator GetAllItemsTypeBsonDocument(string dbName, string collectionName)
     {
         //Custom Handler test edildi
@@ -177,123 +311,7 @@ public class ApiController
         }
     }
 
-    [Obsolete]
-    public IEnumerator CreateDatabase(string dbName, string _tableName)
-    {
-        CreateDatabaseDto dto = new CreateDatabaseDto
-        {
-            Name = dbName,
-            TableName = _tableName
-        };
-
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(dbUri, json))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.SendWebRequest();
-            var result = request.result;
-            if (result is UnityWebRequest.Result.Success)
-            {
-                Debug.Log($"{request.downloadHandler.text} Isimli veritabanı başarıyla oluşturuldu");
-            }
-            else
-            {
-                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı oluşturulamadı  - ApiErrorMessage {exception.Message}");
-            }
-        }
-    }
-    public IEnumerator UpdateDatabase(string _name, string newdbName)
-    {
-        //TEST EDİLDİ CUSTOM HANDLER
-        UpdateDatabaseDto dto = new UpdateDatabaseDto
-        {
-            Name = _name,
-            NewDbName = newdbName
-        };
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Put(dbUri, json))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.SendWebRequest();
-            var result = request.result;
-            if (result is UnityWebRequest.Result.Success)
-            {
-                Debug.Log($"{_name} veritabanı {request.downloadHandler.text} ismine başarıyla güncellendi");
-            }
-            else
-            {
-                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {exception.Message}");
-            }
-        }
-    }
-
-    public IEnumerator DeleteDatabase(string _dbName)
-    {
-        //TODO: Custom Error Handler'da hata var
-        using (UnityWebRequest request = UnityWebRequest.Delete(dbUri + "?Name=" + _dbName))
-        {
-            yield return request.SendWebRequest();
-            var result = request.result;
-            if (result is UnityWebRequest.Result.Success)
-                Debug.Log($"{_dbName} isimli veritabanı başarıyla silindi");
-            else
-            {
-                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı silinemedi  - ApiErrorMessage {exception.Message}");
-            }
-        }
-    }
-
-    public IEnumerator UpdateTable(string _dbName, string _tableName, string _newTableName)
-    {
-        //Test edildi custom error handler 
-        UpdateTableDto dto = new UpdateTableDto { dbName = _dbName, name = _tableName, newTableName = _newTableName };
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-
-        using (UnityWebRequest request = UnityWebRequest.Put(tableUri, json))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.SendWebRequest();
-
-            var result = request.result;
-            if (result is UnityWebRequest.Result.Success)
-                Debug.Log($"{_dbName} veritabanına bağlı {_tableName} koleksiyonu {_newTableName} olarak güncellendi");
-            else
-            {
-                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Koleksiyon Güncellenmedi  - ApiErrorMessage {exception.Message}");
-            }
-        }
-    }
-
-    public IEnumerator DeleteTable(string _dbName, string _tableName)
-    {
-        //TODO: Custom Error Handler'da hata var
-        string uri = tableUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
-        using (UnityWebRequest request = UnityWebRequest.Delete(uri))
-        {
-            yield return request.SendWebRequest();
-            var result = request.result;
-            if (result is UnityWebRequest.Result.Success)
-                Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu başarıyla silindi");
-            else
-            {
-                MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Koleksiyon silinemedi  - ApiErrorMessage {exception.Message}");
-            }
-        }
-    }
-
-
-    public IEnumerator DeleteTableItem(string _dbName, string _tableName, string Id)
+    public IEnumerator DeleteItem(string _dbName, string _tableName, string Id)
     {
         string uri = itemUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName + "&" + "Id=" + Id;
         using (UnityWebRequest request = UnityWebRequest.Delete(uri))
@@ -309,38 +327,31 @@ public class ApiController
             }
         }
     }
-
-    [Obsolete]
-    public IEnumerator CreateTable(string _dbName, string _name)
+    public IEnumerator GetAllItems(string dbName, string collectionName)
     {
-        //Custom handler test edildi
-        CreateTableDto dto = new CreateTableDto
+        //Custom error handler test edildi
+        using (UnityWebRequest request = UnityWebRequest.Get(itemUri + "?DbName=" + dbName + "&TableName=" + collectionName))
         {
-            dbName = _dbName,
-            name = _name
-        };
-
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(tableUri, json))
-        {
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
             {
-                Debug.Log($"{_dbName} veritabanına bağlı {_name} adında yeni bir koleksiyon oluşturuldu");
+                var data = request.downloadHandler.text;
+                var items = BsonSerializer.Deserialize<BsonArray>(data);
+                TableItemDto itemDto = new TableItemDto(items);
+                itemListLoaded?.Invoke(itemDto);
             }
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
+                Debug.LogError(request.error);
             }
         }
-
     }
 
+
+    #endregion
     static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
     {
         var bsonDocument = tableItemDto;
@@ -349,63 +360,4 @@ public class ApiController
 
         return jsonOutput;
     }
-}
-
-public class TableItemDto
-{
-    public BsonArray Docs;
-    public TableItemDto(BsonArray _items)
-    {
-        Docs = new();
-        Docs = _items;
-    }
-}
-
-public class UpdateTableItemDto
-{
-    public string DbName { get; set; }
-    public string TableName { get; set; }
-    public BsonDocument doc { get; set; }
-}
-public class CreateDatabaseDto
-{
-    public string Name;
-    public string TableName;
-}
-
-public class UpdateDatabaseDto
-{
-    public string Name { get; set; }
-    public string NewDbName { get; set; }
-}
-
-public class PropertyId
-{
-    public string id { get; set; }
-}
-
-public class UpdateTableDto
-{
-    public string dbName { get; set; }
-    public string name { get; set; }
-    public string newTableName { get; set; }
-}
-
-public class CreateTableDto
-{
-    public string dbName { get; set; }
-    public string name { get; set; }
-}
-
-public class CreateItemDto
-{
-    public string DbName { get; set; }
-    public string TableName { get; set; }
-    public Dictionary<string, string> Doc { get; set; }
-}
-
-
-public class MessageErrorException
-{
-    public string Message { get; set; }
 }
