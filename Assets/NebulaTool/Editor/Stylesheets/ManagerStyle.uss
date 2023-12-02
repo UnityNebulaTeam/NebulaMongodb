@@ -6,7 +6,7 @@
 }
 
 .CustomTextField{
-width:300px;
+width:200px;
 border-radius:5px;
 }
 
@@ -16,7 +16,7 @@ border-radius:5px;
 
 .CustomItemButton{
  color:white;
- width:300px;
+ width:60%;
 }
 
 
@@ -94,6 +94,7 @@ width:20%;
  border-radius:5px;
  margin-bottom:2px;
  align-items:center;
+ flex-wrap:wrap;
 }
 
 .itemContainer:hover{
@@ -105,7 +106,7 @@ width:20%;
 .buttonWrapper{
  width:100%;
  flex-direction:row;
- display: flex;
+ flex-wrap:wrap;
 }
 
 
@@ -133,13 +134,10 @@ flex-direction:column;
 }
 
 .CustomOperationButton{
- margin-left: 5px;
  width:20px;
  height:20px;
  border-radius:5px;
  transition:0.3s all;
- background-color:#191919;
- color:white;
 }
 
 .CustomOperationButton:hover{
@@ -152,7 +150,6 @@ flex-direction:column;
  height:20px;
  border-radius:5px;
  transition:0.3s all;
- background-color:#191919;
  color:white;
 }
 
@@ -162,12 +159,10 @@ flex-direction:column;
 }
 
 .CustomOperationButtonCancel{
- margin-left: auto;
  width:20px;
  height:20px;
  border-radius:5px;
  transition:0.3s all;
- background-color:#191919;
  color:white;
 }
 

@@ -4,10 +4,12 @@ using UnityEngine.UIElements;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UIElements.Experimental;
 public class DatabaseManager : EditorWindow
 {
     private static DatabaseManager Window;
     private StyleSheet mainStyle;
+    private IconSO icons;
     private string selectedDatabase;
     private string selectedCollection;
     private ApiController apiController = new();
@@ -81,6 +83,7 @@ public class DatabaseManager : EditorWindow
     private void InitializeUI()
     {
         mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>("Assets/NebulaTool/Editor/StylesheetsData.asset").GetStyle(StyleType.Manager);
+        icons = AssetDatabase.LoadAssetAtPath<IconSO>("Assets/NebulaTool/Editor/IconData.asset");
     }
 
     public void CreateGUI()
@@ -174,16 +177,14 @@ public class DatabaseManager : EditorWindow
             var itemContainer = Create<VisualElement>("itemContainer");
             var buttonWrapper = Create<VisualElement>("buttonWrapper");
 
-
             if (selectedDatabase == db.name && isEditDB)
             {
                 var dbTextField = Create<TextField>("CustomTextField");
                 dbTextField.value = selectedDatabase;
-                itemContainer.Add(dbTextField);
-
+                buttonWrapper.Add(dbTextField);
 
                 var cancelOperationButton = Create<Button>("CustomOperationButtonCancel");
-                cancelOperationButton.text = "C";
+                cancelOperationButton.style.backgroundImage = icons.GetStyle(IconType.Cancel).texture;
                 cancelOperationButton.clicked += delegate
                 {
                     isEditDB = !isEditDB;
@@ -192,7 +193,7 @@ public class DatabaseManager : EditorWindow
 
 
                 var updateItemOperationButton = Create<Button>("CustomOperationButton");
-                updateItemOperationButton.text = "✓";
+                updateItemOperationButton.style.backgroundImage = icons.GetStyle(IconType.Okey).texture;
                 updateItemOperationButton.clicked += delegate
                 {
                     if (selectedDatabase != dbTextField.value)
@@ -205,8 +206,9 @@ public class DatabaseManager : EditorWindow
                         Debug.Log("Herhangi bir veri güncellemesi yok");
                 };
 
-                itemContainer.Add(cancelOperationButton);
+                buttonWrapper.Add(cancelOperationButton);
                 buttonWrapper.Add(updateItemOperationButton);
+                itemContainer.Add(buttonWrapper);
             }
             else
             {
@@ -230,7 +232,7 @@ public class DatabaseManager : EditorWindow
                 };
                 buttonWrapper.Add(databaseButton);
                 var deleteOperationButtonOperation = Create<Button>("CustomOperationButtonDelete");
-                deleteOperationButtonOperation.text = "X";
+                deleteOperationButtonOperation.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
                 deleteOperationButtonOperation.clicked += delegate
                 {
                     if (ShowDisplayDialogForDelete("Are You Sure for delete this database ?", "Do you want to delete this db"))
@@ -245,7 +247,7 @@ public class DatabaseManager : EditorWindow
                     }
                 };
                 var updateOperationButton = Create<Button>("CustomOperationButton");
-                updateOperationButton.text = "U";
+                updateOperationButton.style.backgroundImage = icons.GetStyle(IconType.Update).texture;
                 updateOperationButton.clicked += delegate
                 {
                     if (!string.IsNullOrEmpty(selectedDatabase) && selectedDatabase == db.name)
@@ -304,7 +306,7 @@ public class DatabaseManager : EditorWindow
                 itemContainer.Add(collectionTextField);
 
                 var cancelOperationButton = Create<Button>("CustomOperationButtonCancel");
-                cancelOperationButton.text = "C";
+                cancelOperationButton.style.backgroundImage = icons.GetStyle(IconType.Cancel).texture;
                 cancelOperationButton.clicked += delegate
                 {
                     isEditCollection = !isEditCollection;
@@ -313,7 +315,7 @@ public class DatabaseManager : EditorWindow
 
 
                 var updateItemOperationButton = Create<Button>("CustomOperationButton");
-                updateItemOperationButton.text = "✓";
+                updateItemOperationButton.style.backgroundImage = icons.GetStyle(IconType.Okey).texture;
                 updateItemOperationButton.clicked += delegate
                 {
                     if (selectedCollection != collectionTextField.value)
@@ -345,7 +347,7 @@ public class DatabaseManager : EditorWindow
                 };
 
                 var deleteOperationButtonOperation = Create<Button>("CustomOperationButtonDelete");
-                deleteOperationButtonOperation.text = "X";
+                deleteOperationButtonOperation.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
                 deleteOperationButtonOperation.clicked += delegate
                 {
 
@@ -357,7 +359,7 @@ public class DatabaseManager : EditorWindow
                 };
 
                 var updateOperationButton = Create<Button>("CustomOperationButton");
-                updateOperationButton.text = "U";
+                updateOperationButton.style.backgroundImage = icons.GetStyle(IconType.Update).texture;
                 updateOperationButton.clicked += delegate
                 {
                     if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection) && selectedCollection == collection.name)
@@ -459,7 +461,7 @@ public class DatabaseManager : EditorWindow
 
                 var operationContainer = Create<VisualElement>("operationContainer");
                 var updateOperationButton = Create<Button>("CustomOperationButton");
-                updateOperationButton.text = "U";
+                updateOperationButton.style.backgroundImage = icons.GetStyle(IconType.Update).texture;
                 updateOperationButton.clicked += delegate
                 {
                     foreach (var item in fieldValues)
@@ -478,7 +480,7 @@ public class DatabaseManager : EditorWindow
                 };
 
                 var deleteOperationButton = Create<Button>("CustomOperationButtonDelete");
-                deleteOperationButton.text = "X";
+                deleteOperationButton.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
                 deleteOperationButton.clicked += delegate
                 {
                     if (ShowDisplayDialogForDelete("Delete Item", "Are you sure delete this Item"))
@@ -500,15 +502,11 @@ public class DatabaseManager : EditorWindow
 
         return rightPanel;
     }
-
-
     private bool ShowDisplayDialogForDelete(string title, string msg)
     {
         var result = EditorUtility.DisplayDialog(title, msg, "ok", "cancel");
         return result;
     }
-
-
     private T Create<T>(params string[] classNames) where T : VisualElement, new()
     {
         var element = new T();
@@ -517,4 +515,9 @@ public class DatabaseManager : EditorWindow
 
         return element;
     }
+
+
+
+
+
 }

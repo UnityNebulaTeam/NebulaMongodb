@@ -74,7 +74,6 @@ public class ApiController
             }
         }
     }
-
     public IEnumerator GetAllItems(string dbName, string collectionName)
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetAllItemsUri + dbName + "&TableName=" + collectionName))
@@ -94,7 +93,6 @@ public class ApiController
             }
         }
     }
-
     public IEnumerator GetAllItemsTypeBsonDocument(string dbName, string collectionName)
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetAllItemsUri + dbName + "&TableName=" + collectionName))
@@ -149,7 +147,6 @@ public class ApiController
             }
         }
     }
-
     public IEnumerator UpdateItem(UpdateTableItemDto dto)
     {
         dto.doc["_id"] = dto.doc["_id"].ToString();
@@ -213,11 +210,15 @@ public class ApiController
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
             {
-                Debug.Log($"{_name} Isimli veritabanı {newdbName} ismine başarıyla güncellendi");
+                Debug.Log($"{_name} veritabanı {request.downloadHandler.text} ismine başarıyla güncellendi");
             }
             else
             {
-                Debug.Log($"Veritabanı Güncellenemedi {request.error}");
+                Debug.Log(request.downloadHandler.data);
+                Debug.Log(request.downloadHandler.nativeData);
+                Debug.Log(request.responseCode);
+                var apiErrorMsg = Newtonsoft.Json.JsonConvert.SerializeObject(request.downloadHandler.text);
+                Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {apiErrorMsg}");
             }
         }
     }
@@ -229,9 +230,12 @@ public class ApiController
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
-                Debug.Log($"{_dbName} Silindi");
+                Debug.Log($"{request.downloadHandler.text} isimli veritabanı başarıyla silindi");
             else
-                Debug.Log($"{_dbName} Silinemedi");
+            {
+                var apiErrorMsg = Newtonsoft.Json.JsonConvert.SerializeObject(request.downloadHandler.text);
+                Debug.Log($"ApiErrorMessage {apiErrorMsg}");
+            }
         }
     }
 
