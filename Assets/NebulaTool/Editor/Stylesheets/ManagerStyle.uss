@@ -11,7 +11,7 @@ border-radius:5px;
 }
 
 .CustomTitle{
- color:#2d3436;
+ font-size: 18px;
 }
 
 .CustomItemButton{
@@ -35,7 +35,6 @@ width:100%;
 height:5%;
 -unity-text-align:middle-center;
 justify-content:center;
-background-color:#089000;
 border-bottom-width:1px;
 border-color:black;
 align-items:center;
@@ -49,7 +48,6 @@ align-items:center;
  align-items:center;
  width:100%;
  height:25px;
- background-color:#81ecec;
 }
 
 .ScrollView{
