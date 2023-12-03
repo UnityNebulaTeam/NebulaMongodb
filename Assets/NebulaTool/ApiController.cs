@@ -19,10 +19,6 @@ public class ApiController
     public event Action<TableItemDto> itemListLoaded;
     public event Action<BsonDocument> itemLoaded;
     public event Action<bool> NoneItemLoaded;
-    public event Action DrawLeftPanelListener;
-    public event Action DrawMiddlePanelListener;
-    public event Action DrawRightPanelListener;
-
 
     #region Database
 
@@ -84,9 +80,10 @@ public class ApiController
 
     public IEnumerator DeleteDatabase(string _dbName)
     {
-        //TODO: Custom Error Handler'da hata var
+        //Custom Error Handler Test Edildi
         using (UnityWebRequest request = UnityWebRequest.Delete(dbUri + "?Name=" + _dbName))
         {
+            request.downloadHandler = new DownloadHandlerBuffer();
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
@@ -94,7 +91,7 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı silinemedi  - ApiErrorMessage {exception.Message}");
+                Debug.Log($"Veritabanı silinemedi - ApiErrorMessage: {exception.Message}");
             }
         }
     }
@@ -185,10 +182,11 @@ public class ApiController
 
     public IEnumerator DeleteTable(string _dbName, string _tableName)
     {
-        //TODO: Custom Error Handler'da hata var
+        //Custom Error Handler test edildi 
         string uri = tableUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
         using (UnityWebRequest request = UnityWebRequest.Delete(uri))
         {
+            request.downloadHandler = new DownloadHandlerBuffer();
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
@@ -316,6 +314,7 @@ public class ApiController
         string uri = itemUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName + "&" + "Id=" + Id;
         using (UnityWebRequest request = UnityWebRequest.Delete(uri))
         {
+            request.downloadHandler = new DownloadHandlerBuffer();
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
@@ -357,7 +356,7 @@ public class ApiController
         var bsonDocument = tableItemDto;
         var settings = new JsonWriterSettings { Indent = true };
         var jsonOutput = bsonDocument.ToJson(settings);
-
         return jsonOutput;
     }
 }
+
