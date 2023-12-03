@@ -20,6 +20,8 @@ public class ApiController
     public event Action<BsonDocument> itemLoaded;
     public event Action<bool> NoneItemLoaded;
 
+    public event Action<EditorLoadType> EditorDrawLoaded;
+
     #region Database
 
     [Obsolete]
@@ -42,6 +44,8 @@ public class ApiController
             if (result is UnityWebRequest.Result.Success)
             {
                 Debug.Log($"{request.downloadHandler.text} Isimli veritabanı başarıyla oluşturuldu");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Database);
+                Debug.Log("VERİTABANI OLUŞTU");
             }
             else
             {
@@ -69,6 +73,7 @@ public class ApiController
             if (result is UnityWebRequest.Result.Success)
             {
                 Debug.Log($"{_name} veritabanı {request.downloadHandler.text} ismine başarıyla güncellendi");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Database);
             }
             else
             {
@@ -87,7 +92,10 @@ public class ApiController
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
+            {
                 Debug.Log($"{_dbName} isimli veritabanı başarıyla silindi");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Database);
+            }
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
@@ -147,6 +155,7 @@ public class ApiController
             if (result is UnityWebRequest.Result.Success)
             {
                 Debug.Log($"{_dbName} veritabanına bağlı {_name} adında yeni bir koleksiyon oluşturuldu");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Table);
             }
             else
             {
@@ -171,7 +180,10 @@ public class ApiController
 
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
+            {
                 Debug.Log($"{_dbName} veritabanına bağlı {_tableName} koleksiyonu {_newTableName} olarak güncellendi");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Table);
+            }
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
@@ -190,7 +202,10 @@ public class ApiController
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
+            {
                 Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu başarıyla silindi");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Table);
+            }
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
@@ -278,6 +293,7 @@ public class ApiController
             if (result is UnityWebRequest.Result.Success)
             {
                 Debug.Log($"Veri oluşturuldu");
+                EditorDrawLoaded?.Invoke(EditorLoadType.Item);
             }
             else
             {
@@ -299,6 +315,7 @@ public class ApiController
             if (result is UnityWebRequest.Result.Success)
             {
                 PropertyId id = Newtonsoft.Json.JsonConvert.DeserializeObject<PropertyId>(request.downloadHandler.text);
+                EditorDrawLoaded?.Invoke(EditorLoadType.Item);
                 Debug.Log($"{id.id} Numaralı Veri Güncellendi ");
             }
             else
@@ -318,7 +335,10 @@ public class ApiController
             yield return request.SendWebRequest();
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
+            {
+                EditorDrawLoaded?.Invoke(EditorLoadType.Item);
                 Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu bağlı {Id} numaralı veri başarıyla silindi");
+            }
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
@@ -358,5 +378,13 @@ public class ApiController
         var jsonOutput = bsonDocument.ToJson(settings);
         return jsonOutput;
     }
+}
+
+
+public enum EditorLoadType
+{
+    Database,
+    Table,
+    Item
 }
 

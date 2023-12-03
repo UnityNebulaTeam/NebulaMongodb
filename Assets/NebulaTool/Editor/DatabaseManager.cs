@@ -5,6 +5,7 @@ using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+
 public class DatabaseManager : EditorWindow
 {
     private static DatabaseManager Window;
@@ -35,9 +36,11 @@ public class DatabaseManager : EditorWindow
     private void OnEnable()
     {
         PrepareData();
+
         apiController.DatabaseListLoaded += GetDatabaseList;
         apiController.collectionListLoaded += GetCollectionList;
         apiController.itemListLoaded += GetİtemList;
+        apiController.EditorDrawLoaded += DrawEditorLoad;
     }
 
     public void CreateGUI()
@@ -57,16 +60,43 @@ public class DatabaseManager : EditorWindow
         apiController.DatabaseListLoaded -= GetDatabaseList;
         apiController.collectionListLoaded -= GetCollectionList;
         apiController.itemListLoaded -= GetİtemList;
+        apiController.EditorDrawLoaded -= DrawEditorLoad;
+
+
+        EditorPrefs.DeleteAll();
+    }
+
+    private void DrawEditorLoad(EditorLoadType editorType)
+    {
+        switch (editorType)
+        {
+            case EditorLoadType.Database:
+                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllDatabases());
+                break;
+            case EditorLoadType.Table:
+                EditorCoroutineUtility.StartCoroutineOwnerless(
+                    apiController.GetAllCollections(selectedDatabase));
+                break;
+            case EditorLoadType.Item:
+                EditorCoroutineUtility.StartCoroutineOwnerless(
+                    apiController.GetAllItems(selectedDatabase, selectedCollection));
+                break;
+        }
+
+        CustomRepaint();
     }
 
     #endregion
+
     #region Event Listeners
+
     private void GetDatabaseList(List<DatabaseDto> list)
     {
         databaseList.Clear();
         databaseList = list;
         CustomRepaint();
     }
+
     private void GetCollectionList(List<CollectionDto> list)
     {
         collectionList.Clear();
@@ -79,8 +109,10 @@ public class DatabaseManager : EditorWindow
         itemList = dto;
         CustomRepaint();
     }
+
     #endregion
-    #region  Panels
+
+    #region Panels
 
     private VisualElement InitializeRootVisualElement()
     {
@@ -99,10 +131,7 @@ public class DatabaseManager : EditorWindow
 
         var refreshButton = Create<Button>("CustomOperationButton");
         refreshButton.text = "R";
-        refreshButton.clicked += delegate
-        {
-            Refresh();
-        };
+        refreshButton.clicked += delegate { Refresh(); };
 
         var toolTitle = Create<Label>("CustomLabel");
         toolTitle.text = "Nebula Tool Mongodb";
@@ -164,9 +193,10 @@ public class DatabaseManager : EditorWindow
                 {
                     if (selectedDatabase != dbTextField.value)
                     {
-                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateDatabase(selectedDatabase, dbTextField.value));
+                        EditorCoroutineUtility.StartCoroutineOwnerless(
+                            apiController.UpdateDatabase(selectedDatabase, dbTextField.value)
+                        );
                         isEditDB = !isEditDB;
-                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
                     }
                     else
                         Debug.Log("Herhangi bir veri güncellemesi yok");
@@ -193,7 +223,8 @@ public class DatabaseManager : EditorWindow
                     else
                     {
                         selectedDatabase = databaseButton.text;
-                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                        //seçtiğim veritabanına bağlı koleksiyonlar gelsin diye
+                        EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllCollections(selectedDatabase));
                     }
                 };
                 buttonWrapper.Add(databaseButton);
@@ -204,12 +235,6 @@ public class DatabaseManager : EditorWindow
                     if (ShowDisplayDialogForDelete("Are You Sure for delete this database ?", "Do you want to delete this db"))
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteDatabase(db.name));
-                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
-                        CustomRepaint();
-                    }
-                    else
-                    {
-                        Debug.Log("GO ON silme");
                     }
                 };
                 var updateOperationButton = Create<Button>("CustomOperationButton");
@@ -234,13 +259,12 @@ public class DatabaseManager : EditorWindow
         leftScrollView.Add(databaseScroll);
 
 
-
         leftPanel.Add(leftTitlePanel);
         leftPanel.Add(leftScrollView);
 
         return leftPanel;
-
     }
+
     private VisualElement MiddlePanel()
     {
         var middlePanel = Create<VisualElement>("PanelStyle");
@@ -308,7 +332,9 @@ public class DatabaseManager : EditorWindow
                     else
                     {
                         selectedCollection = collectionButton.text;
-                        EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(
+                            apiController.GetAllItems(selectedDatabase, selectedCollection)
+                        );
                     }
                 };
 
@@ -316,7 +342,6 @@ public class DatabaseManager : EditorWindow
                 deleteOperationButtonOperation.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
                 deleteOperationButtonOperation.clicked += delegate
                 {
-
                     if (ShowDisplayDialogForDelete("Delete Collection", "Are you sure delete this collection"))
                         if (!string.IsNullOrEmpty(selectedDatabase))
                             EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTable(selectedDatabase, collection.name));
@@ -338,7 +363,6 @@ public class DatabaseManager : EditorWindow
                 itemContainer.Add(collectionButton);
                 itemContainer.Add(deleteOperationButtonOperation);
                 itemContainer.Add(updateOperationButton);
-
             }
 
             collectionScroll.Add(itemContainer);
@@ -351,8 +375,8 @@ public class DatabaseManager : EditorWindow
         middlePanel.Add(middlePanelScrollView);
 
         return middlePanel;
-
     }
+
     private VisualElement RightPanel()
     {
         var rightPanel = Create<VisualElement>("PanelStyle");
@@ -405,10 +429,7 @@ public class DatabaseManager : EditorWindow
 
                         var itemInputField = Create<TextField>("CustomValueField");
                         itemInputField.value = fieldValuePair.UpdatedValue;
-                        itemInputField.RegisterValueChangedCallback(e =>
-                        {
-                            fieldValuePair.UpdatedValue = e.newValue;
-                        });
+                        itemInputField.RegisterValueChangedCallback(e => { fieldValuePair.UpdatedValue = e.newValue; });
 
                         var itemPropName = Create<Label>("CustomPropField");
                         itemPropName.text = item.Name.ToString();
@@ -419,7 +440,6 @@ public class DatabaseManager : EditorWindow
 
                         fieldValues.Add(fieldValuePair);
                         itemContainer.Add(containerProp);
-
                     }
 
                     containerWrapper.Add(itemContainer);
@@ -457,6 +477,7 @@ public class DatabaseManager : EditorWindow
                 containerWrapper.Add(operationContainer);
                 itemsScroll.Add(containerWrapper);
             }
+
             rightPanelScrollView.Add(itemsScroll);
         }
 
@@ -469,9 +490,10 @@ public class DatabaseManager : EditorWindow
         return rightPanel;
     }
 
-
     #endregion
-    #region  CustomFunctions
+
+    #region CustomFunctions
+
     private IEnumerator InitializeApiCoroutine()
     {
         yield return apiController.GetAllDatabases();
@@ -482,6 +504,7 @@ public class DatabaseManager : EditorWindow
         if (!string.IsNullOrEmpty(selectedCollection))
             yield return apiController.GetAllItems(selectedDatabase, selectedCollection);
     }
+
     private void Refresh()
     {
         selectedDatabase = string.Empty;
@@ -491,6 +514,7 @@ public class DatabaseManager : EditorWindow
         itemList = null;
         EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
     }
+
     public void CustomRepaint()
     {
         rootVisualElement.Clear();
@@ -510,11 +534,13 @@ public class DatabaseManager : EditorWindow
         mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaToolPath + "StylesheetsData.asset").GetStyle(StyleType.Manager);
         icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaToolPath + "IconData.asset");
     }
+
     private bool ShowDisplayDialogForDelete(string title, string msg)
     {
         var result = EditorUtility.DisplayDialog(title, msg, "ok", "cancel");
         return result;
     }
+
     private T Create<T>(params string[] classNames) where T : VisualElement, new()
     {
         var element = new T();

@@ -45,7 +45,6 @@ public class CreateItemWindow : EditorWindow
         apiController.itemLoaded += ItemLoad;
         apiController.NoneItemLoaded += NoneItemLoad;
     }
-
     private void NoneItemLoad(bool result)
     {
         doesNotExistDoc = result;
@@ -119,7 +118,9 @@ public class CreateItemWindow : EditorWindow
         CreateButton.text = "+";
         CreateButton.clicked += delegate
         {
-            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateDatabase(dbName.value, collectionName.value));
+            EditorCoroutineUtility.StartCoroutineOwnerless(
+                 apiController.CreateDatabase(dbName.value, collectionName.value)
+                                                         );
             CloseWindow();
         };
 
