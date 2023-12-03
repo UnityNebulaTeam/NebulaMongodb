@@ -235,6 +235,7 @@ public class DatabaseManager : EditorWindow
                     if (ShowDisplayDialogForDelete("Are You Sure for delete this database ?", "Do you want to delete this db"))
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteDatabase(db.name));
+                        ClearEditorDataForDatabase();
                     }
                 };
                 var updateOperationButton = Create<Button>("CustomOperationButton");
@@ -342,11 +343,29 @@ public class DatabaseManager : EditorWindow
                 deleteOperationButtonOperation.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
                 deleteOperationButtonOperation.clicked += delegate
                 {
-                    if (ShowDisplayDialogForDelete("Delete Collection", "Are you sure delete this collection"))
-                        if (!string.IsNullOrEmpty(selectedDatabase))
-                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteTable(selectedDatabase, collection.name));
-                        else
-                            Debug.Log("OKEYY LETS GO");
+                    var msg = collectionList.Count > 1
+                        ? "Are you sure delete this collection"
+                        : "Are you sure delete this collection, because if you delete this collection you database delete too";
+                    if (collectionList.Count > 1)
+                    {
+                        if (ShowDisplayDialogForDelete("Delete Collection", msg))
+                            if (!string.IsNullOrEmpty(selectedDatabase))
+                            {
+                                EditorCoroutineUtility.StartCoroutineOwnerless(
+                                    apiController.DeleteTable(selectedDatabase, collection.name));
+                                ClearEditorDataForTable();
+                            }
+                    }
+                    else
+                    {
+                        if (ShowDisplayDialogForDelete("Delete Collection", msg))
+                            if (!string.IsNullOrEmpty(selectedDatabase))
+                            {
+                                EditorCoroutineUtility.StartCoroutineOwnerless(
+                                    apiController.DeleteTable(selectedDatabase, collection.name));
+                                ClearEditorDataForTable();
+                            }
+                    }
                 };
 
                 var updateOperationButton = Create<Button>("CustomOperationButton");
@@ -513,6 +532,22 @@ public class DatabaseManager : EditorWindow
         databaseList.Clear();
         itemList = null;
         EditorCoroutineUtility.StartCoroutineOwnerless(InitializeApiCoroutine());
+    }
+
+
+    private void ClearEditorDataForDatabase()
+    {
+        selectedDatabase = string.Empty;
+        selectedCollection = string.Empty;
+        collectionList.Clear();
+        databaseList.Clear();
+        itemList = null;
+    }
+
+    private void ClearEditorDataForTable()
+    {
+        selectedCollection = string.Empty;
+        itemList = null;
     }
 
     public void CustomRepaint()
