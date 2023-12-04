@@ -1,0 +1,16 @@
+﻿{
+  "Informations": [
+    {
+      "Message": "Deneme1",
+      "MessageType": "Info"
+    },
+    {
+      "Message": "Deneme1",
+      "MessageType": "Warning"
+    },
+    {
+      "Message": "Deneme1",
+      "MessageType": "Error"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using NebulaTool;
 
 public class DatabaseManager : EditorWindow
 {
@@ -20,11 +21,10 @@ public class DatabaseManager : EditorWindow
     private bool isEditDB { get; set; }
     private bool isEditCollection { get; set; }
     private const string DatabaseManagerTitle = "Database Manager";
-    private const string NebulaToolPath = "Assets/NebulaTool/Editor/";
 
     #region DefaultFuncs
 
-    [MenuItem("Nebula/Mongodb Manager")]
+    [MenuItem("Nebula/Mongodb Manager",priority = 1)]
     public static void Initialize()
     {
         Window = GetWindow<DatabaseManager>(DatabaseManagerTitle);
@@ -566,8 +566,8 @@ public class DatabaseManager : EditorWindow
 
     private void PrepareData()
     {
-        mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaToolPath + "StylesheetsData.asset").GetStyle(StyleType.Manager);
-        icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaToolPath + "IconData.asset");
+        mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.Manager);
+        icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaPath.DataPath + NebulaResourcesName.IconsDataName);
     }
 
     private bool ShowDisplayDialogForDelete(string title, string msg)

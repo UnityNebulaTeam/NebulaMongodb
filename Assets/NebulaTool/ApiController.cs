@@ -8,12 +8,11 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using MongoDB.Bson.IO;
 using System.Text;
+using JetBrains.Annotations;
+using NebulaTool;
 
 public class ApiController
 {
-    private const string itemUri = "http://localhost:5135/api/Mongo/item";
-    private const string dbUri = "http://localhost:5135/api/Mongo/db";
-    private const string tableUri = "http://localhost:5135/api/Mongo/table";
     public event Action<List<DatabaseDto>> DatabaseListLoaded;
     public event Action<List<CollectionDto>> collectionListLoaded;
     public event Action<TableItemDto> itemListLoaded;
@@ -34,7 +33,7 @@ public class ApiController
         };
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(dbUri, json))
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.databaseURL, json))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -63,7 +62,7 @@ public class ApiController
             NewDbName = newdbName
         };
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Put(dbUri, json))
+        using (UnityWebRequest request = UnityWebRequest.Put(NebulaURL.MongoDB.databaseURL, json))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -86,7 +85,7 @@ public class ApiController
     public IEnumerator DeleteDatabase(string _dbName)
     {
         //Custom Error Handler Test Edildi
-        using (UnityWebRequest request = UnityWebRequest.Delete(dbUri + "?Name=" + _dbName))
+        using (UnityWebRequest request = UnityWebRequest.Delete(NebulaURL.MongoDB.databaseURL + "?Name=" + _dbName))
         {
             request.downloadHandler = new DownloadHandlerBuffer();
             yield return request.SendWebRequest();
@@ -106,7 +105,7 @@ public class ApiController
 
     public IEnumerator GetAllDatabases()
     {
-        using (UnityWebRequest request = UnityWebRequest.Get(dbUri))
+        using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.databaseURL))
         {
             yield return request.SendWebRequest();
 
@@ -145,7 +144,7 @@ public class ApiController
         };
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(tableUri, json))
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.tableURL, json))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -171,7 +170,7 @@ public class ApiController
         UpdateTableDto dto = new UpdateTableDto { dbName = _dbName, name = _tableName, newTableName = _newTableName };
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
 
-        using (UnityWebRequest request = UnityWebRequest.Put(tableUri, json))
+        using (UnityWebRequest request = UnityWebRequest.Put(NebulaURL.MongoDB.tableURL, json))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -195,7 +194,7 @@ public class ApiController
     public IEnumerator DeleteTable(string _dbName, string _tableName)
     {
         //Custom Error Handler test edildi 
-        string uri = tableUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
+        string uri = NebulaURL.MongoDB.tableURL + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
         using (UnityWebRequest request = UnityWebRequest.Delete(uri))
         {
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -216,7 +215,7 @@ public class ApiController
     public IEnumerator GetAllCollections(string dbName)
     {
         //custmo handler test edildi
-        using (UnityWebRequest request = UnityWebRequest.Get(tableUri + "?dbName=" + dbName))
+        using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.tableURL + "?dbName=" + dbName))
         {
             yield return request.SendWebRequest();
 
@@ -246,7 +245,7 @@ public class ApiController
     public IEnumerator GetAllItemsTypeBsonDocument(string dbName, string collectionName)
     {
         //Custom Handler test edildi
-        using (UnityWebRequest request = UnityWebRequest.Get(itemUri + "?DbName=" + dbName + "&TableName=" + collectionName))
+        using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
         {
             yield return request.SendWebRequest();
             var result = request.result;
@@ -283,7 +282,7 @@ public class ApiController
         };
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
         Debug.Log(json);
-        using (UnityWebRequest request = UnityWebRequest.Post(itemUri, json))
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.itemURL, json))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -307,7 +306,7 @@ public class ApiController
         //Custom error handler test edildi
         dto.doc["_id"] = dto.doc["_id"].ToString();
         var json = ConvertTableItemDtoToJson(dto);
-        using (UnityWebRequest request = UnityWebRequest.Put(itemUri, json))
+        using (UnityWebRequest request = UnityWebRequest.Put(NebulaURL.MongoDB.itemURL, json))
         {
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
@@ -328,7 +327,7 @@ public class ApiController
 
     public IEnumerator DeleteItem(string _dbName, string _tableName, string Id)
     {
-        string uri = itemUri + "?DbName=" + _dbName + "&" + "Name=" + _tableName + "&" + "Id=" + Id;
+        string uri = NebulaURL.MongoDB.itemURL + "?DbName=" + _dbName + "&" + "Name=" + _tableName + "&" + "Id=" + Id;
         using (UnityWebRequest request = UnityWebRequest.Delete(uri))
         {
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -349,7 +348,7 @@ public class ApiController
     public IEnumerator GetAllItems(string dbName, string collectionName)
     {
         //Custom error handler test edildi
-        using (UnityWebRequest request = UnityWebRequest.Get(itemUri + "?DbName=" + dbName + "&TableName=" + collectionName))
+        using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
         {
             yield return request.SendWebRequest();
             var result = request.result;
@@ -371,6 +370,32 @@ public class ApiController
 
 
     #endregion
+
+
+    public IEnumerator ConnectionApi(string _username,string _password)
+    {
+        ApiConnectionDto dto = new ApiConnectionDto
+        {
+            username = _username,
+            password = _password
+        };
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.apiConnectionURL,json))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+            var result = request.result;
+            if (result is UnityWebRequest.Result.Success)
+                Debug.Log("Connected");
+            else
+            {
+                Debug.Log("not connected");
+            } 
+        }
+    }
+    
     static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
     {
         var bsonDocument = tableItemDto;
@@ -380,11 +405,8 @@ public class ApiController
     }
 }
 
-
-public enum EditorLoadType
+public class ApiConnectionDto
 {
-    Database,
-    Table,
-    Item
+    [CanBeNull] public string username { get; set; }
+    public string password { get; set; }
 }
-

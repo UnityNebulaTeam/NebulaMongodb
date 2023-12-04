@@ -14,6 +14,7 @@ public class StyleSO : ScriptableObject
         StyleType.Manager => datas.FirstOrDefault(x => x.styleType == type).styles[0],
         StyleType.ApiConnection => datas.FirstOrDefault(x => x.styleType == type).styles[0],
         StyleType.CreateWindow => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+        StyleType.InformationsWindow => datas.FirstOrDefault(x => x.styleType == type).styles[0],
         _ => throw new ArgumentNullException("Could not found this type style")
     };
 }
@@ -29,5 +30,6 @@ public enum StyleType
 {
     Manager,
     ApiConnection,
-    CreateWindow
+    CreateWindow,
+    InformationsWindow
 }

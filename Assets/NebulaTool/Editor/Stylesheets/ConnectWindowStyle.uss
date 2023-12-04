@@ -1,0 +1,36 @@
+:root{
+    justify-content: center;
+}
+
+
+
+.CustomTextField{
+    width:200px;
+    border-radius:5px;
+    margin-top: 10px;
+}
+
+.CustomLabel{
+    -unity-font-style:bold;
+    color:white;
+}
+
+
+.Container{
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 50px;
+}
+
+
+.CustomButton{
+    width: 30%;
+    border-radius: 10px;
+    transition:0.5s all;
+    margin-top: 10px;
+}
+
+.CustomButton:hover{
+    background-color: blue;   
+}
