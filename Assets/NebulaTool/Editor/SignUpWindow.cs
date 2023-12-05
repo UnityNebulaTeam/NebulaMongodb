@@ -12,11 +12,11 @@ namespace NebulaTool.Editor
         private ApiController apiController = new();
         private ApiConnectionSO apiConnectionSo;
 
-        [MenuItem("Nebula/Connect Api", priority = 0)]
+        [MenuItem("Nebula/SignUp", priority = 0)]
         private static void ShowWindow()
         {
             var window = GetWindow<SignUpWindow>();
-            window.titleContent = new GUIContent("Connect Api Window");
+            window.titleContent = new GUIContent("SignUp Window");
             window.Show();
         }
 
@@ -73,7 +73,7 @@ namespace NebulaTool.Editor
             container.Add(customPropFieldContainer3);
 
             var connectButton = Create<Button>("CustomButton");
-            connectButton.text = "Connect";
+            connectButton.text = "Sign Up";
 
             connectButton.clicked += () =>
             {
@@ -88,6 +88,7 @@ namespace NebulaTool.Editor
             loginButton.text = "LOGIN";
             loginButton.clicked += () =>
             {
+                //EditorUtility.DisplayDialog("TOKEN ERROR", "Your Token INVALID ! You Have To Login", "ok");
                 EditorCoroutineUtility.StartCoroutineOwnerless(apiController.Login());
             };
             
@@ -99,10 +100,6 @@ namespace NebulaTool.Editor
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetUserDatabasesFromApi());
             };
-            
-            
-            
-            
             
             container.Add(getDbList);
             

@@ -55,7 +55,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"Veritabanı oluşturulamadı  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -84,7 +89,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -105,7 +115,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veritabanı silinemedi - ApiErrorMessage: {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"Veritabanı silinemedi - ApiErrorMessage: {exception.Message}");
             }
         }
     }
@@ -132,7 +147,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -167,7 +187,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -194,7 +219,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Koleksiyon Güncellenmedi  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"Koleksiyon Güncellenmedi  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -216,7 +246,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Koleksiyon silinemedi  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"Koleksiyon silinemedi  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -244,7 +279,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"koleksiyonlar alınamadı  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TOOD:GET TOKEN
+                }
+                else
+                    Debug.Log($"koleksiyonlar alınamadı  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -272,7 +312,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veri  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TODO:GET TOKEN
+                }
+                else
+                    Debug.Log($"Veri  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -308,7 +353,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veri oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TODO:GET TOKEn
+                }
+                else
+                    Debug.Log($"Veri oluşturulamadı  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -332,7 +382,12 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veri güncellenemedi  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TODO: GET TOKEN
+                }
+                else
+                    Debug.Log($"Veri güncellenemedi  - ApiErrorMessage {exception.Message}");
             }
         }
     }
@@ -353,7 +408,14 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veri silinemedi  - ApiErrorMessage {exception.Message}");
+                if (!exception.success)
+                {
+                    //TODO: GET TOKEn
+                }
+                else
+                {
+                    Debug.Log($"Veri silinemedi  - ApiErrorMessage {exception.Message}");
+                }
             }
         }
     }
@@ -375,8 +437,15 @@ public class ApiController
             else
             {
                 MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
-                Debug.LogError(request.error);
+                if (!exception.success)
+                {
+                    //TODO: GET TOKEN
+                }
+                else
+                {
+                    Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
+                    Debug.LogError(request.error);
+                }
             }
         }
     }
@@ -405,14 +474,20 @@ public class ApiController
             var result = request.result;
             if (result is UnityWebRequest.Result.Success)
             {
-                Debug.Log("Connected");
                 apiConnectData.userInformation.userName = _username;
                 apiConnectData.userInformation.password = _password;
                 apiConnectData.userInformation.eMail = _email;
+                Debug.Log("Connected");
+                EditorCoroutineUtility.StartCoroutineOwnerless(Login());
             }
             else
             {
                 MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                if (!customExp.success)
+                {
+                    //TODO: GET TOKEN
+                }
+
                 Debug.Log($"Api Erro Message {customExp.Message}");
             }
         }
@@ -445,12 +520,17 @@ public class ApiController
             else
             {
                 MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Api Erro Message {customExp.Message}");
+                if (!customExp.success)
+                {
+                    //TODO: GET TOKEN
+                }
+                else
+                    Debug.Log($"Api Erro Message {customExp.Message}");
             }
         }
     }
-    
-    
+
+
     public IEnumerator GetUserDatabasesFromApi()
     {
         var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
@@ -470,7 +550,7 @@ public class ApiController
         }
     }
 
-    public IEnumerator AddNewDbForApiAccount( string _keyIdentifier, string connectionString)
+    public IEnumerator AddNewDbForApiAccount(string _keyIdentifier, string connectionString)
     {
         var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
             (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -520,7 +600,12 @@ public class ApiController
             else
             {
                 MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                Debug.Log($"Api Error Message : {customExp.Message}");
+                if (!customExp.success)
+                {
+                    //TODO: GET TOKEN
+                }
+                else
+                    Debug.Log($"Api Error Message : {customExp.Message}");
             }
         }
     }
