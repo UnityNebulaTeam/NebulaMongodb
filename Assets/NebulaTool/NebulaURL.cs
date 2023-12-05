@@ -9,7 +9,9 @@
             public static readonly string tableURL = "http://localhost:5135/api/Mongo/table";
 
 
+            public static readonly string apiRegisterURL = "http://localhost:5135/api/auth/register";
             public static readonly string apiConnectionURL = "http://localhost:5135/api/auth/login";
+            public static readonly string apiAddNewDatabaseURL = "http://localhost:5135/api/user/db";
         }
     }
 }
