@@ -9,11 +9,13 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using MongoDB.Bson.IO;
 using System.Text;
+using System.Xml;
 using JetBrains.Annotations;
 using NebulaTool;
 using NebulaTool.Editor;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
+using Formatting = Newtonsoft.Json.Formatting;
 
 public class ApiController
 {
@@ -382,7 +384,7 @@ public class ApiController
     #endregion
 
 
-    public IEnumerator ApiSignUp(string _username, string _email, string _password)
+    public IEnumerator SignUp(string _username, string _email, string _password)
     {
         var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
             (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -393,7 +395,7 @@ public class ApiController
             password = _password
         };
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(NebulaURL.MongoDB.apiRegisterURL, json))
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.RegisterURL, json))
         {
             request.downloadHandler = new DownloadHandlerBuffer();
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -410,12 +412,13 @@ public class ApiController
             }
             else
             {
-                Debug.Log("not connected" + request.downloadHandler.text + "ErrorCode : " + request.error);
+                MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Api Erro Message {customExp.Message}");
             }
         }
     }
 
-    public IEnumerator ApiLoginWithEmail()
+    public IEnumerator Login()
     {
         var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
             (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -426,7 +429,7 @@ public class ApiController
             password = apiConnectData.userInformation.password
         };
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(NebulaURL.MongoDB.apiConnectionURL, json))
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.LoginURL, json))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -441,7 +444,8 @@ public class ApiController
             }
             else
             {
-                Debug.LogError($"ERROR Api MSG : {request.downloadHandler.text} --- {request.error}");
+                MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Api Erro Message {customExp.Message}");
             }
         }
     }
@@ -451,9 +455,8 @@ public class ApiController
     {
         var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
             (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
-        using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.apiAddNewDatabaseURL))
+        using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.ApiDatabaseURL))
         {
-            request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
             yield return request.SendWebRequest();
             if (request.result is UnityWebRequest.Result.Success)
@@ -462,12 +465,12 @@ public class ApiController
             }
             else
             {
-                Debug.LogError(request.downloadHandler.text);
+                //TODO: Custom Error Exception Loglama yap
             }
         }
     }
 
-    public IEnumerator CreateDatabaseForAccount(string _name, string _keyIdentifier, string connectionString)
+    public IEnumerator AddNewDbForApiAccount( string _keyIdentifier, string connectionString)
     {
         var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
             (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -479,7 +482,7 @@ public class ApiController
         };
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-        using (UnityWebRequest request = UnityWebRequest.Post(NebulaURL.MongoDB.apiAddNewDatabaseURL, json))
+        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.ApiDatabaseURL, json))
         {
             request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -516,7 +519,8 @@ public class ApiController
             }
             else
             {
-                Debug.Log(request.error);
+                MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                Debug.Log($"Api Error Message : {customExp.Message}");
             }
         }
     }

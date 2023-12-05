@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace NebulaTool.Editor
 {
-    public class ConnectWindow : EditorWindow
+    public class SignUpWindow : EditorWindow
     {
         private StyleSheet mainStyle;
         private ApiController apiController = new();
@@ -15,7 +15,7 @@ namespace NebulaTool.Editor
         [MenuItem("Nebula/Connect Api", priority = 0)]
         private static void ShowWindow()
         {
-            var window = GetWindow<ConnectWindow>();
+            var window = GetWindow<SignUpWindow>();
             window.titleContent = new GUIContent("Connect Api Window");
             window.Show();
         }
@@ -78,7 +78,7 @@ namespace NebulaTool.Editor
             connectButton.clicked += () =>
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(
-                    apiController.ApiSignUp(userNameTextField.value, emailTextField.value,passWordLblTextField.value));
+                    apiController.SignUp(userNameTextField.value, emailTextField.value,passWordLblTextField.value));
             };
             container.Add(connectButton);
 
@@ -88,7 +88,7 @@ namespace NebulaTool.Editor
             loginButton.text = "LOGIN";
             loginButton.clicked += () =>
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.ApiLoginWithEmail());
+                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.Login());
             };
             
             container.Add(loginButton);

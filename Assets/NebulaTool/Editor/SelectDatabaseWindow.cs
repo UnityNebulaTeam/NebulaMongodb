@@ -43,7 +43,7 @@ namespace NebulaTool.Editor
             addDbTypeButton.clicked += () =>
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(
-                    apiController.CreateDatabaseForAccount(selectedDBType.value.ToString(), 
+                    apiController.AddNewDbForApiAccount( 
                         selectedDBType.value.ToString(),
                         connectionURLTextField.value));
             };
