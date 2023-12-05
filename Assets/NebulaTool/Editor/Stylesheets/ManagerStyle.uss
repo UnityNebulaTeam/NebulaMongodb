@@ -1,0 +1,184 @@
+:root{  
+}
+
+.CustomLabel{
+-unity-font-style:bold;
+}
+
+.CustomTextField{
+width:200px;
+border-radius:5px;
+}
+
+.CustomTitle{
+ font-size: 18px;
+}
+
+.CustomItemButton{
+ color:white;
+ width:60%;
+}
+
+
+.PanelStyle{
+ flex-grow: 1;
+ border-color:black;
+ border-right-width:1px;
+ flex-direction:column;
+ background-color:#373737;
+}
+
+
+.UpPanelStyle{
+flex-direction:row;
+width:100%;
+height:5%;
+-unity-text-align:middle-center;
+justify-content:center;
+border-bottom-width:1px;
+border-color:black;
+align-items:center;
+}
+
+.Title{
+ border-color:black;
+ border-bottom-width:1px;
+ flex-direction:row;
+ justify-content:space-between;
+ align-items:center;
+ width:100%;
+ height:25px;
+}
+
+.ScrollView{
+ width:100%;
+ height:100%;
+}
+
+.ContainerPropItem{
+-unity-text-align:middle-center;
+flex-direction:row;
+width:100%;
+border-bottom-width:1px;
+border-color:black;
+}
+
+.CustomValueField{
+width:75%;
+}
+
+.CustomPropField{
+width:20%;
+}
+
+.Container{
+ flex-direction: row;
+ flex-grow: 1;
+ height:95%;
+}
+
+
+.Wrapper{
+ flex-direction:column;
+ width:100%;
+ height:100%;
+}
+
+.itemContainer{
+ flex-direction:row;
+ width:100%;
+ height:35px;
+ background-color:#696969;
+ border-radius:5px;
+ margin-bottom:2px;
+ align-items:center;
+ flex-wrap:wrap;
+}
+
+.itemContainer:hover{
+ transition:0.2s all;
+ background-color:#323232;
+ border-radius:10px;
+}
+
+.buttonWrapper{
+ width:100%;
+ flex-direction:row;
+ flex-wrap:wrap;
+}
+
+
+.CustomContainer{
+flex-direction:column;
+width:100%;
+-unity-text-align:middle-center;
+}
+
+
+.OperationButtonContainer{
+flex-direction:row;
+}
+
+
+.ContainerWrapper{
+width:100%;
+flex-direction:column;
+}
+
+.operationContainer{
+ display: flex;
+ flex-direction:row;
+ justify-content:flex-end;
+}
+
+.CustomOperationButton{
+ width:20px;
+ height:20px;
+ border-radius:5px;
+ transition:0.3s all;
+}
+
+.CustomOperationButton:hover{
+ background-color:	#0eff00;
+ color: black;
+}
+
+.CustomOperationButtonDelete{
+ width:20px;
+ height:20px;
+ border-radius:5px;
+ transition:0.3s all;
+ color:white;
+}
+
+.CustomOperationButtonDelete:hover{
+ background-color:	red;
+ color: black;
+}
+
+.CustomOperationButtonCancel{
+ width:20px;
+ height:20px;
+ border-radius:5px;
+ transition:0.3s all;
+ color:white;
+}
+
+.CustomOperationButtonCancel:hover{
+ background-color:red;
+ color: black;
+}
+
+.CustomOperationButtonAdd{
+ height:20px;
+ width:20px;
+ border-radius:5px;
+ transition:0.5s all;
+ background-color:#55efc4;
+ color:black;
+}
+.CustomOperationButtonAdd:hover{
+ border-radius:10px;
+ background-color:#00b894;
+ color:white;
+}
