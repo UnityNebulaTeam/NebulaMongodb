@@ -169,7 +169,6 @@ public class CreateItemWindow : EditorWindow
         root.Add(container);
     }
 
-    [Obsolete]
     private void CreateItemUI()
     {
         var root = rootVisualElement;

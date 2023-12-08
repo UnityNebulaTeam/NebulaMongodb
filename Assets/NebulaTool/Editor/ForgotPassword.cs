@@ -5,17 +5,12 @@ namespace NebulaTool.Editor
 {
     public class ForgotPassword : EditorWindow
     {
-        [MenuItem("MENUITEM/MENUITEMCOMMAND")]
+        [MenuItem("Nebula/SignIn/Forgot Password",priority = (int)CustomWindowPriorty.ChilOfdSignIn_ForgotPassword)]
         private static void ShowWindow()
         {
             var window = GetWindow<ForgotPassword>();
-            window.titleContent = new GUIContent("TITLE");
+            window.titleContent = new GUIContent("Forgot Password Window");
             window.Show();
-        }
-
-        private void OnGUI()
-        {
-            
         }
     }
 }

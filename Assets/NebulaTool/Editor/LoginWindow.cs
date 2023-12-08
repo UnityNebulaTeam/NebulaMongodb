@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace NebulaTool.Editor
 {
-    public class SelectDatabaseWindow : EditorWindow
+    public class LoginWindow : EditorWindow
     {
         private ApiConnectionSO apiConnectionSo;
 
@@ -14,11 +14,17 @@ namespace NebulaTool.Editor
 
         private ApiController apiController = new();
 
-        [MenuItem("Nebula/Select Database")]
+        [MenuItem("Nebula/SignIn/Login", priority = (int)CustomWindowPriorty.ChilOfdSignIn_Login)]
         private static void ShowWindow()
         {
-            var window = GetWindow<SelectDatabaseWindow>();
-            window.titleContent = new GUIContent("Select Database Window");
+            if (!NebulaExtention.IsConnectionDataExist())
+            {
+                NebulaExtention.DisplayConnectionDataDoesnotExistMessage();
+                return;
+            }
+
+            var window = GetWindow<LoginWindow>();
+            window.titleContent = new GUIContent("Login Window");
             window.Show();
         }
 
@@ -30,32 +36,23 @@ namespace NebulaTool.Editor
 
         private void CreateGUI()
         {
-            selectedDBType = new EnumField("Select Database Type",DatabaseTypes.MONGO);
-            selectedDBType.label = "Select an option";
-            selectedDBType.RegisterValueChangedCallback(OnEnumValueChanged);
+            var eMailTextField = new TextField();
+            eMailTextField.value = "E-Mail Or UserName";
 
+            var passwordTextField = new TextField();
+            passwordTextField.value = "password";
 
-            var connectionURLTextField = new TextField();
-            connectionURLTextField.value = "Enter Your Connection String";
-
-            var addDbTypeButton = new Button();
-            addDbTypeButton.text = "Add New Database Controller";
-            addDbTypeButton.clicked += () =>
+            var LoginButton = new Button();
+            LoginButton.text = "Login";
+            LoginButton.clicked += () =>
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(
-                    apiController.AddNewDbForApiAccount( 
-                        selectedDBType.value.ToString(),
-                        connectionURLTextField.value));
+                    apiController.Login());
+                
             };
-            rootVisualElement.Add(selectedDBType);
-            rootVisualElement.Add(connectionURLTextField);
-            rootVisualElement.Add(addDbTypeButton);
-        }
-
-        private void OnEnumValueChanged(ChangeEvent<Enum> evt)
-        {
-            selectedDBType.value = evt.newValue;
-            Debug.Log(selectedDBType.value);
+            rootVisualElement.Add(eMailTextField);
+            rootVisualElement.Add(passwordTextField);
+            rootVisualElement.Add(LoginButton);
         }
     }
 }

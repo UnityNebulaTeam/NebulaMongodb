@@ -14,11 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   userInformation:
     <eMail>k__BackingField: sukru@gmail.com
-    <userName>k__BackingField: sukru
+    <userName>k__BackingField: sukru7
     <password>k__BackingField: Sukru123!
-    <token>k__BackingField: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImIyOGZkYTc5LTdlNzctNGM2Ni1iODVmLTZkYWI3ZTlkZWYzNyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InN1a3J1QGdtYWlsLmNvbSIsImRicyI6IltcIk1PTkdPXCIsXCJNU1NRTFwiXSIsImV4cCI6MTcwMTc4NTEzMywiaXNzIjoiTmVidWxhUGx1Z2luQVBJIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MTM1In0.Nuk3zhEumPuaOP5l0mQ4nsJ2oKqbcUBtP4RcGuSpPuU
-    <refreshToken>k__BackingField: Z5Y+ln+kMZ85LZTJtAU2/87RwaXcfGfD0TOiqrPWkCg=
-    <tokenTime>k__BackingField: 1
-    <databaseInformations>k__BackingField:
-    - <dbType>k__BackingField: 2
-      <dbConnectionURL>k__BackingField: deneneMsSql
+    <token>k__BackingField: 
+    <refreshToken>k__BackingField: 
+    <dbType>k__BackingField: 0

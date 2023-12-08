@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using NebulaTool;
+using NebulaTool.Editor;
 
 public class DatabaseManager : EditorWindow
 {
@@ -24,9 +25,14 @@ public class DatabaseManager : EditorWindow
 
     #region DefaultFuncs
 
-    [MenuItem("Nebula/Mongodb Manager",priority = 1)]
+    [MenuItem("Nebula/Mongodb Manager",priority = (int)CustomWindowPriorty.DatabaseManager)]
     public static void Initialize()
     {
+        if (!NebulaExtention.IsConnectionDataExist())
+        {
+            NebulaExtention.DisplayConnectionDataDoesnotExistMessage();
+            return;
+        }
         Window = GetWindow<DatabaseManager>(DatabaseManagerTitle);
         EditorCoroutineUtility.StartCoroutineOwnerless(Window.InitializeApiCoroutine());
         Window.minSize = new Vector2(300, 200);

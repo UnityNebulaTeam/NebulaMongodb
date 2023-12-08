@@ -10,9 +10,8 @@ namespace NebulaTool.Editor
     {
         private StyleSheet mainStyle;
         private ApiController apiController = new();
-        private ApiConnectionSO apiConnectionSo;
 
-        [MenuItem("Nebula/SignUp", priority = 0)]
+        [MenuItem("Nebula/SignIn/SignUp", priority = (int)CustomWindowPriorty.SignUp)]
         private static void ShowWindow()
         {
             var window = GetWindow<SignUpWindow>();
@@ -25,9 +24,6 @@ namespace NebulaTool.Editor
             mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>
             (NebulaPath.DataPath + 
              NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.ApiConnection);
-
-            apiConnectionSo = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
-                (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
         }
 
         private void CreateGUI()
@@ -66,7 +62,15 @@ namespace NebulaTool.Editor
 
             customPropFieldContainer3.Add(passWordLbl);
             customPropFieldContainer3.Add(passWordLblTextField);
+            
+            var databaseTitle = Create<Label>("CustomLabel");
+            databaseTitle.text = "Mongodb : ";
 
+            var mongoConnectionUrlTextField = Create<TextField>("CustomTextField");
+            mongoConnectionUrlTextField.value = "Enter Connection Url";
+            
+            
+            
 
             container.Add(customPropFieldContainer1);
             container.Add(customPropFieldContainer2);
@@ -82,27 +86,6 @@ namespace NebulaTool.Editor
             };
             container.Add(connectButton);
 
-
-
-            var loginButton = Create<Button>();
-            loginButton.text = "LOGIN";
-            loginButton.clicked += () =>
-            {
-                //EditorUtility.DisplayDialog("TOKEN ERROR", "Your Token INVALID ! You Have To Login", "ok");
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.Login());
-            };
-            
-            container.Add(loginButton);
-
-            var getDbList = Create<Button>();
-            getDbList.text = "Get User Databases";
-            getDbList.clicked += () =>
-            {
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetUserDatabasesFromApi());
-            };
-            
-            container.Add(getDbList);
-            
             root.Add(container);
         }
 

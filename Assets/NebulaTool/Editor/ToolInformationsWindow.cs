@@ -7,14 +7,14 @@ using UnityEngine.UIElements;
 
 namespace NebulaTool.Editor
 {
-    public class ToolInformations : EditorWindow
+    public class ToolInformationsWindow : EditorWindow
     {
         private InformationStruct infos;
         private StyleSheet mainStyle;
-        [MenuItem("Nebula/Informations",priority = 3)]
+        [MenuItem("Nebula/Informations",priority = (int)CustomWindowPriorty.ToolInformation)]
         private static void ShowWindow()
         {
-            var window = GetWindow<ToolInformations>();
+            var window = GetWindow<ToolInformationsWindow>();
             window.titleContent = new GUIContent("Tool Informations Window");
             window.Show();
         }

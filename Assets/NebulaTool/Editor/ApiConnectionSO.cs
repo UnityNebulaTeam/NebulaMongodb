@@ -18,13 +18,6 @@ namespace NebulaTool.Editor
         [field: SerializeField] public string password { get; set; }
         [field: SerializeField] public string token { get; set; }
         [field: SerializeField] public string refreshToken { get; set; }
-        [field: SerializeField] public List<DatabaseInformation> databaseInformations { get; set; }
-    }
-
-    [Serializable]
-    public struct DatabaseInformation
-    {
         [field: SerializeField] public DatabaseTypes dbType { get; set; }
-        [field: SerializeField] public string dbConnectionURL { get; set; }
     }
 }
