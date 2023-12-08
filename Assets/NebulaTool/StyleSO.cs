@@ -18,18 +18,3 @@ public class StyleSO : ScriptableObject
         _ => throw new ArgumentNullException("Could not found this type style")
     };
 }
-
-[Serializable]
-public struct StyleDatas
-{
-    public StyleType styleType;
-    public List<StyleSheet> styles;
-}
-
-public enum StyleType
-{
-    Manager,
-    ApiConnection,
-    CreateWindow,
-    InformationsWindow
-}

@@ -2,7 +2,7 @@
 {
     public static class NebulaPath
     {
-        public static string DataPath = "Assets/NebulaTool/Editor/";
+        public static string DataPath = "Assets/NebulaTool/Data/";
     }
 
     public static class NebulaResourcesName

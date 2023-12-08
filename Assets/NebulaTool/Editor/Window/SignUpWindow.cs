@@ -22,7 +22,7 @@ namespace NebulaTool.Editor
         private void OnEnable()
         {
             mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>
-            (NebulaPath.DataPath + 
+            (NebulaPath.DataPath +
              NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.ApiConnection);
         }
 
@@ -62,19 +62,23 @@ namespace NebulaTool.Editor
 
             customPropFieldContainer3.Add(passWordLbl);
             customPropFieldContainer3.Add(passWordLblTextField);
-            
+
+            var customPropFieldContainer4 = Create<VisualElement>("CustomPropFieldContainer");
+
             var databaseTitle = Create<Label>("CustomLabel");
             databaseTitle.text = "Mongodb : ";
 
-            var mongoConnectionUrlTextField = Create<TextField>("CustomTextField");
-            mongoConnectionUrlTextField.value = "Enter Connection Url";
-            
-            
-            
+            var connectionURLTextField = Create<TextField>("CustomTextField");
+            connectionURLTextField.value = "Connection String";
+
+            customPropFieldContainer4.Add(databaseTitle);
+            customPropFieldContainer4.Add(connectionURLTextField);
+
 
             container.Add(customPropFieldContainer1);
             container.Add(customPropFieldContainer2);
             container.Add(customPropFieldContainer3);
+            container.Add(customPropFieldContainer4);
 
             var connectButton = Create<Button>("CustomButton");
             connectButton.text = "Sign Up";
@@ -82,7 +86,7 @@ namespace NebulaTool.Editor
             connectButton.clicked += () =>
             {
                 EditorCoroutineUtility.StartCoroutineOwnerless(
-                    apiController.SignUp(userNameTextField.value, emailTextField.value,passWordLblTextField.value));
+                    apiController.SignUp(userNameTextField.value, emailTextField.value, passWordLblTextField.value, connectionURLTextField.value));
             };
             container.Add(connectButton);
 

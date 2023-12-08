@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ApiConnectionSO
   m_EditorClassIdentifier: 
   userInformation:
-    <eMail>k__BackingField: sukru@gmail.com
-    <userName>k__BackingField: sukru7
-    <password>k__BackingField: Sukru123!
+    <eMail>k__BackingField: 
+    <userName>k__BackingField: 
+    <password>k__BackingField: 
     <token>k__BackingField: 
     <refreshToken>k__BackingField: 
     <dbType>k__BackingField: 0

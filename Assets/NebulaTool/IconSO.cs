@@ -20,21 +20,3 @@ public class IconSO : ScriptableObject
         _ => throw new ArgumentNullException("Could not found this type style"),
     };
 }
-
-
-
-[Serializable]
-public struct IconData
-{
-    public IconType iconType;
-    public Sprite Icon;
-}
-
-public enum IconType
-{
-    Refresh,
-    Cancel,
-    Delete,
-    Update,
-    Okey
-}

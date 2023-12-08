@@ -9,7 +9,7 @@ namespace NebulaTool
 
         public static void DisplayConnectionDataDoesnotExistMessage()
         {
-           EditorUtility.DisplayDialog("Sign Up Error", "You didn't sign up this plugin", "ok");
+            EditorUtility.DisplayDialog("Sign Up Error", "You didn't sign up this plugin", "ok");
         }
     }
 }

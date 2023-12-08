@@ -292,10 +292,3 @@ public class CreateItemWindow : EditorWindow
         return element;
     }
 }
-
-public enum CreateItemType
-{
-    db,
-    collection,
-    item
-}
