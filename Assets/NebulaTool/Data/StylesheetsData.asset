@@ -25,3 +25,12 @@ MonoBehaviour:
   - styleType: 3
     styles:
     - {fileID: 7433441132597879392, guid: a5f0164bfa59e884c8acc6dd77a16ddf, type: 3}
+  - styleType: 4
+    styles:
+    - {fileID: 7433441132597879392, guid: 28951d60c6c09fa4fa075175730eac95, type: 3}
+  - styleType: 5
+    styles:
+    - {fileID: 7433441132597879392, guid: 2cc08828ee15e5c4d9a3bc1cec84fce7, type: 3}
+  - styleType: 6
+    styles:
+    - {fileID: 7433441132597879392, guid: 02511ccbc4249c840acda18750fbacfd, type: 3}

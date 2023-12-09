@@ -9,6 +9,8 @@ using NebulaTool.Enum;
 using NebulaTool.ScritableSO;
 using NebulaTool.DTO;
 using NebulaTool.API;
+using NebulaTool.Path;
+using NebulaTool.Extension;
 
 namespace NebulaTool.Window
 {
@@ -73,7 +75,7 @@ namespace NebulaTool.Window
 
         private void InitializeUI()
         {
-            mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>("Assets/NebulaTool/Editor/StylesheetsData.asset").GetStyle(StyleType.CreateWindow);
+            mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.CreateWindowStyle);
             rootVisualElement.styleSheets.Add(mainStyle);
         }
 
@@ -103,14 +105,14 @@ namespace NebulaTool.Window
         private void CreateDatabaseUI()
         {
             var root = rootVisualElement;
-            var container = Create<VisualElement>("Container");
+            var container = NebulaExtention.Create<VisualElement>("Container");
 
-            var dbName = Create<TextField>();
-            var dbTitle = Create<Label>("CustomLabel");
+            var dbName = NebulaExtention.Create<TextField>();
+            var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
             dbTitle.text = "Database Name";
 
-            var collectionName = Create<TextField>();
-            var colletionTitle = Create<Label>("CustomLabel");
+            var collectionName = NebulaExtention.Create<TextField>();
+            var colletionTitle = NebulaExtention.Create<Label>("CustomLabel");
             colletionTitle.text = "Collection Name";
 
 
@@ -120,7 +122,7 @@ namespace NebulaTool.Window
             container.Add(collectionName);
 
 
-            var CreateButton = Create<Button>("CustomOperationButton");
+            var CreateButton = NebulaExtention.Create<Button>("CustomOperationButton");
             CreateButton.text = "+";
             CreateButton.clicked += delegate
             {
@@ -132,10 +134,10 @@ namespace NebulaTool.Window
 
             container.Add(CreateButton);
 
-            var dbHelperBox = Create<HelpBox>();
+            var dbHelperBox = NebulaExtention.Create<HelpBox>();
             dbHelperBox.messageType = HelpBoxMessageType.Info;
             dbHelperBox.text = "Veritabanı Adı Boş Olamaz";
-            var collectionHelperBox = Create<HelpBox>();
+            var collectionHelperBox = NebulaExtention.Create<HelpBox>();
             collectionHelperBox.messageType = HelpBoxMessageType.Info;
             collectionHelperBox.text = "Collection Adı Boş Olamaz. Collection oluşturmamız zorunlu çünkü Mongodb sisteminde veritabanı oluşturabilmeniz için bir adet koleksiyon oluşturmak zorundasınız";
 
@@ -149,17 +151,17 @@ namespace NebulaTool.Window
         private void CreateCollectionUI()
         {
             var root = rootVisualElement;
-            var container = Create<VisualElement>("Container");
+            var container = NebulaExtention.Create<VisualElement>("Container");
 
-            var dbTitle = Create<Label>("CustomLabel");
+            var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
             dbTitle.text = EditorPrefs.GetString("dbname");
             container.Add(dbTitle);
 
-            var collectionNameInput = Create<TextField>("CustomTextField");
+            var collectionNameInput = NebulaExtention.Create<TextField>("CustomTextField");
             collectionNameInput.value = "Collection Name";
             container.Add(collectionNameInput);
 
-            var createOperationButton = Create<Button>("CustomOperationButton");
+            var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
             createOperationButton.text = "+";
             createOperationButton.clicked += delegate
             {
@@ -179,18 +181,18 @@ namespace NebulaTool.Window
         {
             var root = rootVisualElement;
             root.Clear();
-            var container = Create<VisualElement>("Container");
+            var container = NebulaExtention.Create<VisualElement>("Container");
             if (!doesNotExistDoc)
             {
                 List<FieldValuePair> fields = new List<FieldValuePair>();
                 foreach (var key in doc)
                 {
                     var fieldValuePair = new FieldValuePair(key.Name, key.Value.ToString());
-                    var propTextAndValueContainer = Create<VisualElement>("ContainerPropItem");
-                    var propText = Create<TextField>("CustomPropField");
+                    var propTextAndValueContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+                    var propText = NebulaExtention.Create<TextField>("CustomPropField");
                     propText.value = key.Name;
 
-                    var propvalue = Create<TextField>("CustomValueField");
+                    var propvalue = NebulaExtention.Create<TextField>("CustomValueField");
                     propvalue.value = "";
 
                     propvalue.RegisterValueChangedCallback(e =>
@@ -204,7 +206,7 @@ namespace NebulaTool.Window
                     fields.Add(fieldValuePair);
                 }
 
-                var createOperationButton = Create<Button>("CustomOperationButton");
+                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
                 createOperationButton.text = "+";
                 createOperationButton.clicked += delegate
                 {
@@ -216,11 +218,11 @@ namespace NebulaTool.Window
             }
             if (doesNotExistDoc)
             {
-                var propFieldContainer = Create<VisualElement>("ContainerPropItem");
-                var fieldCountLabel = Create<Label>("CustomLabel");
+                var propFieldContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+                var fieldCountLabel = NebulaExtention.Create<Label>("CustomLabel");
                 fieldCountLabel.text = $"Field Count {fieldCount}";
 
-                var addFieldButton = Create<Button>("CustomOperationButton");
+                var addFieldButton = NebulaExtention.Create<Button>("CustomOperationButton");
                 addFieldButton.text = "+";
                 addFieldButton.clicked += delegate
                 {
@@ -228,7 +230,7 @@ namespace NebulaTool.Window
                     CreateItemUI();
                 };
 
-                var minusFieldCount = Create<Button>("CustomOperationButton");
+                var minusFieldCount = NebulaExtention.Create<Button>("CustomOperationButton");
                 minusFieldCount.text = "-";
                 minusFieldCount.clicked += delegate
                 {
@@ -248,10 +250,10 @@ namespace NebulaTool.Window
                 List<FieldValuePair> fields = new List<FieldValuePair>();
                 for (int i = 0; i < fieldCount; i++)
                 {
-                    var propContainer = Create<VisualElement>("ContainerPropItem");
+                    var propContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
                     var fieldValuePair = new FieldValuePair("", "");
-                    var propName = Create<TextField>("CustomPropField");
-                    var propValue = Create<TextField>("CustomValueField");
+                    var propName = NebulaExtention.Create<TextField>("CustomPropField");
+                    var propValue = NebulaExtention.Create<TextField>("CustomValueField");
 
                     propName.RegisterValueChangedCallback(e =>
                     {
@@ -271,7 +273,7 @@ namespace NebulaTool.Window
                     fields.Add(fieldValuePair);
                 }
 
-                var createOperationButton = Create<Button>("CustomOperationButton");
+                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
                 createOperationButton.text = "Create";
                 createOperationButton.clicked += delegate
                 {
@@ -288,14 +290,5 @@ namespace NebulaTool.Window
             Close();
         }
         private void ClearAllPlayerPrefs() => EditorPrefs.DeleteAll();
-
-        private T Create<T>(params string[] classNames) where T : VisualElement, new()
-        {
-            var element = new T();
-            foreach (var name in classNames)
-                element.AddToClassList(name);
-
-            return element;
-        }
     }
 }

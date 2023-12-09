@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 using NebulaTool.Enum;
 using NebulaTool.ScritableSO;
 using NebulaTool.Path;
+using NebulaTool.Extension;
 
 namespace NebulaTool.Window
 {
@@ -14,7 +15,7 @@ namespace NebulaTool.Window
     {
         private InformationStruct infos;
         private StyleSheet mainStyle;
-        [MenuItem("Nebula/Informations",priority = (int)CustomWindowPriorty.ToolInformation)]
+        [MenuItem("Nebula/Informations", priority = (int)CustomWindowPriorty.ToolInformation)]
         private static void ShowWindow()
         {
             var window = GetWindow<ToolInformationsWindow>();
@@ -27,49 +28,40 @@ namespace NebulaTool.Window
         {
             var json = File.ReadAllText(NebulaPath.DataPath + NebulaResourcesName.InformationsJsonDataName);
             infos = Newtonsoft.Json.JsonConvert.DeserializeObject<InformationStruct>(json);
-            mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.InformationsWindow);
+            mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.InformationsWindowStyle);
         }
 
         private void CreateGUI()
         {
             var root = rootVisualElement;
             root.styleSheets.Add(mainStyle);
-            var container = Create<VisualElement>("Container");
+            var container = NebulaExtention.Create<VisualElement>("Container");
 
-            var tittle = Create<Label>("CustomLabel");
+            var tittle = NebulaExtention.Create<Label>("CustomLabel");
             tittle.text = "Tool Informations";
             container.Add(tittle);
-            
-            var mainScrollView = Create<VisualElement>("ScrollView");
 
-            var scroll = Create<ScrollView>();
+            var mainScrollView = NebulaExtention.Create<VisualElement>("ScrollView");
+
+            var scroll = NebulaExtention.Create<ScrollView>();
 
             foreach (var information in infos.Informations)
             {
-                var helperBox = Create<HelpBox>();
+                var helperBox = NebulaExtention.Create<HelpBox>();
                 helperBox.messageType = information.MessageType;
                 helperBox.text = information.Message;
                 scroll.Add(helperBox);
             }
-            
+
             mainScrollView.Add(scroll);
-            
+
             container.Add(mainScrollView);
-            
+
             root.Add(container);
 
         }
-        
-        private T Create<T>(params string[] classNames) where T : VisualElement, new()
-        {
-            var element = new T();
-            foreach (var name in classNames)
-                element.AddToClassList(name);
-
-            return element;
-        }
     }
-    
+
 }
 
 [Serializable]
@@ -77,8 +69,8 @@ public class InformationStruct
 {
     public List<Informations> Informations { get; set; }
 }
-    public class Informations
-    {
-        public string Message { get; set; }
-        public HelpBoxMessageType MessageType { get; set; }
-    }
+public class Informations
+{
+    public string Message { get; set; }
+    public HelpBoxMessageType MessageType { get; set; }
+}

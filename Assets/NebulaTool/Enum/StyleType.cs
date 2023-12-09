@@ -2,9 +2,12 @@ namespace NebulaTool.Enum
 {
     public enum StyleType
     {
-        Manager,
-        ApiConnection,
-        CreateWindow,
-        InformationsWindow
+        DatabaseManagerStyle,
+        SignUpStyle,
+        CreateWindowStyle,
+        InformationsWindowStyle,
+        ForgotStlye,
+        UpdateDbStyle,
+        LoginStyle,
     }
 }

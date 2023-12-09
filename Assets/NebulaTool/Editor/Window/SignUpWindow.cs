@@ -7,6 +7,7 @@ using NebulaTool.Enum;
 using NebulaTool.ScritableSO;
 using NebulaTool.API;
 using NebulaTool.Path;
+using NebulaTool.Extension;
 
 namespace NebulaTool.Window
 {
@@ -27,7 +28,7 @@ namespace NebulaTool.Window
         {
             mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>
             (NebulaPath.DataPath +
-             NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.ApiConnection);
+             NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.SignUpStyle);
         }
 
         private void CreateGUI()
@@ -35,56 +36,49 @@ namespace NebulaTool.Window
             var root = rootVisualElement;
             root.styleSheets.Add(mainStyle);
 
-            var container = Create<VisualElement>("Container");
-            var customPropFieldContainer1 = Create<VisualElement>("CustomPropFieldContainer");
+            var container = NebulaExtention.Create<VisualElement>("Container");
+            var userNameContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
 
-            var userName = Create<Label>("CustomLabel");
-            userName.text = "UserName : ";
+            var userName = NebulaExtention.Create<Label>("CustomLabel");
+            userName.text = "Username : ";
+            var userNameTextField = NebulaExtention.Create<TextField>("CustomTextField");
+            userNameTextField.SetPlaceholderText("Enter Your Username");
+            userNameContainer.Add(userName);
+            userNameContainer.Add(userNameTextField);
+            container.Add(userNameContainer);
 
-            var userNameTextField = Create<TextField>("CustomTextField");
 
-
-            customPropFieldContainer1.Add(userName);
-            customPropFieldContainer1.Add(userNameTextField);
-
-
-            var emailLbl = Create<Label>("CustomLabel");
+            var emailLbl = NebulaExtention.Create<Label>("CustomLabel");
             emailLbl.text = "E:MAİL : ";
+            var emailTextField = NebulaExtention.Create<TextField>("CustomTextField");
+            emailTextField.SetPlaceholderText("Enter your mail");
+            var emailContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
+            emailContainer.Add(emailLbl);
+            emailContainer.Add(emailTextField);
+            container.Add(emailContainer);
 
-            var emailTextField = Create<TextField>("CustomTextField");
-            var customPropFieldContainer2 = Create<VisualElement>("CustomPropFieldContainer");
-            customPropFieldContainer2.Add(emailLbl);
-            customPropFieldContainer2.Add(emailTextField);
 
-
-            var passWordLbl = Create<Label>("CustomLabel");
+            var passWordLbl = NebulaExtention.Create<Label>("CustomLabel");
             passWordLbl.text = "Password : ";
+            var passWordLblTextField = NebulaExtention.Create<TextField>("CustomTextField");
+            passWordLblTextField.SetPlaceholderText("Enter your password pls");
+            var passwordContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
+            passwordContainer.Add(passWordLbl);
+            passwordContainer.Add(passWordLblTextField);
+            container.Add(passwordContainer);
 
-            var passWordLblTextField = Create<TextField>("CustomTextField");
-
-            var customPropFieldContainer3 = Create<VisualElement>("CustomPropFieldContainer");
-
-            customPropFieldContainer3.Add(passWordLbl);
-            customPropFieldContainer3.Add(passWordLblTextField);
-
-            var customPropFieldContainer4 = Create<VisualElement>("CustomPropFieldContainer");
-
-            var databaseTitle = Create<Label>("CustomLabel");
-            databaseTitle.text = "Mongodb : ";
-
-            var connectionURLTextField = Create<TextField>("CustomTextField");
-            connectionURLTextField.value = "Connection String";
-
-            customPropFieldContainer4.Add(databaseTitle);
-            customPropFieldContainer4.Add(connectionURLTextField);
+            var dbInfoContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
+            var databaseTitle = NebulaExtention.Create<Label>("CustomLabel");
+            databaseTitle.text = DatabaseTypes.MONGO.ToString();
+            var connectionURLTextField = NebulaExtention.Create<TextField>("CustomTextField");
+            connectionURLTextField.SetPlaceholderText("Enter database connection url");
+            dbInfoContainer.Add(databaseTitle);
+            dbInfoContainer.Add(connectionURLTextField);
+            container.Add(dbInfoContainer);
 
 
-            container.Add(customPropFieldContainer1);
-            container.Add(customPropFieldContainer2);
-            container.Add(customPropFieldContainer3);
-            container.Add(customPropFieldContainer4);
 
-            var connectButton = Create<Button>("CustomButton");
+            var connectButton = NebulaExtention.Create<Button>("CustomButton");
             connectButton.text = "Sign Up";
 
             connectButton.clicked += () =>
@@ -95,15 +89,6 @@ namespace NebulaTool.Window
             container.Add(connectButton);
 
             root.Add(container);
-        }
-
-        private T Create<T>(params string[] classNames) where T : VisualElement, new()
-        {
-            var element = new T();
-            foreach (var name in classNames)
-                element.AddToClassList(name);
-
-            return element;
         }
     }
 }

@@ -15,10 +15,13 @@ namespace NebulaTool.ScritableSO
         public List<StyleDatas> datas;
         public StyleSheet GetStyle(StyleType type) => type switch
         {
-            StyleType.Manager => datas.FirstOrDefault(x => x.styleType == type).styles[0],
-            StyleType.ApiConnection => datas.FirstOrDefault(x => x.styleType == type).styles[0],
-            StyleType.CreateWindow => datas.FirstOrDefault(x => x.styleType == type).styles[0],
-            StyleType.InformationsWindow => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.DatabaseManagerStyle => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.SignUpStyle => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.CreateWindowStyle => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.InformationsWindowStyle => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.LoginStyle => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.UpdateDbStyle => datas.FirstOrDefault(x => x.styleType == type).styles[0],
+            StyleType.ForgotStlye => datas.FirstOrDefault(x => x.styleType == type).styles[0],
             _ => throw new ArgumentNullException("Could not found this type style")
         };
     }
