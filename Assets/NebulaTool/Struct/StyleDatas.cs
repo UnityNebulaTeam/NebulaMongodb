@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
+using NebulaTool.Enum;
 
-[Serializable]
-public struct StyleDatas
+namespace NebulaTool.Struct
 {
-    public StyleType styleType;
-    public List<StyleSheet> styles;
+    [Serializable]
+    public struct StyleDatas
+    {
+        public StyleType styleType;
+        public List<StyleSheet> styles;
+    }
 }

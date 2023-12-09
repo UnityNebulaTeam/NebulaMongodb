@@ -1,7 +1,10 @@
-public enum StyleType
+namespace NebulaTool.Enum
 {
-    Manager,
-    ApiConnection,
-    CreateWindow,
-    InformationsWindow
+    public enum StyleType
+    {
+        Manager,
+        ApiConnection,
+        CreateWindow,
+        InformationsWindow
+    }
 }

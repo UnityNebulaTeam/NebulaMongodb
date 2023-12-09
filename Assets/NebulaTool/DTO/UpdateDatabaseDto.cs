@@ -1,5 +1,8 @@
-public class UpdateDatabaseDto
+namespace NebulaTool.DTO
 {
-    public string Name { get; set; }
-    public string NewDbName { get; set; }
+    public class UpdateDatabaseDto
+    {
+        public string Name { get; set; }
+        public string NewDbName { get; set; }
+    }
 }

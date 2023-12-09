@@ -3,8 +3,12 @@ using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using NebulaTool.Enum;
+using NebulaTool.ScritableSO;
+using NebulaTool.API;
+using NebulaTool.Path;
 
-namespace NebulaTool.Editor
+namespace NebulaTool.Window
 {
     public class SignUpWindow : EditorWindow
     {

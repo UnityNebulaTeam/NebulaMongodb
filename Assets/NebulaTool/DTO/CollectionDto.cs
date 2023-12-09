@@ -1,7 +1,10 @@
 using System;
 
-[Serializable]
-public class CollectionDto
+namespace NebulaTool.DTO
 {
-    public string name;
+    [Serializable]
+    public class CollectionDto
+    {
+        public string name;
+    }
 }

@@ -1,4 +1,4 @@
-﻿namespace NebulaTool
+﻿namespace NebulaTool.URL
 {
     public static class NebulaURL
     {

@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using UnityEditor;
+using NebulaTool.Path;
 
-namespace NebulaTool
+namespace NebulaTool.Extension
 {
     public static class NebulaExtention
     {

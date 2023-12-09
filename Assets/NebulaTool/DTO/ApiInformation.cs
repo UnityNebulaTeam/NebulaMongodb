@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using NebulaTool.Enum;
 
-namespace NebulaTool.Editor
+namespace NebulaTool.DTO
 {
     [Serializable]
     public class ApiInformation

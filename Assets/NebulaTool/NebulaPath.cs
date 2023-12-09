@@ -1,4 +1,4 @@
-﻿namespace NebulaTool
+﻿namespace NebulaTool.Path
 {
     public static class NebulaPath
     {

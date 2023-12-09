@@ -1,7 +1,12 @@
 using System;
 
-[Serializable]
-public class DatabaseDto
+namespace NebulaTool.DTO
 {
-    public string name;
+
+    [Serializable]
+    public class DatabaseDto
+    {
+        public string name;
+    }
 }
+

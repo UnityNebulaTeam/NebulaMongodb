@@ -1,4 +1,4 @@
-﻿namespace NebulaTool.Editor
+﻿namespace NebulaTool.Enum
 {
     public enum CustomWindowPriorty
     {

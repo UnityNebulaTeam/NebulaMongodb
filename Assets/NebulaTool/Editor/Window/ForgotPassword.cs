@@ -1,7 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using NebulaTool.Enum;
 
-namespace NebulaTool.Editor
+namespace NebulaTool.Window
 {
     public class ForgotPassword : EditorWindow
     {

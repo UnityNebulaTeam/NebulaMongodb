@@ -1,5 +1,8 @@
-public class ApiToken
+namespace NebulaTool.DTO
 {
-    public string Token { get; set; }
-    public string RefreshToken { get; set; }
+    public class ApiToken
+    {
+        public string Token { get; set; }
+        public string RefreshToken { get; set; }
+    }
 }

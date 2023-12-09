@@ -1,11 +1,14 @@
 using MongoDB.Bson;
 
-public class TableItemDto
+namespace NebulaTool.DTO
 {
-    public BsonArray Docs;
-    public TableItemDto(BsonArray _items)
+    public class TableItemDto
     {
-        Docs = new();
-        Docs = _items;
+        public BsonArray Docs;
+        public TableItemDto(BsonArray _items)
+        {
+            Docs = new();
+            Docs = _items;
+        }
     }
 }

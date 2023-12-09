@@ -1,14 +1,17 @@
-public class FieldValuePair
+namespace NebulaTool.DTO
 {
-    public string FieldName { get; set; }
-    public string OriginalValue { get; set; }
-    public string UpdatedValue { get; set; }
-
-    public FieldValuePair() { }
-    public FieldValuePair(string fieldName, string originalValue)
+    public class FieldValuePair
     {
-        FieldName = fieldName;
-        OriginalValue = originalValue;
-        UpdatedValue = originalValue;
+        public string FieldName { get; set; }
+        public string OriginalValue { get; set; }
+        public string UpdatedValue { get; set; }
+
+        public FieldValuePair() { }
+        public FieldValuePair(string fieldName, string originalValue)
+        {
+            FieldName = fieldName;
+            OriginalValue = originalValue;
+            UpdatedValue = originalValue;
+        }
     }
 }

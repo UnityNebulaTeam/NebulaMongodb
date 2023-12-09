@@ -4,8 +4,11 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using NebulaTool.Enum;
+using NebulaTool.ScritableSO;
+using NebulaTool.Path;
 
-namespace NebulaTool.Editor
+namespace NebulaTool.Window
 {
     public class ToolInformationsWindow : EditorWindow
     {

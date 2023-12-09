@@ -1,9 +1,14 @@
 using System;
 using UnityEngine;
+using NebulaTool.Enum;
 
-[Serializable]
-public struct IconData
+namespace NebulaTool.Struct
 {
-    public IconType iconType;
-    public Sprite Icon;
+    [Serializable]
+    public struct IconData
+    {
+        public IconType iconType;
+        public Sprite Icon;
+    }
 }
+

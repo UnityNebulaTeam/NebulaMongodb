@@ -3,20 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using NebulaTool.Enum;
+using NebulaTool.Struct;
 
-
-[CreateAssetMenu(fileName = "IconData", menuName = "Nebula/Create Icon Data")]
-public class IconSO : ScriptableObject
+namespace NebulaTool.ScritableSO
 {
-    public List<IconData> icons;
-
-    public Sprite GetStyle(IconType type) => type switch
+    [CreateAssetMenu(fileName = "IconData", menuName = "Nebula/Create Icon Data")]
+    public class IconSO : ScriptableObject
     {
-        IconType.Refresh => icons.FirstOrDefault(x => x.iconType == type).Icon,
-        IconType.Cancel => icons.FirstOrDefault(x => x.iconType == type).Icon,
-        IconType.Delete => icons.FirstOrDefault(x => x.iconType == type).Icon,
-        IconType.Update => icons.FirstOrDefault(x => x.iconType == type).Icon,
-        IconType.Okey => icons.FirstOrDefault(x => x.iconType == type).Icon,
-        _ => throw new ArgumentNullException("Could not found this type style"),
-    };
+        public List<IconData> icons;
+
+        public Sprite GetStyle(IconType type) => type switch
+        {
+            IconType.Refresh => icons.FirstOrDefault(x => x.iconType == type).Icon,
+            IconType.Cancel => icons.FirstOrDefault(x => x.iconType == type).Icon,
+            IconType.Delete => icons.FirstOrDefault(x => x.iconType == type).Icon,
+            IconType.Update => icons.FirstOrDefault(x => x.iconType == type).Icon,
+            IconType.Okey => icons.FirstOrDefault(x => x.iconType == type).Icon,
+            _ => throw new ArgumentNullException("Could not found this type style"),
+        };
+    }
 }
