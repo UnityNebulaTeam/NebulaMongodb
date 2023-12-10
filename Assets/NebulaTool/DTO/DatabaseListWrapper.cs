@@ -6,6 +6,6 @@ namespace NebulaTool.DTO
     [Serializable]
     public class DatabaseListWrapper
     {
-        public List<DatabaseDto> databases;
+        public List<DatabaseDto> databases { get; set; }
     }
 }

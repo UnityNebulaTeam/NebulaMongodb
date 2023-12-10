@@ -2,6 +2,9 @@
 using UnityEditor;
 using NebulaTool.Path;
 using UnityEngine.UIElements;
+using NebulaTool.DTO;
+using MongoDB.Bson.IO;
+using MongoDB.Bson;
 
 namespace NebulaTool.Extension
 {
@@ -54,6 +57,14 @@ namespace NebulaTool.Extension
                 element.AddToClassList(name);
 
             return element;
+        }
+
+        public static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
+        {
+            var bsonDocument = tableItemDto;
+            var settings = new JsonWriterSettings { Indent = true };
+            var jsonOutput = bsonDocument.ToJson(settings);
+            return jsonOutput;
         }
     }
 }

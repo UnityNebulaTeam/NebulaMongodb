@@ -5,7 +5,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using UnityEngine;
 using UnityEngine.Networking;
-using MongoDB.Bson.IO;
 using System.Text;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
@@ -15,6 +14,7 @@ using NebulaTool.ScritableSO;
 using NebulaTool.DTO;
 using NebulaTool.URL;
 using NebulaTool.Path;
+using NebulaTool.Extension;
 
 namespace NebulaTool.API
 {
@@ -74,6 +74,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(CreateDatabase(dbName, _tableName));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -113,6 +115,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(UpdateDatabase(_name, newdbName));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -142,6 +146,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(DeleteDatabase(_dbName));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -157,29 +163,29 @@ namespace NebulaTool.API
 
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.databaseURL))
             {
-
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 yield return request.SendWebRequest();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     var data = request.downloadHandler.text;
-                    try
-                    {
-                        var dbList = JsonUtility.FromJson<DatabaseListWrapper>("{\"databases\":" + data + "}").databases;
-                        DatabaseListLoaded?.Invoke(dbList);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError($"Exception during JSON deserialization: {e}");
-                    }
+                    Debug.Log(data);
+                    var dbList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DatabaseDto>>(data);
+                    DatabaseListLoaded?.Invoke(dbList);
                 }
                 else
                 {
-                    Debug.Log(request.error);
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-
-                    Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
+                    if (request.responseCode is 401)
+                    {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(GetAllDatabases());
+                    }
+                    else
+                    {
+                        Debug.Log(request.responseCode);
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                        Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
+                    }
                 }
             }
         }
@@ -218,6 +224,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(CreateTable(_dbName, _name));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -252,6 +260,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(UpdateTable(_dbName, _tableName, _newTableName));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -281,6 +291,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(DeleteTable(_dbName, _tableName));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -317,6 +329,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(GetAllCollections(dbName));
                         //TOOD:GET TOKEN
                     }
                     else
@@ -354,6 +368,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(GetAllItemsTypeBsonDocument(dbName, collectionName));
                         //TODO:GET TOKEN
                     }
                     else
@@ -397,6 +413,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(CreateItem(dbName, tableName, fields));
                         //TODO:GET TOKEn
                     }
                     else
@@ -410,7 +428,7 @@ namespace NebulaTool.API
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom error handler test edildi
             dto.doc["_id"] = dto.doc["_id"].ToString();
-            var json = ConvertTableItemDtoToJson(dto);
+            var json = NebulaExtention.ConvertTableItemDtoToJson(dto);
             using (UnityWebRequest request = UnityWebRequest.Put(NebulaURL.MongoDB.itemURL, json))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
@@ -428,6 +446,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(UpdateItem(dto));
                         //TODO: GET TOKEN
                     }
                     else
@@ -456,6 +476,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(DeleteItem(_dbName, _tableName, Id));
                         //TODO: GET TOKEn
                     }
                     else
@@ -487,6 +509,8 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(GetAllItems(dbName, collectionName));
                         //TODO: GET TOKEN
                     }
                     else
@@ -669,12 +693,6 @@ namespace NebulaTool.API
 
         #endregion
 
-        static string ConvertTableItemDtoToJson(UpdateTableItemDto tableItemDto)
-        {
-            var bsonDocument = tableItemDto;
-            var settings = new JsonWriterSettings { Indent = true };
-            var jsonOutput = bsonDocument.ToJson(settings);
-            return jsonOutput;
-        }
+       
     }
 }
