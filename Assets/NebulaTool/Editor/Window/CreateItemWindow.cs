@@ -195,6 +195,7 @@ namespace NebulaTool.Window
                 List<FieldValuePair> fields = new List<FieldValuePair>();
                 foreach (var key in doc)
                 {
+                    if (key.Name is "_id") continue;
                     var fieldValuePair = new FieldValuePair(key.Name, key.Value.ToString());
                     var propTextAndValueContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
                     var propText = NebulaExtention.Create<TextField>("CustomPropField");

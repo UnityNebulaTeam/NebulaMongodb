@@ -169,7 +169,6 @@ namespace NebulaTool.API
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     var data = request.downloadHandler.text;
-                    Debug.Log(data);
                     var dbList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DatabaseDto>>(data);
                     DatabaseListLoaded?.Invoke(dbList);
                 }
@@ -693,6 +692,6 @@ namespace NebulaTool.API
 
         #endregion
 
-       
+
     }
 }

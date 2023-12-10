@@ -48,12 +48,12 @@ namespace NebulaTool.Window
         {
             PrepareData();
 
+
             apiController.DatabaseListLoaded += GetDatabaseList;
             apiController.collectionListLoaded += GetCollectionList;
             apiController.itemListLoaded += GetİtemList;
             apiController.EditorDrawLoaded += DrawEditorLoad;
 
-             Debug.Log("OnEnable");
         }
 
         public void CreateGUI()
@@ -66,6 +66,16 @@ namespace NebulaTool.Window
 
             Wrapper.Add(UpPanel());
             Wrapper.Add(dbContainer);
+        }
+
+        private void OnFocus()
+        {
+            if (!string.IsNullOrEmpty(selectedDatabase))
+                DrawEditorLoad(EditorLoadType.Table);
+            if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
+                DrawEditorLoad(EditorLoadType.Item);
+            if (string.IsNullOrEmpty(selectedDatabase) && string.IsNullOrEmpty(selectedCollection))
+                DrawEditorLoad(EditorLoadType.Database);
         }
 
         private void OnDestroy()
@@ -82,7 +92,6 @@ namespace NebulaTool.Window
 
         private void DrawEditorLoad(EditorLoadType editorType)
         {
-            Debug.Log("DrawEditorLoad  running");
             switch (editorType)
             {
                 case EditorLoadType.Database:
@@ -101,14 +110,15 @@ namespace NebulaTool.Window
 
             CustomRepaint();
         }
-        
-        public void RefreshPanel(EditorLoadType panelType)=>DrawEditorLoad(panelType);
+
+        public void RefreshPanel(EditorLoadType panelType) => DrawEditorLoad(panelType);
         #endregion
 
         #region Event Listeners
 
         private void GetDatabaseList(List<DatabaseDto> list)
         {
+            Debug.Log("DATABASELİST TETİK");
             databaseList.Clear();
             databaseList = list;
             CustomRepaint();
@@ -538,7 +548,9 @@ namespace NebulaTool.Window
                 yield return apiController.GetAllCollections(selectedDatabase);
 
             if (!string.IsNullOrEmpty(selectedCollection))
+            {
                 yield return apiController.GetAllItems(selectedDatabase, selectedCollection);
+            }
         }
 
         private void Refresh()
