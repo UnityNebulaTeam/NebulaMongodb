@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using MongoDB.Bson.IO;
 using System.Text;
-using NebulaTool;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using Formatting = Newtonsoft.Json.Formatting;
@@ -21,6 +20,18 @@ namespace NebulaTool.API
 {
     public class ApiController
     {
+        private static ApiController instance;
+        public static ApiController Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new ApiController();
+                }
+                return instance;
+            }
+        }
         public event Action<List<DatabaseDto>> DatabaseListLoaded;
         public event Action<List<CollectionDto>> collectionListLoaded;
         public event Action<TableItemDto> itemListLoaded;
@@ -57,7 +68,6 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{request.downloadHandler.text} Isimli veritabanı başarıyla oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
-                    Debug.Log("VERİTABANI OLUŞTU");
                 }
                 else
                 {
@@ -113,10 +123,13 @@ namespace NebulaTool.API
 
         public IEnumerator DeleteDatabase(string _dbName)
         {
+            var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
+               (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom Error Handler Test Edildi
             using (UnityWebRequest request = UnityWebRequest.Delete(NebulaURL.MongoDB.databaseURL + "?Name=" + _dbName))
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 yield return request.SendWebRequest();
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)

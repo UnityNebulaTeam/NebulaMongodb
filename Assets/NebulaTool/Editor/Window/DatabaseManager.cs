@@ -52,6 +52,8 @@ namespace NebulaTool.Window
             apiController.collectionListLoaded += GetCollectionList;
             apiController.itemListLoaded += GetİtemList;
             apiController.EditorDrawLoaded += DrawEditorLoad;
+
+             Debug.Log("OnEnable");
         }
 
         public void CreateGUI()
@@ -73,15 +75,18 @@ namespace NebulaTool.Window
             apiController.itemListLoaded -= GetİtemList;
             apiController.EditorDrawLoaded -= DrawEditorLoad;
 
+            Debug.Log("OnDestroy");
 
             EditorPrefs.DeleteAll();
         }
 
         private void DrawEditorLoad(EditorLoadType editorType)
         {
+            Debug.Log("DrawEditorLoad  running");
             switch (editorType)
             {
                 case EditorLoadType.Database:
+                    Debug.Log("GetAllDatabases Coroutine running");
                     EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllDatabases());
                     break;
                 case EditorLoadType.Table:
@@ -96,7 +101,8 @@ namespace NebulaTool.Window
 
             CustomRepaint();
         }
-
+        
+        public void RefreshPanel(EditorLoadType panelType)=>DrawEditorLoad(panelType);
         #endregion
 
         #region Event Listeners
@@ -581,7 +587,7 @@ namespace NebulaTool.Window
             icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaPath.DataPath + NebulaResourcesName.IconsDataName);
         }
 
-       
+
         #endregion
     }
 }

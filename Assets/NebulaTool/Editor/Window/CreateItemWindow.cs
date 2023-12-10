@@ -52,7 +52,16 @@ namespace NebulaTool.Window
             InitializeUI();
             apiController.itemLoaded += ItemLoad;
             apiController.NoneItemLoaded += NoneItemLoad;
+            apiController.EditorDrawLoaded += DrawEditorLoad;
         }
+
+        private void DrawEditorLoad(EditorLoadType type)
+        {
+            DatabaseManager dbManager = GetWindow<DatabaseManager>();
+            dbManager.RefreshPanel(type);
+            CloseWindow();
+        }
+
         private void NoneItemLoad(bool result)
         {
             doesNotExistDoc = result;
@@ -63,6 +72,7 @@ namespace NebulaTool.Window
         {
             apiController.itemLoaded -= ItemLoad;
             apiController.NoneItemLoaded -= NoneItemLoad;
+            apiController.EditorDrawLoaded -= DrawEditorLoad;
         }
 
         private void ItemLoad(BsonDocument document)
@@ -129,7 +139,6 @@ namespace NebulaTool.Window
                 EditorCoroutineUtility.StartCoroutineOwnerless(
                      apiController.CreateDatabase(dbName.value, collectionName.value)
                                                              );
-                CloseWindow();
             };
 
             container.Add(CreateButton);
@@ -170,7 +179,6 @@ namespace NebulaTool.Window
                 if (!string.IsNullOrEmpty(collectionNameInput.value))
                 {
                     EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateTable(dbTitle.text, collectionNameInput.value));
-                    CloseWindow();
                 }
             };
             container.Add(createOperationButton);
@@ -278,7 +286,6 @@ namespace NebulaTool.Window
                 createOperationButton.clicked += delegate
                 {
                     EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
-                    CloseWindow();
                 };
                 root.Add(createOperationButton);
             }
