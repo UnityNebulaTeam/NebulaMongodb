@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ApiConnectionSO
   m_EditorClassIdentifier: 
   userInformation:
-    <eMail>k__BackingField: 
-    <userName>k__BackingField: 
-    <password>k__BackingField: 
-    <token>k__BackingField: 
-    <refreshToken>k__BackingField: 
+    <eMail>k__BackingField: sukru@gmail.com
+    <userName>k__BackingField: Sukru
+    <password>k__BackingField: Sukru123!
+    <token>k__BackingField: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImZkNmM0YmI2LWI5ZWMtNDk0MC04NTA5LTMyOTg0N2ZjNjg2MSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InN1a3J1QGdtYWlsLmNvbSIsImRicyI6IltcIk1PTkdPXCJdIiwiZXhwIjoxNzAyNDMxMDY1LCJpc3MiOiJOZWJ1bGFQbHVnaW5BUEkiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUxMzUifQ.6dYZ5zTDBboB7IdJ6AAF3rS74XsPtweyo2NkqBrozwM
+    <refreshToken>k__BackingField: 60IGRisiZULS49DT+G9qzl1G6/sZZXSom6792KuQqzw=
     <dbType>k__BackingField: 0

@@ -6,6 +6,9 @@ using NebulaTool.ScritableSO;
 using NebulaTool.Path;
 using NebulaTool.Enum;
 using NebulaTool.Extension;
+using System.Collections.Generic;
+using Unity.EditorCoroutines.Editor;
+using NebulaTool.API;
 
 
 namespace NebulaTool.Window
@@ -13,10 +16,16 @@ namespace NebulaTool.Window
     public class UpdateConnectionStringWindow : EditorWindow
     {
         private StyleSheet mainStyle;
+        private ApiController apiController=new();
 
         [MenuItem("Nebula/Update Connection String", priority = (int)CustomWindowPriorty.UpdateConnectionString)]
         private static void ShowWindow()
         {
+            if (!NebulaExtention.IsConnectionDataExist())
+            {
+                NebulaExtention.DisplayConnectionDataDoesnotExistMessage();
+                return;
+            }
             var window = GetWindow<UpdateConnectionStringWindow>();
             window.titleContent = new GUIContent("Update Connection String Window");
             window.Show();
@@ -41,7 +50,7 @@ namespace NebulaTool.Window
             var mailTitle = Create<Label>("CustomLabel");
             mailTitle.text = "MAİL";
             var eMailTextField = Create<TextField>("CustomTextField");
-            eMailTextField.SetPlaceholderText("Enter your email or username");
+            eMailTextField.SetPlaceholderText(CustomValidation.emailPlaceHolder);
             mailContainer.Add(mailTitle);
             mailContainer.Add(eMailTextField);
 
@@ -50,16 +59,16 @@ namespace NebulaTool.Window
             var passwordTitle = Create<Label>("CustomLabel");
             passwordTitle.text = "Password";
             var passwordTextField = Create<TextField>("CustomTextField");
-            passwordTextField.SetPlaceholderText("Enter your password");
+            passwordTextField.SetPlaceholderText(CustomValidation.passwordPlaceHolder);
             passwordContainer.Add(passwordTitle);
             passwordContainer.Add(passwordTextField);
 
 
             var connectionStringContainer = Create<VisualElement>("CustomPropFieldContainer");
             var connectionStringTitle = Create<Label>("CustomLabel");
-            connectionStringTitle.text = "Password";
+            connectionStringTitle.text = "ConnectionURL";
             var connectionStringTextField = Create<TextField>("CustomTextField");
-            connectionStringTextField.SetPlaceholderText("Enter your connection url");
+            connectionStringTextField.SetPlaceholderText(CustomValidation.urlPlaceHolder);
             connectionStringContainer.Add(connectionStringTitle);
             connectionStringContainer.Add(connectionStringTextField);
 
@@ -73,9 +82,45 @@ namespace NebulaTool.Window
 
             var UpdateButton = Create<Button>("CustomButton");
             UpdateButton.text = "Update";
+
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+
             UpdateButton.clicked += () =>
             {
+                helpBoxContainer.Clear();
+                var values = new Dictionary<ValidationType, string>();
+                values.Add(ValidationType.Email, eMailTextField.value);
+                values.Add(ValidationType.Password, passwordTextField.value);
+                values.Add(ValidationType.ConnectionURL, connectionStringTextField.value);
 
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        switch (result)
+                        {
+                            case ValidationType.Password:
+                                warningBox.text = "Password is not empty or invalid";
+                                break;
+                            case ValidationType.Email:
+                                warningBox.text = "Email is not empty or invalid";
+                                break;
+                            case ValidationType.ConnectionURL:
+                                warningBox.text = "ConnectionURL is not empty or invalid";
+                                break;
+                        }
+                        helpBoxContainer.Add(warningBox);
+                    }
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateConnectionURL(connectionStringTextField.value));
+                    //TODO: REQUEST API
+                }
             };
 
             SendContainer.Add(UpdateButton);

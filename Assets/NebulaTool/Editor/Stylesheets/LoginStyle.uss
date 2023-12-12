@@ -43,3 +43,12 @@
 .unity-text-field__placeholder > .unity-base-text-field__input {
     color: #969696
 }
+
+.CustomHelpBox{
+width:100%;
+}
+
+.HelpboxContainer{
+width:100%
+flex-direction:column;
+}

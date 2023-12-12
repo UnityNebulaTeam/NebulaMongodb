@@ -85,8 +85,6 @@ namespace NebulaTool.Window
             apiController.itemListLoaded -= GetİtemList;
             apiController.EditorDrawLoaded -= DrawEditorLoad;
 
-            Debug.Log("OnDestroy");
-
             EditorPrefs.DeleteAll();
         }
 
@@ -95,7 +93,6 @@ namespace NebulaTool.Window
             switch (editorType)
             {
                 case EditorLoadType.Database:
-                    Debug.Log("GetAllDatabases Coroutine running");
                     EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllDatabases());
                     break;
                 case EditorLoadType.Table:
@@ -118,7 +115,6 @@ namespace NebulaTool.Window
 
         private void GetDatabaseList(List<DatabaseDto> list)
         {
-            Debug.Log("DATABASELİST TETİK");
             databaseList.Clear();
             databaseList = list;
             CustomRepaint();
@@ -571,6 +567,7 @@ namespace NebulaTool.Window
             collectionList.Clear();
             databaseList.Clear();
             itemList = null;
+            //CustomRepaint();
         }
 
         private void ClearEditorDataForTable()

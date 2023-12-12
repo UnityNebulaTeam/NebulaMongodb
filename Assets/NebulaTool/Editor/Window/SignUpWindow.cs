@@ -8,6 +8,7 @@ using NebulaTool.ScritableSO;
 using NebulaTool.API;
 using NebulaTool.Path;
 using NebulaTool.Extension;
+using System.Collections.Generic;
 
 namespace NebulaTool.Window
 {
@@ -42,7 +43,7 @@ namespace NebulaTool.Window
             var userName = NebulaExtention.Create<Label>("CustomLabel");
             userName.text = "Username : ";
             var userNameTextField = NebulaExtention.Create<TextField>("CustomTextField");
-            userNameTextField.SetPlaceholderText("Enter Your Username");
+            userNameTextField.SetPlaceholderText(CustomValidation.userNamePlaceHolder);
             userNameContainer.Add(userName);
             userNameContainer.Add(userNameTextField);
             container.Add(userNameContainer);
@@ -51,7 +52,7 @@ namespace NebulaTool.Window
             var emailLbl = NebulaExtention.Create<Label>("CustomLabel");
             emailLbl.text = "E:MAİL : ";
             var emailTextField = NebulaExtention.Create<TextField>("CustomTextField");
-            emailTextField.SetPlaceholderText("Enter your mail");
+            emailTextField.SetPlaceholderText(CustomValidation.emailPlaceHolder);
             var emailContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
             emailContainer.Add(emailLbl);
             emailContainer.Add(emailTextField);
@@ -61,7 +62,7 @@ namespace NebulaTool.Window
             var passWordLbl = NebulaExtention.Create<Label>("CustomLabel");
             passWordLbl.text = "Password : ";
             var passWordLblTextField = NebulaExtention.Create<TextField>("CustomTextField");
-            passWordLblTextField.SetPlaceholderText("Enter your password pls");
+            passWordLblTextField.SetPlaceholderText(CustomValidation.passwordPlaceHolder);
             var passwordContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
             passwordContainer.Add(passWordLbl);
             passwordContainer.Add(passWordLblTextField);
@@ -71,7 +72,7 @@ namespace NebulaTool.Window
             var databaseTitle = NebulaExtention.Create<Label>("CustomLabel");
             databaseTitle.text = DatabaseTypes.MONGO.ToString();
             var connectionURLTextField = NebulaExtention.Create<TextField>("CustomTextField");
-            connectionURLTextField.SetPlaceholderText("Enter database connection url");
+            connectionURLTextField.SetPlaceholderText(CustomValidation.urlPlaceHolder);
             dbInfoContainer.Add(databaseTitle);
             dbInfoContainer.Add(connectionURLTextField);
             container.Add(dbInfoContainer);
@@ -80,14 +81,53 @@ namespace NebulaTool.Window
 
             var connectButton = NebulaExtention.Create<Button>("CustomButton");
             connectButton.text = "Sign Up";
-
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
             connectButton.clicked += () =>
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(
-                    apiController.SignUp(userNameTextField.value, emailTextField.value, passWordLblTextField.value, connectionURLTextField.value));
+                helpBoxContainer.Clear();
+                var values = new Dictionary<ValidationType, string>();
+                values.Add(ValidationType.UserName, userNameTextField.value);
+                values.Add(ValidationType.Email, emailTextField.value);
+                values.Add(ValidationType.Password, passWordLblTextField.value);
+                values.Add(ValidationType.ConnectionURL, connectionURLTextField.value);
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    helpBoxContainer.Clear();
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        switch (result)
+                        {
+                            case ValidationType.None:
+                                break;
+                            case ValidationType.UserName:
+                                warningBox.text = "Username is not empty or invalid";
+                                break;
+                            case ValidationType.Email:
+                                warningBox.text = "Email is not empty or invalid";
+                                break;
+                            case ValidationType.Password:
+                                warningBox.text = "Password is not empty or invalid";
+                                break;
+                            case ValidationType.ConnectionURL:
+                                warningBox.text = "ConnectionURL is not empty or invalid";
+                                break;
+                        }
+                        helpBoxContainer.Add(warningBox);
+                    }
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    EditorCoroutineUtility.StartCoroutineOwnerless(
+                    apiController.SignUp(userNameTextField.value,
+                    emailTextField.value, passWordLblTextField.value,
+                    connectionURLTextField.value));
+                }
             };
             container.Add(connectButton);
-
             root.Add(container);
         }
     }

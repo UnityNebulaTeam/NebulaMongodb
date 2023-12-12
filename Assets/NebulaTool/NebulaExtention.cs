@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using NebulaTool.DTO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson;
+using System.Collections.Generic;
 
 namespace NebulaTool.Extension
 {
@@ -66,5 +67,65 @@ namespace NebulaTool.Extension
             var jsonOutput = bsonDocument.ToJson(settings);
             return jsonOutput;
         }
+
+    }
+
+
+    public static class CustomValidation
+    {
+        public static string userNamePlaceHolder = "Enter your username";
+        public static string emailPlaceHolder = "Enter your email";
+        public static string passwordPlaceHolder = "Enter your password";
+        public static string urlPlaceHolder = "Enter your connection url";
+
+        public static List<ValidationType> IsValid(Dictionary<ValidationType, string> values)
+        {
+            List<ValidationType> invalidTypes = new List<ValidationType>();
+
+            foreach (var pair in values)
+            {
+                string placeHolder = "";
+                ValidationType placeType = ValidationType.None;
+
+                switch (pair.Key)
+                {
+                    case ValidationType.UserName:
+                        placeHolder = userNamePlaceHolder;
+                        placeType = ValidationType.UserName;
+                        break;
+                    case ValidationType.Email:
+                        placeHolder = emailPlaceHolder;
+                        placeType = ValidationType.Email;
+                        break;
+                    case ValidationType.Password:
+                        placeHolder = passwordPlaceHolder;
+                        placeType = ValidationType.Password;
+                        break;
+                    case ValidationType.ConnectionURL:
+                        placeHolder = urlPlaceHolder;
+                        placeType = ValidationType.ConnectionURL;
+                        break;
+                }
+
+                if (string.IsNullOrWhiteSpace(pair.Value) || pair.Value == placeHolder)
+                {
+                    invalidTypes.Add(placeType);
+                }
+            }
+
+            return invalidTypes;
+        }
+
+    }
+
+
+
+    public enum ValidationType
+    {
+        None,
+        UserName,
+        Email,
+        Password,
+        ConnectionURL
     }
 }

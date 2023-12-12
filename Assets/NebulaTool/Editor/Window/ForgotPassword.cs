@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using NebulaTool.ScritableSO;
 using NebulaTool.Path;
 using NebulaTool.Extension;
+using System.Collections.Generic;
 namespace NebulaTool.Window
 {
     public class ForgotPassword : EditorWindow
@@ -40,7 +41,7 @@ namespace NebulaTool.Window
             var mailTitle = NebulaExtention.Create<Label>("CustomLabel");
             mailTitle.text = "MAİL";
             var eMailTextField = NebulaExtention.Create<TextField>("CustomTextField");
-            eMailTextField.SetPlaceholderText("Enter your email or username");
+            eMailTextField.SetPlaceholderText(CustomValidation.emailPlaceHolder);
             mailContainer.Add(mailTitle);
             mailContainer.Add(eMailTextField);
 
@@ -49,7 +50,7 @@ namespace NebulaTool.Window
             var passwordTitle = NebulaExtention.Create<Label>("CustomLabel");
             passwordTitle.text = "Password";
             var passwordTextField = NebulaExtention.Create<TextField>("CustomTextField");
-            passwordTextField.SetPlaceholderText("Enter your password");
+            passwordTextField.SetPlaceholderText(CustomValidation.passwordPlaceHolder);
             passwordContainer.Add(passwordTitle);
             passwordContainer.Add(passwordTextField);
 
@@ -57,12 +58,42 @@ namespace NebulaTool.Window
             container.Add(passwordContainer);
 
             var SendContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
 
             var SendButton = NebulaExtention.Create<Button>("CustomButton");
             SendButton.text = "Send";
             SendButton.clicked += () =>
             {
+                helpBoxContainer.Clear();
 
+                var values = new Dictionary<ValidationType, string>();
+                values.Add(ValidationType.Email, eMailTextField.value);
+                values.Add(ValidationType.Password, passwordTextField.value);
+
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        switch (result)
+                        {
+                            case ValidationType.Email:
+                                warningBox.text = "Email is not empty or invalid";
+                                break;
+                            case ValidationType.Password:
+                                warningBox.text = "Password is not empty or invalid";
+                                break;
+                        }
+                        helpBoxContainer.Add(warningBox);
+                    }
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    //TODO: REQUEST API
+                }
             };
 
             SendContainer.Add(SendButton);

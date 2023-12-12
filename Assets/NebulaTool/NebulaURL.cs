@@ -13,6 +13,7 @@
             public static readonly string LoginURL = "http://localhost:5135/api/auth/login";
             public static readonly string RefreshTokenURL = "http://localhost:5135/api/auth/refresh";
             public static readonly string ApiDatabaseURL = "http://localhost:5135/api/user/db";
+            public static readonly string UpdateConnectionURL = "http://localhost:5135/api/user/db/sqlite";
         }
     }
 }

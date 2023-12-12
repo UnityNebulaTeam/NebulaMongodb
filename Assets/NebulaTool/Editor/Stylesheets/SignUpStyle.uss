@@ -29,6 +29,12 @@
 }
 
 
+.HelpboxContainer{
+width:100%
+flex-direction:column;
+}
+
+
 .CustomButton{
     width: 30%;
     border-radius: 10px;
@@ -42,4 +48,8 @@
 
 .unity-text-field__placeholder > .unity-base-text-field__input {
     color: #969696
+}
+
+.CustomHelpBox{
+width:100%;
 }

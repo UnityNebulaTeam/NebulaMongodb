@@ -36,6 +36,7 @@ namespace NebulaTool.API
         public event Action<List<CollectionDto>> collectionListLoaded;
         public event Action<TableItemDto> itemListLoaded;
         public event Action<BsonDocument> itemLoaded;
+
         public event Action<bool> NoneItemLoaded;
         public event Action<Action> GetTokenLoaded;
         public event Action<EditorLoadType> EditorDrawLoaded;
@@ -68,6 +69,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{request.downloadHandler.text} Isimli veritabanı başarıyla oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
+                    yield break;
                 }
                 else
                 {
@@ -76,10 +78,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(CreateDatabase(dbName, _tableName));
-                        //TOOD:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Veritabanı oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -109,6 +114,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{_name} veritabanı {request.downloadHandler.text} ismine başarıyla güncellendi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
+                    yield break;
                 }
                 else
                 {
@@ -117,10 +123,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(UpdateDatabase(_name, newdbName));
-                        //TOOD:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -140,6 +149,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{_dbName} isimli veritabanı başarıyla silindi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
+                    yield break;
                 }
                 else
                 {
@@ -148,10 +158,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(DeleteDatabase(_dbName));
-                        //TOOD:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Veritabanı silinemedi - ApiErrorMessage: {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -171,6 +184,7 @@ namespace NebulaTool.API
                     var data = request.downloadHandler.text;
                     var dbList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DatabaseDto>>(data);
                     DatabaseListLoaded?.Invoke(dbList);
+                    yield break;
                 }
                 else
                 {
@@ -178,12 +192,14 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(GetAllDatabases());
+                        yield break;
                     }
                     else
                     {
                         Debug.Log(request.responseCode);
                         MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
+                        yield break;
                     }
                 }
             }
@@ -217,6 +233,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{_dbName} veritabanına bağlı {_name} adında yeni bir koleksiyon oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Table);
+                    yield break;
                 }
                 else
                 {
@@ -225,10 +242,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(CreateTable(_dbName, _name));
-                        //TOOD:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -253,6 +273,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{_dbName} veritabanına bağlı {_tableName} koleksiyonu {_newTableName} olarak güncellendi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Table);
+                    yield break;
                 }
                 else
                 {
@@ -261,10 +282,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(UpdateTable(_dbName, _tableName, _newTableName));
-                        //TOOD:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Koleksiyon Güncellenmedi  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -284,6 +308,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu başarıyla silindi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Table);
+                    yield break;
                 }
                 else
                 {
@@ -292,10 +317,14 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(DeleteTable(_dbName, _tableName));
+                        yield break;
                         //TOOD:GET TOKEN
                     }
                     else
+                    {
                         Debug.Log($"Koleksiyon silinemedi  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -313,15 +342,9 @@ namespace NebulaTool.API
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     var data = request.downloadHandler.text;
-                    try
-                    {
-                        var collectionList = JsonUtility.FromJson<CollectionListWrapper>("{\"collections\":" + data + "}");
-                        collectionListLoaded?.Invoke(new List<CollectionDto>(collectionList.collections));
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError($"Exception during JSON deserialization: {e}");
-                    }
+                    var collectionList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CollectionDto>>(request.downloadHandler.text);
+                    collectionListLoaded?.Invoke(new List<CollectionDto>(collectionList));
+                    yield break;
                 }
                 else
                 {
@@ -330,10 +353,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(GetAllCollections(dbName));
-                        //TOOD:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"koleksiyonlar alınamadı  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -361,6 +387,7 @@ namespace NebulaTool.API
                         itemLoaded?.Invoke(items[0].AsBsonDocument);
                     else
                         NoneItemLoaded?.Invoke(true);
+                    yield break;
                 }
                 else
                 {
@@ -369,10 +396,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(GetAllItemsTypeBsonDocument(dbName, collectionName));
-                        //TODO:GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Veri  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -406,6 +436,7 @@ namespace NebulaTool.API
                 {
                     Debug.Log($"Veri oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
+                    yield break;
                 }
                 else
                 {
@@ -414,10 +445,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(CreateItem(dbName, tableName, fields));
-                        //TODO:GET TOKEn
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Veri oluşturulamadı  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -439,6 +473,7 @@ namespace NebulaTool.API
                     PropertyId id = Newtonsoft.Json.JsonConvert.DeserializeObject<PropertyId>(request.downloadHandler.text);
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
                     Debug.Log($"{id.id} Numaralı Veri Güncellendi ");
+                    yield break;
                 }
                 else
                 {
@@ -447,10 +482,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(UpdateItem(dto));
-                        //TODO: GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Veri güncellenemedi  - ApiErrorMessage {exception.Message}");
+                        yield break;
+                    }
                 }
             }
         }
@@ -469,6 +507,8 @@ namespace NebulaTool.API
                 {
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
                     Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu bağlı {Id} numaralı veri başarıyla silindi");
+                    yield break;
+
                 }
                 else
                 {
@@ -477,11 +517,12 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(DeleteItem(_dbName, _tableName, Id));
-                        //TODO: GET TOKEn
+                        yield break;
                     }
                     else
                     {
                         Debug.Log($"Veri silinemedi  - ApiErrorMessage {exception.Message}");
+                        yield break;
                     }
                 }
             }
@@ -502,6 +543,7 @@ namespace NebulaTool.API
                     var items = BsonSerializer.Deserialize<BsonArray>(data);
                     TableItemDto itemDto = new TableItemDto(items);
                     itemListLoaded?.Invoke(itemDto);
+                    yield break;
                 }
                 else
                 {
@@ -510,12 +552,13 @@ namespace NebulaTool.API
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(GetAllItems(dbName, collectionName));
-                        //TODO: GET TOKEN
+                        yield break;
                     }
                     else
                     {
                         Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
                         Debug.LogError(request.error);
+                        yield break;
                     }
                 }
             }
@@ -570,12 +613,13 @@ namespace NebulaTool.API
 
                     EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                     Debug.Log($"Kullanıcı oluşturuldu");
-
+                    yield break;
                 }
                 else
                 {
                     MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     Debug.Log($"Api Erro Message {customExp.Message}");
+                    yield break;
                 }
             }
         }
@@ -604,6 +648,7 @@ namespace NebulaTool.API
                     ApiToken token = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiToken>(request.downloadHandler.text);
                     apiConnectData.userInformation.token = token.Token;
                     apiConnectData.userInformation.refreshToken = token.RefreshToken;
+                    yield break;
                 }
                 else
                 {
@@ -611,6 +656,7 @@ namespace NebulaTool.API
                     if (!customExp.success)
                     {
                         Debug.Log($"APİ ERROR MESSAGE {customExp.Message}");
+                        yield break;
                         //TODO: GET TOKEN
                     }
                     else
@@ -637,11 +683,11 @@ namespace NebulaTool.API
                     MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!customExp.success)
                     {
-
+                        yield break;
                     }
                     else
                     {
-
+                        yield break;
                     }
                 }
             }
@@ -674,6 +720,7 @@ namespace NebulaTool.API
                     apiConnectData.userInformation.refreshToken = tokens.RefreshToken;
                     EditorUtility.SetDirty(apiConnectData);
                     Debug.Log(request.downloadHandler.text);
+                    yield break;
                 }
                 else
                 {
@@ -681,17 +728,71 @@ namespace NebulaTool.API
                     if (!customExp.success)
                     {
                         Debug.Log($"GET TOKEN {customExp.Message}");
-                        //TODO: GET TOKEN
+                        yield break;
                     }
                     else
+                    {
                         Debug.Log($"Api Erro Message {customExp.Message}");
+                        yield break;
+                    }
                 }
             }
         }
 
 
+        public IEnumerator UpdateConnectionURL(string newconnectionURL)
+        {
+            var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
+            (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
+
+            UpdateConnectionUrlDTO dto = new UpdateConnectionUrlDTO
+            {
+                connectionString = newconnectionURL
+            };
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
+            using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.UpdateConnectionURL, json))
+            {
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
+                yield return request.SendWebRequest();
+                if (request.result is UnityWebRequest.Result.Success)
+                {
+                    Debug.Log($"Connection URL Güncellendi");
+                    yield break;
+                }
+                else
+                {
+                    Debug.Log(request.error);
+                    Debug.Log(request.responseCode);
+                    Debug.Log(request.downloadHandler.text);
+                    MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                    if (!customExp.success)
+                    {
+                        EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                        EditorCoroutineUtility.StartCoroutineOwnerless(UpdateConnectionURL(newconnectionURL));
+                        Debug.Log($"GET TOKEN {customExp.Message}");
+                        yield break;
+                    }
+                    else
+                    {
+                        Debug.Log($"Api Erro Message {customExp.Message}");
+                        yield break;
+                    }
+                }
+            }
+        }
+
         #endregion
 
 
     }
+}
+
+
+public class UpdateConnectionUrlDTO
+{
+    public string connectionString { get; set; }
 }
