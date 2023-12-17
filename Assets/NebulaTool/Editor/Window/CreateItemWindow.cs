@@ -185,6 +185,7 @@ namespace NebulaTool.Window
             root.Add(container);
         }
 
+        [Obsolete]
         private void CreateItemUI()
         {
             var root = rootVisualElement;

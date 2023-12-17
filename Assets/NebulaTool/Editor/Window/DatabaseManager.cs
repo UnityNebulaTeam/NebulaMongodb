@@ -56,6 +56,15 @@ namespace NebulaTool.Window
 
         }
 
+
+        private void OnFocus()
+        {
+            if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
+                EditorCoroutineUtility
+                .StartCoroutineOwnerless(apiController
+                .GetAllItems(selectedDatabase, selectedCollection));
+        }
+
         public void CreateGUI()
         {
             var Wrapper = InitializeRootVisualElement();
