@@ -70,7 +70,7 @@ namespace NebulaTool.Window
 
             var dbInfoContainer = NebulaExtention.Create<VisualElement>("CustomPropFieldContainer");
             var databaseTitle = NebulaExtention.Create<Label>("CustomLabel");
-            databaseTitle.text = DatabaseTypes.MONGO.ToString();
+            databaseTitle.text = DatabaseTypes.MONGODB.ToString();
             var connectionURLTextField = NebulaExtention.Create<TextField>("CustomTextField");
             connectionURLTextField.SetPlaceholderText(CustomValidation.urlPlaceHolder);
             dbInfoContainer.Add(databaseTitle);

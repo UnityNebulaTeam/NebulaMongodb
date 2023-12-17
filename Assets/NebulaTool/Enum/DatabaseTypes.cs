@@ -3,7 +3,7 @@ namespace NebulaTool.Enum
 {
     public enum DatabaseTypes
     {
-        MONGO,
+        MONGODB,
         SQLITE,
         MSSQL,
         MYSQL,

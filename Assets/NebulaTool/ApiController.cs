@@ -154,6 +154,8 @@ namespace NebulaTool.API
                 else
                 {
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                    Debug.Log(exception.success);
+
                     if (!exception.success)
                     {
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
@@ -293,8 +295,9 @@ namespace NebulaTool.API
             }
         }
 
-        public IEnumerator DeleteTable(string _dbName, string _tableName)
+        public IEnumerator DeleteTable(string _dbName, string _tableName, bool isLastCollection = false)
         {
+
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom Error Handler test edildi 
             string uri = NebulaURL.MongoDB.tableURL + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
@@ -307,7 +310,10 @@ namespace NebulaTool.API
                 if (result is UnityWebRequest.Result.Success)
                 {
                     Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu başarıyla silindi");
-                    EditorDrawLoaded?.Invoke(EditorLoadType.Table);
+                    if (isLastCollection)
+                        EditorDrawLoaded?.Invoke(EditorLoadType.Database);
+                    else
+                        EditorDrawLoaded?.Invoke(EditorLoadType.Table);
                     yield break;
                 }
                 else
@@ -315,6 +321,7 @@ namespace NebulaTool.API
                     MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     if (!exception.success)
                     {
+                        Debug.Log("DELETETABLEOPERATIONIFTOKENISNOTVALID");
                         EditorCoroutineUtility.StartCoroutineOwnerless(Login());
                         EditorCoroutineUtility.StartCoroutineOwnerless(DeleteTable(_dbName, _tableName));
                         yield break;
@@ -328,6 +335,7 @@ namespace NebulaTool.API
                 }
             }
         }
+
 
         public IEnumerator GetAllCollections(string dbName)
         {
@@ -470,9 +478,8 @@ namespace NebulaTool.API
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
-                    PropertyId id = Newtonsoft.Json.JsonConvert.DeserializeObject<PropertyId>(request.downloadHandler.text);
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
-                    Debug.Log($"{id.id} Numaralı Veri Güncellendi ");
+                    Debug.Log($"{dto.doc["_id"]} Numaralı Veri Güncellendi ");
                     yield break;
                 }
                 else
@@ -576,7 +583,7 @@ namespace NebulaTool.API
             var apiConnectionSO = ScriptableObject.CreateInstance<ApiConnectionSO>();
 
 
-            ApiConnectionDto dto = new ApiConnectionDto
+            ApiSignUpDto dto = new ApiSignUpDto
             {
                 username = _username,
                 email = _email,
@@ -628,9 +635,8 @@ namespace NebulaTool.API
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
                 (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
-            ApiConnectionDto dto = new ApiConnectionDto
+            ApiLoginDto dto = new ApiLoginDto
             {
-                username = apiConnectData.userInformation.userName,
                 email = apiConnectData.userInformation.eMail,
                 password = apiConnectData.userInformation.password
             };
@@ -657,7 +663,6 @@ namespace NebulaTool.API
                     {
                         Debug.Log($"APİ ERROR MESSAGE {customExp.Message}");
                         yield break;
-                        //TODO: GET TOKEN
                     }
                     else
                         Debug.Log($"Api Erro Message {customExp.Message}");
@@ -751,7 +756,7 @@ namespace NebulaTool.API
             };
 
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
-            using (UnityWebRequest request = UnityWebRequest.PostWwwForm(NebulaURL.MongoDB.UpdateConnectionURL, json))
+            using (UnityWebRequest request = UnityWebRequest.Put(NebulaURL.MongoDB.UpdateConnectionURL, json))
             {
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);

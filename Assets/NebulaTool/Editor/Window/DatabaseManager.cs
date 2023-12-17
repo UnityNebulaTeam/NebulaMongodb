@@ -68,15 +68,6 @@ namespace NebulaTool.Window
             Wrapper.Add(dbContainer);
         }
 
-        private void OnFocus()
-        {
-            if (!string.IsNullOrEmpty(selectedDatabase))
-                DrawEditorLoad(EditorLoadType.Table);
-            if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
-                DrawEditorLoad(EditorLoadType.Item);
-            if (string.IsNullOrEmpty(selectedDatabase) && string.IsNullOrEmpty(selectedCollection))
-                DrawEditorLoad(EditorLoadType.Database);
-        }
 
         private void OnDestroy()
         {
@@ -301,9 +292,18 @@ namespace NebulaTool.Window
             createCollectionButton.text = "+";
             createCollectionButton.clicked += delegate
             {
-                EditorPrefs.SetString("dbname", selectedDatabase);
-                CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.collection);
-                windowCreate.ShowWindow();
+                if (string.IsNullOrEmpty(selectedDatabase))
+                {
+                    EditorUtility.DisplayDialog("Selected Database",
+                    "You have to choose one database for this operation", "ok");
+                    return;
+                }
+                else
+                {
+                    EditorPrefs.SetString("dbname", selectedDatabase);
+                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.collection);
+                    windowCreate.ShowWindow();
+                }
             };
             middleTitlePanel.Add(colllectionsTitle);
             middleTitlePanel.Add(createCollectionButton);
@@ -385,8 +385,8 @@ namespace NebulaTool.Window
                                 if (!string.IsNullOrEmpty(selectedDatabase))
                                 {
                                     EditorCoroutineUtility.StartCoroutineOwnerless(
-                                        apiController.DeleteTable(selectedDatabase, collection.name));
-                                    ClearEditorDataForTable();
+                                        apiController.DeleteTable(selectedDatabase, collection.name, true));
+                                    ClearEditorDataForDatabase();
                                 }
                         }
                     };

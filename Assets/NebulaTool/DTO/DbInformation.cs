@@ -5,6 +5,6 @@ namespace NebulaTool.DTO
     public class DbInformation
     {
         public string connectionString { get; set; }
-        public string keyIdentifier = DatabaseTypes.MONGO.ToString();
+        public string keyIdentifier = DatabaseTypes.MONGODB.ToString();
     }
 }
