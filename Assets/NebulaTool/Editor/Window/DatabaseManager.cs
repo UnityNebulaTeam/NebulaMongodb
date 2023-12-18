@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -47,15 +48,20 @@ namespace NebulaTool.Window
         private void OnEnable()
         {
             PrepareData();
-
-
             apiController.DatabaseListLoaded += GetDatabaseList;
             apiController.collectionListLoaded += GetCollectionList;
-            apiController.itemListLoaded += GetİtemList;
+            apiController.itemListLoaded += GetItemList;
             apiController.EditorDrawLoaded += DrawEditorLoad;
-
         }
+        private void OnDestroy()
+        {
+            apiController.DatabaseListLoaded -= GetDatabaseList;
+            apiController.collectionListLoaded -= GetCollectionList;
+            apiController.itemListLoaded -= GetItemList;
+            apiController.EditorDrawLoaded -= DrawEditorLoad;
 
+            EditorPrefs.DeleteAll();
+        }
 
         private void OnFocus()
         {
@@ -78,14 +84,28 @@ namespace NebulaTool.Window
         }
 
 
-        private void OnDestroy()
-        {
-            apiController.DatabaseListLoaded -= GetDatabaseList;
-            apiController.collectionListLoaded -= GetCollectionList;
-            apiController.itemListLoaded -= GetİtemList;
-            apiController.EditorDrawLoaded -= DrawEditorLoad;
+        #endregion
 
-            EditorPrefs.DeleteAll();
+        #region Event Listeners
+
+        private void GetDatabaseList(List<DatabaseDto> list)
+        {
+            databaseList.Clear();
+            databaseList = list;
+            CustomRepaint();
+        }
+
+        private void GetCollectionList(List<CollectionDto> list)
+        {
+            collectionList.Clear();
+            collectionList = list;
+            CustomRepaint();
+        }
+
+        private void GetItemList(TableItemDto dto)
+        {
+            itemList = dto;
+            CustomRepaint();
         }
 
         private void DrawEditorLoad(EditorLoadType editorType)
@@ -105,31 +125,6 @@ namespace NebulaTool.Window
                     break;
             }
 
-            CustomRepaint();
-        }
-
-        public void RefreshPanel(EditorLoadType panelType) => DrawEditorLoad(panelType);
-        #endregion
-
-        #region Event Listeners
-
-        private void GetDatabaseList(List<DatabaseDto> list)
-        {
-            databaseList.Clear();
-            databaseList = list;
-            CustomRepaint();
-        }
-
-        private void GetCollectionList(List<CollectionDto> list)
-        {
-            collectionList.Clear();
-            collectionList = list;
-            CustomRepaint();
-        }
-
-        private void GetİtemList(TableItemDto dto)
-        {
-            itemList = dto;
             CustomRepaint();
         }
 
@@ -246,6 +241,7 @@ namespace NebulaTool.Window
                         else
                         {
                             selectedDatabase = databaseButton.text;
+                            ClearEditorDataForTable();
                             //seçtiğim veritabanına bağlı koleksiyonlar gelsin diye
                             EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllCollections(selectedDatabase));
                         }
@@ -396,6 +392,7 @@ namespace NebulaTool.Window
                                     EditorCoroutineUtility.StartCoroutineOwnerless(
                                         apiController.DeleteTable(selectedDatabase, collection.name, true));
                                     ClearEditorDataForDatabase();
+                                    ClearEditorDataForTable();
                                 }
                         }
                     };
@@ -576,7 +573,6 @@ namespace NebulaTool.Window
             collectionList.Clear();
             databaseList.Clear();
             itemList = null;
-            //CustomRepaint();
         }
 
         private void ClearEditorDataForTable()
@@ -605,7 +601,7 @@ namespace NebulaTool.Window
             icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaPath.DataPath + NebulaResourcesName.IconsDataName);
         }
 
-
+        public void RefreshPanel(EditorLoadType panelType) => DrawEditorLoad(panelType);
         #endregion
     }
 }

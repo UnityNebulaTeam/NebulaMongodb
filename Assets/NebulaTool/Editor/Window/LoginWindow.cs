@@ -123,8 +123,8 @@ namespace NebulaTool.Window
                     apiConnectionSo.userInformation.userName = userNameTextField.value;
                     apiConnectionSo.userInformation.password = passwordTextField.value;
                     EditorUtility.SetDirty(apiConnectionSo);
-                    EditorCoroutineUtility.StartCoroutineOwnerless(
-                                        apiController.Login());
+                    // EditorCoroutineUtility.StartCoroutineOwnerless(
+                    //                     apiController.Login());
                 }
 
             };
