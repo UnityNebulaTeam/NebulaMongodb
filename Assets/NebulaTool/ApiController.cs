@@ -50,7 +50,9 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
@@ -91,7 +93,9 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
@@ -124,8 +128,10 @@ namespace NebulaTool.API
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                 request.SendWebRequest();
-                
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -156,7 +162,10 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.databaseURL))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
+                
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
@@ -202,7 +211,9 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
@@ -239,7 +250,9 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
@@ -272,7 +285,9 @@ namespace NebulaTool.API
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
@@ -308,7 +323,9 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.tableURL + "?dbName=" + dbName))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
@@ -343,8 +360,10 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                 request.SendWebRequest();
-                
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -394,8 +413,10 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SendWebRequest();
-              
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -428,8 +449,10 @@ namespace NebulaTool.API
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                 request.SendWebRequest();
-                
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -460,8 +483,10 @@ namespace NebulaTool.API
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
-              
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -491,8 +516,9 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
-               
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -520,7 +546,6 @@ namespace NebulaTool.API
         #endregion
 
         #region Api
-
         public async Task SignUp(string _username, string _email, string _password, string _connectionURL)
         {
             var apiConnectionSO = ScriptableObject.CreateInstance<ApiConnectionSO>();
@@ -542,8 +567,10 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SendWebRequest();
-                
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -569,7 +596,6 @@ namespace NebulaTool.API
                 }
             }
         }
-
         public async Task Login()
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -584,7 +610,9 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
@@ -599,8 +627,6 @@ namespace NebulaTool.API
                 }
             }
         }
-
-
         public async Task RefreshToken()
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
@@ -619,8 +645,10 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                 request.SendWebRequest();
-                
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     ApiToken tokens = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiToken>(request.downloadHandler.text);
@@ -644,7 +672,6 @@ namespace NebulaTool.API
                 }
             }
         }
-
         public async Task UpdateConnectionURL(string newconnectionURL)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
@@ -662,7 +689,9 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                request.SendWebRequest();
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {

@@ -32,7 +32,9 @@ namespace NebulaTool.Window
         /// <param name="selectedDatabase">Koleksiyonunun hangi veritabanına bağlı olduğunu belirt</param>
         /// <param name="selectedCollection">Veri hangi koleksiyon altında oluşturulacak</param>
         public CreateItemWindow(CreateItemType _type, string selectedDatabase, string selectedCollection) => createType = _type;
+
         private StyleSheet mainStyle;
+
         public void ShowWindow()
         {
             var window = GetWindow<CreateItemWindow>();
@@ -43,7 +45,7 @@ namespace NebulaTool.Window
                 SelectedColection = EditorPrefs.GetString("collectionName");
 
             if (createType is CreateItemType.item)
-               apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection);
+                apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection);
             window.Show();
         }
 
@@ -105,7 +107,9 @@ namespace NebulaTool.Window
                 case CreateItemType.item:
                     CreateItemUI();
                     break;
-            };
+            }
+
+            ;
         }
 
         [Obsolete]
@@ -115,12 +119,12 @@ namespace NebulaTool.Window
             var container = NebulaExtention.Create<VisualElement>("Container");
 
             var dbName = NebulaExtention.Create<TextField>();
+            dbName.SetPlaceholderText(CustomValidation.CreateDbPlaceHolder);
             var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
-            dbTitle.text = "Database Name";
 
             var collectionName = NebulaExtention.Create<TextField>();
+            collectionName.SetPlaceholderText(CustomValidation.CreateCollectionPlaceHolder);
             var colletionTitle = NebulaExtention.Create<Label>("CustomLabel");
-            colletionTitle.text = "Collection Name";
 
 
             container.Add(dbTitle);
@@ -130,24 +134,41 @@ namespace NebulaTool.Window
 
 
             var CreateButton = NebulaExtention.Create<Button>("CustomOperationButton");
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+
             CreateButton.text = "+";
             CreateButton.clicked += delegate
             {
-               
-                     apiController.CreateDatabase(dbName.value, collectionName.value);
+                helpBoxContainer.Clear();
+                var values = new Dictionary<ValidationType, string>();
+                values.Add(ValidationType.CreateDb, dbName.value);
+                values.Add(ValidationType.CreateCollection, collectionName.value);
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        warningBox.text = result switch
+                        {
+                            ValidationType.CreateDb => "You have to set db name",
+                            ValidationType.CreateCollection => "You have to set collection name",
+                            _ => warningBox.text
+                        };
+                        helpBoxContainer.Add(warningBox);
+                    }
+
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    apiController.CreateDatabase(dbName.value, collectionName.value);
+                }
             };
 
             container.Add(CreateButton);
 
-            var dbHelperBox = NebulaExtention.Create<HelpBox>();
-            dbHelperBox.messageType = HelpBoxMessageType.Info;
-            dbHelperBox.text = "Veritabanı Adı Boş Olamaz";
-            var collectionHelperBox = NebulaExtention.Create<HelpBox>();
-            collectionHelperBox.messageType = HelpBoxMessageType.Info;
-            collectionHelperBox.text = "Collection Adı Boş Olamaz. Collection oluşturmamız zorunlu çünkü Mongodb sisteminde veritabanı oluşturabilmeniz için bir adet koleksiyon oluşturmak zorundasınız";
-
-            container.Add(dbHelperBox);
-            container.Add(collectionHelperBox);
 
             root.Add(container);
         }
@@ -163,18 +184,39 @@ namespace NebulaTool.Window
             container.Add(dbTitle);
 
             var collectionNameInput = NebulaExtention.Create<TextField>("CustomTextField");
-            collectionNameInput.value = "Collection Name";
+            collectionNameInput.SetPlaceholderText(CustomValidation.CreateCollectionPlaceHolder);
             container.Add(collectionNameInput);
 
             var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
             createOperationButton.text = "+";
             createOperationButton.clicked += delegate
             {
-                Debug.Log(dbTitle.text);
-                Debug.Log(collectionNameInput.value);
-                if (!string.IsNullOrEmpty(collectionNameInput.value))
+                helpBoxContainer.Clear();
+                var values = new Dictionary<ValidationType, string>
                 {
-                   apiController.CreateTable(dbTitle.text, collectionNameInput.value);
+                    {ValidationType.CreateCollection, collectionNameInput.value}
+                };
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        warningBox.text = result switch
+                        {
+                            ValidationType.CreateCollection => "You have to set collection name",
+                            _ => warningBox.text
+                        };
+                        helpBoxContainer.Add(warningBox);
+                    }
+
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    apiController.CreateTable(dbTitle.text, collectionNameInput.value);
                 }
             };
             container.Add(createOperationButton);
@@ -192,18 +234,25 @@ namespace NebulaTool.Window
                 foreach (var key in doc)
                 {
                     if (key.Name is "_id") continue;
-                    var fieldValuePair = new FieldValuePair(key.Name, key.Value.ToString());
+                    var fieldValuePair = new FieldValuePair(key.Name, CustomValidation.ItemValuePlaceHolder);
                     var propTextAndValueContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
                     var propText = NebulaExtention.Create<TextField>("CustomPropField");
-                    propText.value = key.Name;
+                    propText.SetPlaceholderText(key.Name);
+                    propText.RegisterValueChangedCallback(x =>
+                    {
+                        if (string.IsNullOrEmpty(x.newValue))
+                            fieldValuePair.FieldName = key.Name;
+                        else
+                            fieldValuePair.FieldName = x.newValue;
+                    });
 
                     var propvalue = NebulaExtention.Create<TextField>("CustomValueField");
-                    propvalue.value = "";
+                    propvalue.SetPlaceholderText(CustomValidation.ItemValuePlaceHolder);
 
                     propvalue.RegisterValueChangedCallback(e =>
-                           {
-                               fieldValuePair.UpdatedValue = e.newValue;
-                           });
+                    {
+                        fieldValuePair.UpdatedValue = e.newValue;
+                    });
                     propTextAndValueContainer.Add(propText);
                     propTextAndValueContainer.Add(propvalue);
                     container.Add(propTextAndValueContainer);
@@ -212,15 +261,35 @@ namespace NebulaTool.Window
                 }
 
                 var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+
+                
                 createOperationButton.text = "+";
                 createOperationButton.clicked += delegate
                 {
-                   apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
+                    helpBoxContainer.Clear();
+                    var validations = CustomValidation.IsValidItem(fields);
+                    if (validations.Count > 0)
+                    {
+                        foreach (var valid in validations)
+                        {
+                            var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                            warningBox.messageType = HelpBoxMessageType.Error;
+                            warningBox.text = $"{valid + 1}. satıra lütfen geçerli bir değer giriniz";
+                            helpBoxContainer.Add(warningBox);
+                        }
+                    }
+                    else
+                    {
+                        apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
+                    }
                 };
 
                 root.Add(container);
                 root.Add(createOperationButton);
+                root.Add(helpBoxContainer);
             }
+
             if (doesNotExistDoc)
             {
                 var propFieldContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
@@ -243,7 +312,8 @@ namespace NebulaTool.Window
                         fieldCount--;
                     CreateItemUI();
                 };
-                propFieldContainer.Add(fieldCountLabel); ;
+                propFieldContainer.Add(fieldCountLabel);
+                ;
                 propFieldContainer.Add(addFieldButton);
                 propFieldContainer.Add(minusFieldCount);
 
@@ -251,24 +321,19 @@ namespace NebulaTool.Window
                 root.Add(container);
 
 
-
                 List<FieldValuePair> fields = new List<FieldValuePair>();
                 for (int i = 0; i < fieldCount; i++)
                 {
                     var propContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
-                    var fieldValuePair = new FieldValuePair("", "");
+                    var fieldValuePair = new FieldValuePair(CustomValidation.ItemPropertyPlaceHolder, CustomValidation.ItemValuePlaceHolder);
                     var propName = NebulaExtention.Create<TextField>("CustomPropField");
+                    propName.SetPlaceholderText(CustomValidation.ItemPropertyPlaceHolder);
                     var propValue = NebulaExtention.Create<TextField>("CustomValueField");
+                    propValue.SetPlaceholderText(CustomValidation.ItemValuePlaceHolder);
 
-                    propName.RegisterValueChangedCallback(e =>
-                    {
-                        fieldValuePair.FieldName = e.newValue;
-                    });
+                    propName.RegisterValueChangedCallback(e => { fieldValuePair.FieldName = e.newValue; });
 
-                    propValue.RegisterValueChangedCallback(e =>
-                   {
-                       fieldValuePair.UpdatedValue = e.newValue;
-                   });
+                    propValue.RegisterValueChangedCallback(e => { fieldValuePair.UpdatedValue = e.newValue; });
 
                     propContainer.Add(propName);
                     propContainer.Add(propValue);
@@ -279,12 +344,30 @@ namespace NebulaTool.Window
                 }
 
                 var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+                
                 createOperationButton.text = "Create";
                 createOperationButton.clicked += delegate
                 {
-                    apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
+                    helpBoxContainer.Clear();
+                    var validCount = CustomValidation.IsValidItem(fields);
+                    if (validCount.Count > 0)
+                    {
+                        foreach (var validIndex in validCount)
+                        {
+                            var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                            warningBox.messageType = HelpBoxMessageType.Error;
+                            warningBox.text = $"{validIndex + 1}. satıra lütfen geçerli bir değer giriniz";
+                            helpBoxContainer.Add(warningBox);
+                        }
+                    }
+                    else
+                    {
+                        apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
+                    }
                 };
                 root.Add(createOperationButton);
+                root.Add(helpBoxContainer);
             }
         }
 
@@ -293,6 +376,7 @@ namespace NebulaTool.Window
             ClearAllPlayerPrefs();
             Close();
         }
+
         private void ClearAllPlayerPrefs() => EditorPrefs.DeleteAll();
     }
 }

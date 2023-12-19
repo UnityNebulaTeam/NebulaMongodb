@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEditor;
 using NebulaTool.Path;
 using UnityEngine.UIElements;
@@ -6,6 +7,7 @@ using NebulaTool.DTO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace NebulaTool.Extension
 {
@@ -77,6 +79,12 @@ namespace NebulaTool.Extension
         public static string emailPlaceHolder = "Enter your email";
         public static string passwordPlaceHolder = "Enter your password";
         public static string urlPlaceHolder = "Enter your connection url";
+        public static string CreateDbPlaceHolder = "Enter your db name";
+        public static string CreateCollectionPlaceHolder = "Enter your collection name";
+
+        public static string ItemPropertyPlaceHolder="PropName";
+        public static string ItemValuePlaceHolder="PropValue";
+        
 
         public static List<ValidationType> IsValid(Dictionary<ValidationType, string> values)
         {
@@ -105,6 +113,16 @@ namespace NebulaTool.Extension
                         placeHolder = urlPlaceHolder;
                         placeType = ValidationType.ConnectionURL;
                         break;
+                    case ValidationType.CreateDb:
+                        placeHolder = CreateDbPlaceHolder;
+                        placeType = ValidationType.CreateDb;
+                        break;
+                    case ValidationType.CreateCollection:
+                        placeHolder = CreateCollectionPlaceHolder;
+                        placeType = ValidationType.CreateCollection;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
                 if (string.IsNullOrWhiteSpace(pair.Value) || pair.Value == placeHolder)
@@ -116,6 +134,21 @@ namespace NebulaTool.Extension
             return invalidTypes;
         }
 
+        public static List<int> IsValidItem(List<FieldValuePair> fields)
+        {
+            List<int> isNotValidList=new List<int>();
+
+            for (int i = 0; i < fields.Count; i++)
+            {
+                if (fields[i].FieldName == ItemPropertyPlaceHolder 
+                    || string.IsNullOrEmpty(fields[i].FieldName)
+                    || fields[i].UpdatedValue == ItemValuePlaceHolder 
+                    || string.IsNullOrEmpty(fields[i].UpdatedValue)
+                   )
+                    isNotValidList.Add(i);
+            }
+            return isNotValidList;
+        }
     }
 
 
@@ -126,6 +159,8 @@ namespace NebulaTool.Extension
         UserName,
         Email,
         Password,
-        ConnectionURL
+        ConnectionURL,
+        CreateDb,
+        CreateCollection
     }
 }

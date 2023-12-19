@@ -28,6 +28,11 @@ width:20%;
 color:black;
 }
 
+.HelpboxContainer{
+    width:100%;
+    flex-direction:column;
+}
+
 
 .CustomOperationButton{
 width:30px;
