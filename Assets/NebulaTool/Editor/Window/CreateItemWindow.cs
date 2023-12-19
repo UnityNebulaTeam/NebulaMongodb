@@ -43,7 +43,7 @@ namespace NebulaTool.Window
                 SelectedColection = EditorPrefs.GetString("collectionName");
 
             if (createType is CreateItemType.item)
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection));
+               apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection);
             window.Show();
         }
 
@@ -105,9 +105,6 @@ namespace NebulaTool.Window
                 case CreateItemType.item:
                     CreateItemUI();
                     break;
-
-                default:
-                    break;
             };
         }
 
@@ -136,9 +133,8 @@ namespace NebulaTool.Window
             CreateButton.text = "+";
             CreateButton.clicked += delegate
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(
-                     apiController.CreateDatabase(dbName.value, collectionName.value)
-                                                             );
+               
+                     apiController.CreateDatabase(dbName.value, collectionName.value);
             };
 
             container.Add(CreateButton);
@@ -178,14 +174,13 @@ namespace NebulaTool.Window
                 Debug.Log(collectionNameInput.value);
                 if (!string.IsNullOrEmpty(collectionNameInput.value))
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateTable(dbTitle.text, collectionNameInput.value));
+                   apiController.CreateTable(dbTitle.text, collectionNameInput.value);
                 }
             };
             container.Add(createOperationButton);
             root.Add(container);
         }
 
-        [Obsolete]
         private void CreateItemUI()
         {
             var root = rootVisualElement;
@@ -220,7 +215,7 @@ namespace NebulaTool.Window
                 createOperationButton.text = "+";
                 createOperationButton.clicked += delegate
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
+                   apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
                 };
 
                 root.Add(container);
@@ -287,7 +282,7 @@ namespace NebulaTool.Window
                 createOperationButton.text = "Create";
                 createOperationButton.clicked += delegate
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
+                    apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
                 };
                 root.Add(createOperationButton);
             }

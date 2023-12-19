@@ -118,8 +118,7 @@ namespace NebulaTool.Window
                 }
                 else
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateConnectionURL(connectionStringTextField.value));
-                    //TODO: REQUEST API
+                    apiController.UpdateConnectionURL(connectionStringTextField.value);
                 }
             };
 

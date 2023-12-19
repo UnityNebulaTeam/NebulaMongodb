@@ -21,30 +21,17 @@ namespace NebulaTool.API
 {
     public class ApiController
     {
-        private static ApiController instance;
-        public static ApiController Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new ApiController();
-                }
-                return instance;
-            }
-        }
         public event Action<List<DatabaseDto>> DatabaseListLoaded;
         public event Action<List<CollectionDto>> collectionListLoaded;
         public event Action<TableItemDto> itemListLoaded;
         public event Action<BsonDocument> itemLoaded;
         public event Action<bool> NoneItemLoaded;
-        public event Action<Action> GetTokenLoaded;
         public event Action<EditorLoadType> EditorDrawLoaded;
-        public event Action RefreshTokenAndDoOperation;
+
         #region Database
 
         [Obsolete]
-        public IEnumerator CreateDatabase(string dbName, string _tableName)
+        public async Task CreateDatabase(string dbName, string _tableName)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
                 (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -63,34 +50,31 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
-                    Debug.Log($"{request.downloadHandler.text} Isimli veritabanı başarıyla oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
-                    yield break;
                 }
                 else
                 {
                     if (request.responseCode is 401)
                     {
                         Debug.Log($"Token Geçersiz CreateDatabase {request.responseCode}");
-                        AddRefreshTokenHandler(() => CreateDatabase(dbName,_tableName));
+                        AddRefreshTokenHandler(() => CreateDatabase(dbName, _tableName));
                     }
                     else
                     {
                         MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veritabanı oluşturulamadı  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator UpdateDatabase(string _name, string newdbName)
+        public async Task UpdateDatabase(string _name, string newdbName)
         {
-
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
                 (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
 
@@ -107,68 +91,64 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
-                    Debug.Log($"{_name} veritabanı {request.downloadHandler.text} ismine başarıyla güncellendi");
+                    Debug.Log($"{_name} veritabanı {newdbName} ismine başarıyla güncellendi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz UpdateDatabase {exception.Message}");
-                        AddRefreshTokenHandler(() => UpdateDatabase(_name,newdbName));
-                        yield break;
+                        Debug.Log($"Token Geçersiz CreateDatabase {request.responseCode}");
+                        AddRefreshTokenHandler(() => UpdateDatabase(_name, newdbName));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veritabanı Güncellenemedi  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator DeleteDatabase(string _dbName)
+        public async Task DeleteDatabase(string _dbName)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
-               (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
+                (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom Error Handler Test Edildi
             using (UnityWebRequest request = UnityWebRequest.Delete(NebulaURL.MongoDB.databaseURL + "?Name=" + _dbName))
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                 request.SendWebRequest();
+                
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
                     Debug.Log($"{_dbName} isimli veritabanı başarıyla silindi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Database);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz DeleteDatabase {exception.Message}");
+                        Debug.Log($"Token Geçersiz DeleteDatabase  {request.responseCode}");
                         AddRefreshTokenHandler(() => DeleteDatabase(_dbName));
-                        yield break;
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veritabanı silinemedi - ApiErrorMessage: {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator GetAllDatabases()
+        public async Task GetAllDatabases()
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
                 (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -176,14 +156,13 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.databaseURL))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     var data = request.downloadHandler.text;
                     var dbList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DatabaseDto>>(data);
                     DatabaseListLoaded?.Invoke(dbList);
-                    yield break;
                 }
                 else
                 {
@@ -191,13 +170,11 @@ namespace NebulaTool.API
                     {
                         Debug.Log($"Token Geçersiz GetAllDatabases {request.responseCode}");
                         AddRefreshTokenHandler(() => GetAllDatabases());
-                        yield break;
                     }
                     else
                     {
                         MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"veritabanları alınamadı  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
@@ -208,7 +185,7 @@ namespace NebulaTool.API
         #region Collection
 
         [Obsolete]
-        public IEnumerator CreateTable(string _dbName, string _name)
+        public async Task CreateTable(string _dbName, string _name)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom handler test edildi
@@ -225,37 +202,35 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
                     Debug.Log($"{_dbName} veritabanına bağlı {_name} adında yeni bir koleksiyon oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Table);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz CreateTable {exception.Message}");
-                        AddRefreshTokenHandler(() => CreateTable(_dbName,_name));
-                        yield break;
+                        Debug.Log($"Token Geçersiz CreateTable {request.responseCode}");
+                        AddRefreshTokenHandler(() => CreateTable(_dbName, _name));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator UpdateTable(string _dbName, string _tableName, string _newTableName)
+        public async Task UpdateTable(string _dbName, string _tableName, string _newTableName)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Test edildi custom error handler 
-            UpdateTableDto dto = new UpdateTableDto { dbName = _dbName, name = _tableName, newTableName = _newTableName };
+            UpdateTableDto dto = new UpdateTableDto {dbName = _dbName, name = _tableName, newTableName = _newTableName};
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(dto, Formatting.Indented);
 
             using (UnityWebRequest request = UnityWebRequest.Put(NebulaURL.MongoDB.tableURL, json))
@@ -264,36 +239,32 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
 
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
                     Debug.Log($"{_dbName} veritabanına bağlı {_tableName} koleksiyonu {_newTableName} olarak güncellendi");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Table);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz UpdateTable {exception.Message}");
-                        AddRefreshTokenHandler(() => UpdateTable(_dbName,_tableName,_newTableName));
-                        yield break;
+                        Debug.Log($"Token Geçersiz UpdateTable {request.responseCode}");
+                        AddRefreshTokenHandler(() => UpdateTable(_dbName, _tableName, _newTableName));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Koleksiyon Güncellenmedi  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator DeleteTable(string _dbName, string _tableName, bool isLastCollection = false)
+        public async Task DeleteTable(string _dbName, string _tableName, bool isLastCollection = false)
         {
-
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom Error Handler test edildi 
             string uri = NebulaURL.MongoDB.tableURL + "?DbName=" + _dbName + "&" + "Name=" + _tableName;
@@ -301,7 +272,8 @@ namespace NebulaTool.API
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -310,31 +282,25 @@ namespace NebulaTool.API
                         EditorDrawLoaded?.Invoke(EditorLoadType.Database);
                     else
                         EditorDrawLoaded?.Invoke(EditorLoadType.Table);
-                    yield break;
                 }
                 else
                 {
-                    Debug.Log(request.responseCode);
-                    Debug.Log(request.downloadHandler.text);
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz DeleteTable {exception.Message}");
-                        AddRefreshTokenHandler(() => DeleteTable(_dbName,_tableName));
-                        yield break;
-                        //TOOD:GET TOKEN
+                        Debug.Log($"Token Geçersiz DeleteTable {request.responseCode}");
+                        AddRefreshTokenHandler(() => DeleteTable(_dbName, _tableName));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Koleksiyon silinemedi  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
 
-        public IEnumerator GetAllCollections(string dbName)
+        public async Task GetAllCollections(string dbName)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
                 (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -342,28 +308,24 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.tableURL + "?dbName=" + dbName))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
-                    var data = request.downloadHandler.text;
                     var collectionList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CollectionDto>>(request.downloadHandler.text);
                     collectionListLoaded?.Invoke(new List<CollectionDto>(collectionList));
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz GetAllCollections {exception.Message}");
+                        Debug.Log($"Token Geçersiz GetAllCollections {request.responseCode}");
                         AddRefreshTokenHandler(() => GetAllCollections(dbName));
-                        yield break;
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"koleksiyonlar alınamadı  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
@@ -373,7 +335,7 @@ namespace NebulaTool.API
 
         #region Item
 
-        public IEnumerator GetAllItemsTypeBsonDocument(string dbName, string collectionName)
+        public async Task GetAllItemsTypeBsonDocument(string dbName, string collectionName)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
 
@@ -381,7 +343,8 @@ namespace NebulaTool.API
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                 request.SendWebRequest();
+                
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -391,28 +354,25 @@ namespace NebulaTool.API
                         itemLoaded?.Invoke(items[0].AsBsonDocument);
                     else
                         NoneItemLoaded?.Invoke(true);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz GetAllItemsTypeBsonDocument {exception.Message}");
-                        AddRefreshTokenHandler(() => GetAllItemsTypeBsonDocument(dbName,collectionName));
-                        yield break;
+                        Debug.Log($"Token Geçersiz GetAllItemsTypeBsonDocument {request.responseCode}");
+                        AddRefreshTokenHandler(() => GetAllItemsTypeBsonDocument(dbName, collectionName));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veri  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
         [Obsolete]
-        public IEnumerator CreateItem(string dbName, string tableName, List<FieldValuePair> fields)
+        public async Task CreateItem(string dbName, string tableName, List<FieldValuePair> fields)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom Error Handler test edildi
@@ -434,34 +394,31 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+              
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
                     Debug.Log($"Veri oluşturuldu");
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz CreateItem {exception.Message}");
-                        AddRefreshTokenHandler(() => CreateItem(dbName,tableName,fields));
-
-                        yield break;
+                        Debug.Log($"Token Geçersiz CreateItem {request.responseCode}");
+                        AddRefreshTokenHandler(() => CreateItem(dbName, tableName, fields));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veri oluşturulamadı  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator UpdateItem(UpdateTableItemDto dto)
+        public async Task UpdateItem(UpdateTableItemDto dto)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom error handler test edildi
@@ -471,33 +428,31 @@ namespace NebulaTool.API
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
                 request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
+                 request.SendWebRequest();
+                
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
                     Debug.Log($"{dto.doc["_id"]} Numaralı Veri Güncellendi ");
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz UpdateItem {exception.Message}");
+                        Debug.Log($"Token Geçersiz UpdateItem {request.responseCode}");
                         AddRefreshTokenHandler(() => UpdateItem(dto));
-                        yield break;
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veri güncellenemedi  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator DeleteItem(string _dbName, string _tableName, string Id)
+        public async Task DeleteItem(string _dbName, string _tableName, string Id)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             string uri = NebulaURL.MongoDB.itemURL + "?DbName=" + _dbName + "&" + "Name=" + _tableName + "&" + "Id=" + Id;
@@ -505,41 +460,39 @@ namespace NebulaTool.API
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+              
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
                     EditorDrawLoaded?.Invoke(EditorLoadType.Item);
                     Debug.Log($"{_dbName} 'e bağlı {_tableName} koleksiyonu bağlı {Id} numaralı veri başarıyla silindi");
-                    yield break;
-
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz DeleteItem {exception.Message}");
-                        AddRefreshTokenHandler(() => DeleteItem(_dbName,_tableName,Id));
-                        yield break;
+                        Debug.Log($"Token Geçersiz DeleteItem {request.responseCode}");
+                        AddRefreshTokenHandler(() => DeleteItem(_dbName, _tableName, Id));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veri silinemedi  - ApiErrorMessage {exception.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-        public IEnumerator GetAllItems(string dbName, string collectionName)
+        public async Task GetAllItems(string dbName, string collectionName)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             //Custom error handler test edildi
             using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
             {
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+               
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
@@ -547,23 +500,18 @@ namespace NebulaTool.API
                     var items = BsonSerializer.Deserialize<BsonArray>(data);
                     TableItemDto itemDto = new TableItemDto(items);
                     itemListLoaded?.Invoke(itemDto);
-                    yield break;
                 }
                 else
                 {
-                    MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!exception.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz GetAllItems {exception.Message}");
-                        AddRefreshTokenHandler(() => GetAllItems(dbName,collectionName));
-
-                        yield break;
+                        Debug.Log($"Token Geçersiz GetAllItems {request.responseCode}");
+                        AddRefreshTokenHandler(() => GetAllItems(dbName, collectionName));
                     }
                     else
                     {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
-                        Debug.LogError(request.error);
-                        yield break;
                     }
                 }
             }
@@ -573,13 +521,9 @@ namespace NebulaTool.API
 
         #region Api
 
-        public IEnumerator SignUp(string _username, string _email, string _password, string _connectionURL)
+        public async Task SignUp(string _username, string _email, string _password, string _connectionURL)
         {
-
-            // var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
-            //     (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             var apiConnectionSO = ScriptableObject.CreateInstance<ApiConnectionSO>();
-
 
             ApiSignUpDto dto = new ApiSignUpDto
             {
@@ -598,38 +542,35 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+                
                 var result = request.result;
                 if (result is UnityWebRequest.Result.Success)
                 {
-
                     AssetDatabase.CreateAsset(apiConnectionSO, NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
 
                     var data = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
-                             (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
+                        (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
                     data.userInformation.userName = _username;
                     data.userInformation.password = _password;
                     data.userInformation.eMail = _email;
                     EditorUtility.SetDirty(data);
                     EditorUtility.FocusProjectWindow();
                     Selection.activeObject = data;
-
-                    //EditorCoroutineUtility.StartCoroutineOwnerless(Login());
+                    await Login();
                     Debug.Log($"Kullanıcı oluşturuldu");
-                    yield break;
                 }
                 else
                 {
                     MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                     Debug.Log($"Api Erro Message {customExp.Message}");
-                    yield break;
                 }
             }
         }
 
-        private async Task Login()
+        public async Task Login()
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
             ApiLoginDto dto = new ApiLoginDto
@@ -643,17 +584,10 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                var operation = request.SendWebRequest();
-
-                // UnityWebRequest'un bitmesini bekleyelim
-                while (!operation.isDone)
-                {
-                    await Task.Delay(100);
-                }
+                request.SendWebRequest();
 
                 if (request.result is UnityWebRequest.Result.Success)
                 {
-                    Debug.Log(request.downloadHandler.text);
                     ApiToken token = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiToken>(request.downloadHandler.text);
                     apiConnectData.userInformation.token = token.Token;
                     apiConnectData.userInformation.refreshToken = token.RefreshToken;
@@ -661,20 +595,13 @@ namespace NebulaTool.API
                 else
                 {
                     MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!customExp.success)
-                    {
-                        Debug.Log($"APİ ERROR MESSAGE {customExp.Message}");
-                    }
-                    else
-                    {
-                        Debug.Log($"Api Erro Message {customExp.Message}");
-                    }
+                    Debug.Log($"Api Erro Message {customExp.Message}");
                 }
             }
         }
 
 
-        public IEnumerator RefreshToken()
+        public async Task RefreshToken()
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
                 (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
@@ -692,8 +619,8 @@ namespace NebulaTool.API
                 byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                 request.SendWebRequest();
+                
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     ApiToken tokens = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiToken>(request.downloadHandler.text);
@@ -701,7 +628,6 @@ namespace NebulaTool.API
                     apiConnectData.userInformation.refreshToken = tokens.RefreshToken;
                     EditorUtility.SetDirty(apiConnectData);
                     Debug.Log(request.downloadHandler.text);
-                    yield break;
                 }
                 else
                 {
@@ -709,22 +635,20 @@ namespace NebulaTool.API
                     if (!customExp.success)
                     {
                         Debug.Log($"Token Geçersiz RefreshToken {customExp.Message}");
-                        yield break;
+                        await Login();
                     }
                     else
                     {
                         Debug.Log($"Api Erro Message {customExp.Message}");
-                        yield break;
                     }
                 }
             }
         }
 
-
-        public IEnumerator UpdateConnectionURL(string newconnectionURL)
+        public async Task UpdateConnectionURL(string newconnectionURL)
         {
             var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>
-            (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
+                (NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
 
             UpdateConnectionUrlDTO dto = new UpdateConnectionUrlDTO
             {
@@ -738,27 +662,23 @@ namespace NebulaTool.API
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
                 request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                yield return request.SendWebRequest();
+                request.SendWebRequest();
+
                 if (request.result is UnityWebRequest.Result.Success)
                 {
                     Debug.Log($"Connection URL Güncellendi");
-                    yield break;
                 }
                 else
                 {
-                    Debug.Log(request.error);
-                    Debug.Log(request.responseCode);
-                    Debug.Log(request.downloadHandler.text);
-                    MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                    if (!customExp.success)
+                    if (request.responseCode is 401)
                     {
-                        Debug.Log($"Token Geçersiz UpdateConnectionURL {customExp.Message}");
-                        yield break;
+                        Debug.Log($"Token Geçersiz UpdateConnectionURL {request.responseCode}");
+                        AddRefreshTokenHandler(() => UpdateConnectionURL(newconnectionURL));
                     }
                     else
                     {
+                        MessageErrorException customExp = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
                         Debug.Log($"Api Erro Message {customExp.Message}");
-                        yield break;
                     }
                 }
             }
@@ -767,28 +687,21 @@ namespace NebulaTool.API
         #endregion
 
         #region Custom
-        
-        private bool isRefreshingToken = false;
 
-        public async void AddRefreshTokenHandler(Func<IEnumerator> method)
+        public async void AddRefreshTokenHandler(Func<Task> method)
         {
             Debug.Log("Login Yapıyor");
-            await Login();  
+            await RefreshToken();
             Debug.Log("Login Yapıldı");
-            
+
             if (method != null)
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(method());
+                Debug.Log($"{method.Method.Name} Operasyon başladı");
+                await method();
+                Debug.Log($"{method.Method.Name} Operasyon bitti");
             }
         }
-      
+
         #endregion
-
     }
-}
-
-
-public class UpdateConnectionUrlDTO
-{
-    public string connectionString { get; set; }
 }

@@ -121,10 +121,10 @@ namespace NebulaTool.Window
                 }
                 else
                 {
-                    EditorCoroutineUtility.StartCoroutineOwnerless(
                     apiController.SignUp(userNameTextField.value,
                     emailTextField.value, passWordLblTextField.value,
-                    connectionURLTextField.value));
+                    connectionURLTextField.value);
+                    Close();
                 }
             };
             container.Add(connectButton);

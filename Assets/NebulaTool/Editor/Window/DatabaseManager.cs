@@ -31,7 +31,7 @@ namespace NebulaTool.Window
 
         #region DefaultFuncs
 
-        [MenuItem("Nebula/Mongodb Manager", priority = (int)CustomWindowPriorty.DatabaseManager)]
+        [MenuItem("Nebula/Mongodb Manager", priority = (int) CustomWindowPriorty.DatabaseManager)]
         public static void Initialize()
         {
             if (!NebulaExtention.IsConnectionDataExist())
@@ -39,6 +39,7 @@ namespace NebulaTool.Window
                 NebulaExtention.DisplayConnectionDataDoesnotExistMessage();
                 return;
             }
+
             Window = GetWindow<DatabaseManager>(DatabaseManagerTitle);
             EditorCoroutineUtility.StartCoroutineOwnerless(Window.InitializeApiCoroutine());
             Window.minSize = new Vector2(300, 200);
@@ -53,6 +54,7 @@ namespace NebulaTool.Window
             apiController.itemListLoaded += GetItemList;
             apiController.EditorDrawLoaded += DrawEditorLoad;
         }
+
         private void OnDestroy()
         {
             apiController.DatabaseListLoaded -= GetDatabaseList;
@@ -66,9 +68,8 @@ namespace NebulaTool.Window
         private void OnFocus()
         {
             if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
-                EditorCoroutineUtility
-                .StartCoroutineOwnerless(apiController
-                .GetAllItems(selectedDatabase, selectedCollection));
+                apiController
+                    .GetAllItems(selectedDatabase, selectedCollection);
         }
 
         public void CreateGUI()
@@ -82,7 +83,6 @@ namespace NebulaTool.Window
             Wrapper.Add(UpPanel());
             Wrapper.Add(dbContainer);
         }
-
 
         #endregion
 
@@ -113,15 +113,13 @@ namespace NebulaTool.Window
             switch (editorType)
             {
                 case EditorLoadType.Database:
-                    EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllDatabases());
+                    apiController.GetAllDatabases();
                     break;
                 case EditorLoadType.Table:
-                    EditorCoroutineUtility.StartCoroutineOwnerless(
-                        apiController.GetAllCollections(selectedDatabase));
+                    apiController.GetAllCollections(selectedDatabase);
                     break;
                 case EditorLoadType.Item:
-                    EditorCoroutineUtility.StartCoroutineOwnerless(
-                        apiController.GetAllItems(selectedDatabase, selectedCollection));
+                    apiController.GetAllItems(selectedDatabase, selectedCollection);
                     break;
             }
 
@@ -211,9 +209,7 @@ namespace NebulaTool.Window
                     {
                         if (selectedDatabase != dbTextField.value)
                         {
-                            EditorCoroutineUtility.StartCoroutineOwnerless(
-                                apiController.UpdateDatabase(selectedDatabase, dbTextField.value)
-                            );
+                            apiController.UpdateDatabase(selectedDatabase, dbTextField.value);
                             isEditDB = !isEditDB;
                         }
                         else
@@ -243,7 +239,7 @@ namespace NebulaTool.Window
                             selectedDatabase = databaseButton.text;
                             ClearEditorDataForTable();
                             //seçtiğim veritabanına bağlı koleksiyonlar gelsin diye
-                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllCollections(selectedDatabase));
+                            apiController.GetAllCollections(selectedDatabase);
                         }
                     };
                     buttonWrapper.Add(databaseButton);
@@ -253,7 +249,7 @@ namespace NebulaTool.Window
                     {
                         if (NebulaExtention.ShowDisplayDialogForDelete("Are You Sure for delete this database ?", "Do you want to delete this db"))
                         {
-                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteDatabase(db.name));
+                           apiController.DeleteDatabase(db.name);
                             ClearEditorDataForDatabase();
                         }
                     };
@@ -300,7 +296,7 @@ namespace NebulaTool.Window
                 if (string.IsNullOrEmpty(selectedDatabase))
                 {
                     EditorUtility.DisplayDialog("Selected Database",
-                    "You have to choose one database for this operation", "ok");
+                        "You have to choose one database for this operation", "ok");
                     return;
                 }
                 else
@@ -338,7 +334,7 @@ namespace NebulaTool.Window
                     updateItemOperationButton.clicked += delegate
                     {
                         if (selectedCollection != collectionTextField.value)
-                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateTable(selectedDatabase, selectedCollection, collectionTextField.value));
+                           apiController.UpdateTable(selectedDatabase, selectedCollection, collectionTextField.value);
                     };
 
                     itemContainer.Add(cancelOperationButton);
@@ -361,9 +357,8 @@ namespace NebulaTool.Window
                         else
                         {
                             selectedCollection = collectionButton.text;
-                            EditorCoroutineUtility.StartCoroutineOwnerless(
-                                apiController.GetAllItems(selectedDatabase, selectedCollection)
-                            );
+                           
+                                apiController.GetAllItems(selectedDatabase, selectedCollection);
                         }
                     };
 
@@ -379,8 +374,7 @@ namespace NebulaTool.Window
                             if (NebulaExtention.ShowDisplayDialogForDelete("Delete Collection", msg))
                                 if (!string.IsNullOrEmpty(selectedDatabase))
                                 {
-                                    EditorCoroutineUtility.StartCoroutineOwnerless(
-                                        apiController.DeleteTable(selectedDatabase, collection.name));
+                                    apiController.DeleteTable(selectedDatabase, collection.name);
                                     ClearEditorDataForTable();
                                 }
                         }
@@ -389,8 +383,7 @@ namespace NebulaTool.Window
                             if (NebulaExtention.ShowDisplayDialogForDelete("Delete Collection", msg))
                                 if (!string.IsNullOrEmpty(selectedDatabase))
                                 {
-                                    EditorCoroutineUtility.StartCoroutineOwnerless(
-                                        apiController.DeleteTable(selectedDatabase, collection.name, true));
+                                    apiController.DeleteTable(selectedDatabase, collection.name, true);
                                     ClearEditorDataForDatabase();
                                     ClearEditorDataForTable();
                                 }
@@ -508,7 +501,7 @@ namespace NebulaTool.Window
                                 dto.DbName = selectedDatabase;
                                 dto.TableName = selectedCollection;
                                 dto.doc = document;
-                                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.UpdateItem(dto));
+                                apiController.UpdateItem(dto);
                             }
                         }
                     };
@@ -518,7 +511,7 @@ namespace NebulaTool.Window
                     deleteOperationButton.clicked += delegate
                     {
                         if (NebulaExtention.ShowDisplayDialogForDelete("Delete Item", "Are you sure delete this Item"))
-                            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.DeleteItem(selectedDatabase, selectedCollection, collection["_id"].AsString));
+                            apiController.DeleteItem(selectedDatabase, selectedCollection, collection["_id"].AsString);
                     };
                     operationContainer.Add(updateOperationButton);
                     operationContainer.Add(deleteOperationButton);
@@ -602,6 +595,7 @@ namespace NebulaTool.Window
         }
 
         public void RefreshPanel(EditorLoadType panelType) => DrawEditorLoad(panelType);
+
         #endregion
     }
 }
