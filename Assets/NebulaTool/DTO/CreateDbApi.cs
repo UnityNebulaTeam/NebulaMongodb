@@ -1,5 +1,8 @@
-public class CreateDbApi
+namespace NebulaTool.DTO
 {
-    public string keyIdentifier { get; set; }
-    public string connectionString { get; set; }
+    public class CreateDbApi
+    {
+        public string keyIdentifier { get; set; }
+        public string connectionString { get; set; }
+    }
 }

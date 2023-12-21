@@ -1,5 +1,8 @@
-public class CreateDatabaseDto
+namespace NebulaTool.DTO
 {
-    public string Name;
-    public string TableName;
+    public class CreateDatabaseDto
+    {
+        public string Name;
+        public string TableName;
+    }
 }

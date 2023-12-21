@@ -1,5 +1,8 @@
-public class MessageErrorException
+namespace NebulaTool.DTO
 {
-    public string Message { get; set; }
-    public bool success { get; set; }
+    public class MessageErrorException
+    {
+        public string Message { get; set; }
+        public bool success { get; set; }
+    }
 }

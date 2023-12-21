@@ -1,4 +1,4 @@
-﻿namespace NebulaTool
+﻿namespace NebulaTool.URL
 {
     public static class NebulaURL
     {
@@ -7,12 +7,11 @@
             public static readonly string itemURL = "http://localhost:5135/api/Mongo/item";
             public static readonly string databaseURL = "http://localhost:5135/api/Mongo/db";
             public static readonly string tableURL = "http://localhost:5135/api/Mongo/table";
-
-
             public static readonly string RegisterURL = "http://localhost:5135/api/auth/register";
             public static readonly string LoginURL = "http://localhost:5135/api/auth/login";
             public static readonly string RefreshTokenURL = "http://localhost:5135/api/auth/refresh";
             public static readonly string ApiDatabaseURL = "http://localhost:5135/api/user/db";
+            public static readonly string UpdateConnectionURL = "http://localhost:5135/api/user/connection/mongodb";
         }
     }
 }

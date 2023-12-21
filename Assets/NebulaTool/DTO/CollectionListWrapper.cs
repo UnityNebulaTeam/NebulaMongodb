@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-[Serializable]
-public class CollectionListWrapper
+namespace NebulaTool.DTO
 {
-    public CollectionDto[] collections;
+    [Serializable]
+    public class CollectionListWrapper
+    {
+        public CollectionDto[] collections;
+    }
 }

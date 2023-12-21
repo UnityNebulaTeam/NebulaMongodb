@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using NebulaTool.DTO;
 
-namespace NebulaTool.Editor
+namespace NebulaTool.ScritableSO
 {
     [CreateAssetMenu(fileName = "ApiConnectionSO", menuName = "Nebula/ApiConnection SO")]
     public class ApiConnectionSO : ScriptableObject

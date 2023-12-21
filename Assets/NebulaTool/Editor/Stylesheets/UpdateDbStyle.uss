@@ -1,0 +1,50 @@
+:root{
+    justify-content: center;
+}
+
+.CustomTextField{
+    width:70%;
+}
+
+.CustomPropFieldContainer{
+    width: 100%;
+    flex-direction: row;
+    -unity-text-align: middle-left;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.CustomLabel{
+    -unity-font-style:bold;
+    width: 20%;
+}
+
+
+.Container{
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 50px;
+}
+
+
+.CustomButton{
+    width: 30%;
+    border-radius: 10px;
+    transition:0.5s all;
+    margin-top: 10px;
+}
+
+.CustomButton:hover{
+    background-color: blue;   
+}
+
+.unity-text-field__placeholder > .unity-base-text-field__input {
+    color: #969696
+}
+
+.HelpboxContainer{
+width:100%
+flex-direction:column;
+}

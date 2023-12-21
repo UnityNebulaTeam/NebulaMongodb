@@ -1,8 +1,11 @@
-public enum IconType
+namespace NebulaTool.Enum
 {
-    Refresh,
-    Cancel,
-    Delete,
-    Update,
-    Okey
+    public enum IconType
+    {
+        Refresh,
+        Cancel,
+        Delete,
+        Update,
+        Okey
+    }
 }

@@ -1,4 +1,7 @@
-public class PropertyId
+namespace NebulaTool.DTO
 {
-    public string id { get; set; }
+    public class PropertyId
+    {
+        public string id { get; set; }
+    }
 }

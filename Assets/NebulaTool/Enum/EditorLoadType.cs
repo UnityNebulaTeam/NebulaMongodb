@@ -1,6 +1,9 @@
-﻿public enum EditorLoadType
+﻿namespace NebulaTool.Enum
 {
-    Database,
-    Table,
-    Item
+    public enum EditorLoadType
+    {
+        Database,
+        Table,
+        Item
+    }
 }

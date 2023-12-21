@@ -1,5 +1,8 @@
-public class CreateTableDto
+namespace NebulaTool.DTO
 {
-    public string dbName { get; set; }
-    public string name { get; set; }
+    public class CreateTableDto
+    {
+        public string dbName { get; set; }
+        public string name { get; set; }
+    }
 }

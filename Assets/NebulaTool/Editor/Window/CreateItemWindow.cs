@@ -5,290 +5,413 @@ using System;
 using Unity.EditorCoroutines.Editor;
 using MongoDB.Bson;
 using System.Collections.Generic;
+using NebulaTool.Enum;
+using NebulaTool.ScritableSO;
+using NebulaTool.DTO;
+using NebulaTool.API;
+using NebulaTool.Path;
+using NebulaTool.Extension;
 
-public class CreateItemWindow : EditorWindow
+namespace NebulaTool.Window
 {
-    private readonly CreateItemType createType;
-    private string SelectedDatabase;
-    private string SelectedColection;
-    private BsonDocument doc = new();
-    private bool doesNotExistDoc;
-    private ApiController apiController = new();
-    private int fieldCount;
-    public CreateItemWindow(CreateItemType _type) => createType = _type;
-
-    /// <summary>
-    /// Item oluştururken kullanılan constructor
-    /// </summary>
-    /// <param name="_type">UI için tpye</param>
-    /// <param name="selectedDatabase">Koleksiyonunun hangi veritabanına bağlı olduğunu belirt</param>
-    /// <param name="selectedCollection">Veri hangi koleksiyon altında oluşturulacak</param>
-    public CreateItemWindow(CreateItemType _type, string selectedDatabase, string selectedCollection) => createType = _type;
-    private StyleSheet mainStyle;
-    public void ShowWindow()
+    public class CreateItemWindow : EditorWindow
     {
-        var window = GetWindow<CreateItemWindow>();
-        window.titleContent = new GUIContent($"Create {createType.ToString()}");
-        if (EditorPrefs.GetString("dbname") is not null)
-            SelectedDatabase = EditorPrefs.GetString("dbname");
-        if (EditorPrefs.GetString("collectionName") is not null)
-            SelectedColection = EditorPrefs.GetString("collectionName");
+        private  CreateItemType createType;
+        private string SelectedDatabase;
+        private string SelectedColection;
+        private BsonDocument doc = new();
+        private bool doesNotExistDoc;
+        private ApiController apiController;
+        private int fieldCount;
 
-        if (createType is CreateItemType.item)
-            EditorCoroutineUtility.StartCoroutineOwnerless(apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection));
-        window.Show();
-    }
-
-    private void OnEnable()
-    {
-        InitializeUI();
-        apiController.itemLoaded += ItemLoad;
-        apiController.NoneItemLoaded += NoneItemLoad;
-    }
-    private void NoneItemLoad(bool result)
-    {
-        doesNotExistDoc = result;
-        CreateItemUI();
-    }
-
-    private void OnDestroy()
-    {
-        apiController.itemLoaded -= ItemLoad;
-        apiController.NoneItemLoaded -= NoneItemLoad;
-    }
-
-    private void ItemLoad(BsonDocument document)
-    {
-        Debug.Log(document);
-        document["_id"] = new ObjectId(document["_id"].AsString);
-        doc = document;
-        CreateItemUI();
-    }
-
-    private void InitializeUI()
-    {
-        mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>("Assets/NebulaTool/Editor/StylesheetsData.asset").GetStyle(StyleType.CreateWindow);
-        rootVisualElement.styleSheets.Add(mainStyle);
-    }
-
-    [Obsolete]
-    private void CreateGUI()
-    {
-        switch (createType)
+        public CreateItemWindow(CreateItemType _type)
         {
-            case CreateItemType.db:
-                CreateDatabaseUI();
-                break;
-
-            case CreateItemType.collection:
-                CreateCollectionUI();
-                break;
-
-            case CreateItemType.item:
-                CreateItemUI();
-                break;
-
-            default:
-                break;
-        };
-    }
-
-    [Obsolete]
-    private void CreateDatabaseUI()
-    {
-        var root = rootVisualElement;
-        var container = Create<VisualElement>("Container");
-
-        var dbName = Create<TextField>();
-        var dbTitle = Create<Label>("CustomLabel");
-        dbTitle.text = "Database Name";
-
-        var collectionName = Create<TextField>();
-        var colletionTitle = Create<Label>("CustomLabel");
-        colletionTitle.text = "Collection Name";
-
-
-        container.Add(dbTitle);
-        container.Add(dbName);
-        container.Add(colletionTitle);
-        container.Add(collectionName);
-
-
-        var CreateButton = Create<Button>("CustomOperationButton");
-        CreateButton.text = "+";
-        CreateButton.clicked += delegate
+            createType = _type;
+            var valueString = createType.ToString();
+            EditorPrefs.SetString("createType", valueString);  
+        }
+        
+        public CreateItemWindow(CreateItemType _type,string selectedDatabase)
         {
-            EditorCoroutineUtility.StartCoroutineOwnerless(
-                 apiController.CreateDatabase(dbName.value, collectionName.value)
-                                                         );
+            createType = _type;
+            var valueString = createType.ToString();
+            EditorPrefs.SetString("createType", valueString);  
+            EditorPrefs.SetString("dbname",selectedDatabase);
+        }
+
+        /// <summary>
+        /// Item oluştururken kullanılan constructor
+        /// </summary>
+        /// <param name="_type">UI için tpye</param>
+        /// <param name="selectedDatabase">Koleksiyonunun hangi veritabanına bağlı olduğunu belirt</param>
+        /// <param name="selectedCollection">Veri hangi koleksiyon altında oluşturulacak</param>
+        public CreateItemWindow(CreateItemType _type,
+            string selectedDatabase, string selectedCollection)
+        {
+            createType = _type;
+            var valueString = createType.ToString();
+            EditorPrefs.SetString("createType", valueString);  
+            EditorPrefs.SetString("dbname",selectedDatabase);
+            EditorPrefs.SetString("collectionName",selectedCollection);
+            
+            
+        } 
+
+        private StyleSheet mainStyle;
+
+        public void ShowWindow()
+        {
+            var window = GetWindow<CreateItemWindow>();
+            window.titleContent = new GUIContent($"Create {createType.ToString()}");
+            PrepareData();
+            
+            window.Show();
+        }
+
+        private void OnEnable()
+        {
+            PrepareData();
+            InitializeUI();
+            apiController.EditorDrawLoaded += DrawEditorLoad;
+        }
+
+        private void OnDestroy()
+        {
+            apiController.EditorDrawLoaded -= DrawEditorLoad;
+            ClearAllPlayerPrefs();
+        }
+
+        private void DrawEditorLoad(EditorLoadType type)
+        {
+            DatabaseManager dbManager = GetWindow<DatabaseManager>();
+            dbManager.RefreshPanel(type);
             CloseWindow();
-        };
+        }
 
-        container.Add(CreateButton);
-
-        var dbHelperBox = Create<HelpBox>();
-        dbHelperBox.messageType = HelpBoxMessageType.Info;
-        dbHelperBox.text = "Veritabanı Adı Boş Olamaz";
-        var collectionHelperBox = Create<HelpBox>();
-        collectionHelperBox.messageType = HelpBoxMessageType.Info;
-        collectionHelperBox.text = "Collection Adı Boş Olamaz. Collection oluşturmamız zorunlu çünkü Mongodb sisteminde veritabanı oluşturabilmeniz için bir adet koleksiyon oluşturmak zorundasınız";
-
-        container.Add(dbHelperBox);
-        container.Add(collectionHelperBox);
-
-        root.Add(container);
-    }
-
-    [Obsolete]
-    private void CreateCollectionUI()
-    {
-        var root = rootVisualElement;
-        var container = Create<VisualElement>("Container");
-
-        var dbTitle = Create<Label>("CustomLabel");
-        dbTitle.text = EditorPrefs.GetString("dbname");
-        container.Add(dbTitle);
-
-        var collectionNameInput = Create<TextField>("CustomTextField");
-        collectionNameInput.value = "Collection Name";
-        container.Add(collectionNameInput);
-
-        var createOperationButton = Create<Button>("CustomOperationButton");
-        createOperationButton.text = "+";
-        createOperationButton.clicked += delegate
+        private async void PrepareData()
         {
-            Debug.Log(dbTitle.text);
-            Debug.Log(collectionNameInput.value);
-            if (!string.IsNullOrEmpty(collectionNameInput.value))
+            if(apiController is null)
+                apiController = new ApiController();
+            if (EditorPrefs.HasKey("dbname"))
+                SelectedDatabase = EditorPrefs.GetString("dbname");
+            if (EditorPrefs.HasKey("collectionName"))
+                SelectedColection = EditorPrefs.GetString("collectionName");
+            
+            if (EditorPrefs.HasKey("createType"))
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateTable(dbTitle.text, collectionNameInput.value));
-                CloseWindow();
+                var enumValue = EditorPrefs.GetString("createType");
+                createType = (CreateItemType)System.Enum.Parse(typeof(CreateItemType), enumValue);
             }
-        };
-        container.Add(createOperationButton);
-        root.Add(container);
-    }
-
-    private void CreateItemUI()
-    {
-        var root = rootVisualElement;
-        root.Clear();
-        var container = Create<VisualElement>("Container");
-        if (!doesNotExistDoc)
-        {
-            List<FieldValuePair> fields = new List<FieldValuePair>();
-            foreach (var key in doc)
+            
+            if (createType is CreateItemType.item)
             {
-                var fieldValuePair = new FieldValuePair(key.Name, key.Value.ToString());
-                var propTextAndValueContainer = Create<VisualElement>("ContainerPropItem");
-                var propText = Create<TextField>("CustomPropField");
-                propText.value = key.Name;
+                doc = await apiController.GetFirstItem(SelectedDatabase, SelectedColection);
+                if (doc is not null)
+                {
+                    doesNotExistDoc = false;
+                    CreateItemUI();
+                }
+                else
+                {
+                    doesNotExistDoc = true;
+                    CreateItemUI();
+                }
+            }
+        }
 
-                var propvalue = Create<TextField>("CustomValueField");
-                propvalue.value = "";
 
-                propvalue.RegisterValueChangedCallback(e =>
-                       {
-                           fieldValuePair.UpdatedValue = e.newValue;
-                       });
-                propTextAndValueContainer.Add(propText);
-                propTextAndValueContainer.Add(propvalue);
-                container.Add(propTextAndValueContainer);
+        private void InitializeUI()
+        {
+            mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.CreateWindowStyle);
+            rootVisualElement.styleSheets.Add(mainStyle);
+        }
 
-                fields.Add(fieldValuePair);
+        [Obsolete]
+        private void CreateGUI()
+        {
+            switch (createType)
+            {
+                case CreateItemType.db:
+                    CreateDatabaseUI();
+                    break;
+
+                case CreateItemType.collection:
+                    CreateCollectionUI();
+                    break;
+
+                case CreateItemType.item:
+                    CreateItemUI();
+                    break;
             }
 
-            var createOperationButton = Create<Button>("CustomOperationButton");
+            ;
+        }
+
+        [Obsolete]
+        private void CreateDatabaseUI()
+        {
+            var root = rootVisualElement;
+            var container = NebulaExtention.Create<VisualElement>("Container");
+
+            var dbName = NebulaExtention.Create<TextField>();
+            dbName.SetPlaceholderText(CustomValidation.CreateDbPlaceHolder);
+            var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
+
+            var collectionName = NebulaExtention.Create<TextField>();
+            collectionName.SetPlaceholderText(CustomValidation.CreateCollectionPlaceHolder);
+            var colletionTitle = NebulaExtention.Create<Label>("CustomLabel");
+
+
+            container.Add(dbTitle);
+            container.Add(dbName);
+            container.Add(colletionTitle);
+            container.Add(collectionName);
+
+
+            var CreateButton = NebulaExtention.Create<Button>("CustomOperationButton");
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+
+            CreateButton.text = "+";
+            CreateButton.clicked += delegate
+            {
+                helpBoxContainer.Clear();
+                var values = new Dictionary<ValidationType, string>();
+                values.Add(ValidationType.CreateDb, dbName.value);
+                values.Add(ValidationType.CreateCollection, collectionName.value);
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        warningBox.text = result switch
+                        {
+                            ValidationType.CreateDb => "You have to set db name",
+                            ValidationType.CreateCollection => "You have to set collection name",
+                            _ => warningBox.text
+                        };
+                        helpBoxContainer.Add(warningBox);
+                    }
+
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    apiController.CreateDatabase(dbName.value, collectionName.value);
+                }
+            };
+
+            container.Add(CreateButton);
+
+
+            root.Add(container);
+        }
+
+        [Obsolete]
+        private void CreateCollectionUI()
+        {
+            var root = rootVisualElement;
+            var container = NebulaExtention.Create<VisualElement>("Container");
+
+            var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
+            dbTitle.text = EditorPrefs.GetString("dbname");
+            container.Add(dbTitle);
+
+            var collectionNameInput = NebulaExtention.Create<TextField>("CustomTextField");
+            collectionNameInput.SetPlaceholderText(CustomValidation.CreateCollectionPlaceHolder);
+            container.Add(collectionNameInput);
+
+            var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+            var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
             createOperationButton.text = "+";
             createOperationButton.clicked += delegate
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
-            };
-
-            root.Add(container);
-            root.Add(createOperationButton);
-        }
-        if (doesNotExistDoc)
-        {
-            var propFieldContainer = Create<VisualElement>("ContainerPropItem");
-            var fieldCountLabel = Create<Label>("CustomLabel");
-            fieldCountLabel.text = $"Field Count {fieldCount}";
-
-            var addFieldButton = Create<Button>("CustomOperationButton");
-            addFieldButton.text = "+";
-            addFieldButton.clicked += delegate
-            {
-                fieldCount++;
-                CreateItemUI();
-            };
-
-            var minusFieldCount = Create<Button>("CustomOperationButton");
-            minusFieldCount.text = "-";
-            minusFieldCount.clicked += delegate
-            {
-                if (fieldCount > 0)
-                    fieldCount--;
-                CreateItemUI();
-            };
-            propFieldContainer.Add(fieldCountLabel); ;
-            propFieldContainer.Add(addFieldButton);
-            propFieldContainer.Add(minusFieldCount);
-
-            container.Add(propFieldContainer);
-            root.Add(container);
-
-
-
-            List<FieldValuePair> fields = new List<FieldValuePair>();
-            for (int i = 0; i < fieldCount; i++)
-            {
-                var propContainer = Create<VisualElement>("ContainerPropItem");
-                var fieldValuePair = new FieldValuePair("", "");
-                var propName = Create<TextField>("CustomPropField");
-                var propValue = Create<TextField>("CustomValueField");
-
-                propName.RegisterValueChangedCallback(e =>
+                helpBoxContainer.Clear();
+                var values = new Dictionary<ValidationType, string>
                 {
-                    fieldValuePair.FieldName = e.newValue;
-                });
+                    {ValidationType.CreateCollection, collectionNameInput.value}
+                };
+                var validationResult = CustomValidation.IsValid(values);
+                if (validationResult.Count > 0)
+                {
+                    foreach (var result in validationResult)
+                    {
+                        var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                        warningBox.messageType = HelpBoxMessageType.Error;
+                        warningBox.text = result switch
+                        {
+                            ValidationType.CreateCollection => "You have to set collection name",
+                            _ => warningBox.text
+                        };
+                        helpBoxContainer.Add(warningBox);
+                    }
 
-                propValue.RegisterValueChangedCallback(e =>
-               {
-                   fieldValuePair.UpdatedValue = e.newValue;
-               });
+                    container.Add(helpBoxContainer);
+                }
+                else
+                {
+                    apiController.CreateTable(dbTitle.text, collectionNameInput.value);
+                }
+            };
+            container.Add(createOperationButton);
+            root.Add(container);
+        }
 
-                propContainer.Add(propName);
-                propContainer.Add(propValue);
+        private void CreateItemUI()
+        {
+            var root = rootVisualElement;
+            root.Clear();
+            var container = NebulaExtention.Create<VisualElement>("Container");
+            if (!doesNotExistDoc)
+            {
+                List<FieldValuePair> fields = new List<FieldValuePair>();
+                foreach (var key in doc)
+                {
+                    if (key.Name is "_id") continue;
+                    var fieldValuePair = new FieldValuePair(key.Name, CustomValidation.ItemValuePlaceHolder);
+                    var propTextAndValueContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+                    var propText = NebulaExtention.Create<TextField>("CustomPropField");
+                    propText.SetPlaceholderText(key.Name);
+                    propText.RegisterValueChangedCallback(x =>
+                    {
+                        if (string.IsNullOrEmpty(x.newValue))
+                            fieldValuePair.FieldName = key.Name;
+                        else
+                            fieldValuePair.FieldName = x.newValue;
+                    });
 
-                container.Add(propContainer);
+                    var propvalue = NebulaExtention.Create<TextField>("CustomValueField");
+                    propvalue.SetPlaceholderText(CustomValidation.ItemValuePlaceHolder);
+
+                    propvalue.RegisterValueChangedCallback(e =>
+                    {
+                        fieldValuePair.UpdatedValue = e.newValue;
+                    });
+                    propTextAndValueContainer.Add(propText);
+                    propTextAndValueContainer.Add(propvalue);
+                    container.Add(propTextAndValueContainer);
+
+                    fields.Add(fieldValuePair);
+                }
+
+                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+
+                
+                createOperationButton.text = "+";
+                createOperationButton.clicked += delegate
+                {
+                    helpBoxContainer.Clear();
+                    var validations = CustomValidation.IsValidItem(fields);
+                    if (validations.Count > 0)
+                    {
+                        foreach (var valid in validations)
+                        {
+                            var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                            warningBox.messageType = HelpBoxMessageType.Error;
+                            warningBox.text = $"{valid + 1}. satıra lütfen geçerli bir değer giriniz";
+                            helpBoxContainer.Add(warningBox);
+                        }
+                    }
+                    else
+                    {
+                        apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
+                    }
+                };
+
                 root.Add(container);
-                fields.Add(fieldValuePair);
+                root.Add(createOperationButton);
+                root.Add(helpBoxContainer);
             }
 
-            var createOperationButton = Create<Button>("CustomOperationButton");
-            createOperationButton.text = "Create";
-            createOperationButton.clicked += delegate
+            if (doesNotExistDoc)
             {
-                EditorCoroutineUtility.StartCoroutineOwnerless(apiController.CreateItem(SelectedDatabase, SelectedColection, fields));
-                CloseWindow();
-            };
-            root.Add(createOperationButton);
+                var propFieldContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+                var fieldCountLabel = NebulaExtention.Create<Label>("CustomLabel");
+                fieldCountLabel.text = $"Field Count {fieldCount}";
+
+                var addFieldButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                addFieldButton.text = "+";
+                addFieldButton.clicked += delegate
+                {
+                    fieldCount++;
+                    CreateItemUI();
+                };
+
+                var minusFieldCount = NebulaExtention.Create<Button>("CustomOperationButton");
+                minusFieldCount.text = "-";
+                minusFieldCount.clicked += delegate
+                {
+                    if (fieldCount > 0)
+                        fieldCount--;
+                    CreateItemUI();
+                };
+                propFieldContainer.Add(fieldCountLabel);
+                ;
+                propFieldContainer.Add(addFieldButton);
+                propFieldContainer.Add(minusFieldCount);
+
+                container.Add(propFieldContainer);
+                root.Add(container);
+
+
+                List<FieldValuePair> fields = new List<FieldValuePair>();
+                for (int i = 0; i < fieldCount; i++)
+                {
+                    var propContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+                    var fieldValuePair = new FieldValuePair(CustomValidation.ItemPropertyPlaceHolder, CustomValidation.ItemValuePlaceHolder);
+                    var propName = NebulaExtention.Create<TextField>("CustomPropField");
+                    propName.SetPlaceholderText(CustomValidation.ItemPropertyPlaceHolder);
+                    var propValue = NebulaExtention.Create<TextField>("CustomValueField");
+                    propValue.SetPlaceholderText(CustomValidation.ItemValuePlaceHolder);
+
+                    propName.RegisterValueChangedCallback(e => { fieldValuePair.FieldName = e.newValue; });
+
+                    propValue.RegisterValueChangedCallback(e => { fieldValuePair.UpdatedValue = e.newValue; });
+
+                    propContainer.Add(propName);
+                    propContainer.Add(propValue);
+
+                    container.Add(propContainer);
+                    root.Add(container);
+                    fields.Add(fieldValuePair);
+                }
+
+                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
+                
+                createOperationButton.text = "Create";
+                createOperationButton.clicked += delegate
+                {
+                    helpBoxContainer.Clear();
+                    var validCount = CustomValidation.IsValidItem(fields);
+                    if (validCount.Count > 0)
+                    {
+                        foreach (var validIndex in validCount)
+                        {
+                            var warningBox = NebulaExtention.Create<HelpBox>("CustomHelpBox");
+                            warningBox.messageType = HelpBoxMessageType.Error;
+                            warningBox.text = $"{validIndex + 1}. satıra lütfen geçerli bir değer giriniz";
+                            helpBoxContainer.Add(warningBox);
+                        }
+                    }
+                    else
+                    {
+                        apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
+                    }
+                };
+                root.Add(createOperationButton);
+                root.Add(helpBoxContainer);
+            }
         }
-    }
 
-    private void CloseWindow()
-    {
-        ClearAllPlayerPrefs();
-        Close();
-    }
-    private void ClearAllPlayerPrefs() => EditorPrefs.DeleteAll();
+        private void CloseWindow()
+        {
+            ClearAllPlayerPrefs();
+            Close();
+        }
 
-    private T Create<T>(params string[] classNames) where T : VisualElement, new()
-    {
-        var element = new T();
-        foreach (var name in classNames)
-            element.AddToClassList(name);
-
-        return element;
+        private void ClearAllPlayerPrefs() => EditorPrefs.DeleteAll();
     }
 }
