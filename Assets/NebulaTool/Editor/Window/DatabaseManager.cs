@@ -50,6 +50,10 @@ namespace NebulaTool.Window
         private void OnEnable()
         {
             PrepareData();
+            
+            if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
+                         apiController
+                             .GetAllItems(selectedDatabase, selectedCollection);
           
             apiController.DatabaseListLoaded += GetDatabaseList;
             apiController.collectionListLoaded += GetCollectionList;
