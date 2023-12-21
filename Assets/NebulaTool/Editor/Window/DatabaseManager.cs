@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using System.Collections.Generic;
+using MongoDB.Bson;
 using NebulaTool.Enum;
 using NebulaTool.DTO;
 using NebulaTool.ScritableSO;
@@ -16,7 +17,7 @@ namespace NebulaTool.Window
 {
     public class DatabaseManager : EditorWindow
     {
-        private static DatabaseManager Window;
+        public static DatabaseManager Window;
         private StyleSheet mainStyle;
         private IconSO icons;
         private string selectedDatabase;
@@ -49,6 +50,7 @@ namespace NebulaTool.Window
         private void OnEnable()
         {
             PrepareData();
+          
             apiController.DatabaseListLoaded += GetDatabaseList;
             apiController.collectionListLoaded += GetCollectionList;
             apiController.itemListLoaded += GetItemList;
@@ -65,12 +67,12 @@ namespace NebulaTool.Window
             EditorPrefs.DeleteAll();
         }
 
-        private void OnFocus()
-        {
-            if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
-                apiController
-                    .GetAllItems(selectedDatabase, selectedCollection);
-        }
+        // private void OnFocus()
+        // {
+        //     if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection))
+        //         apiController
+        //             .GetAllItems(selectedDatabase, selectedCollection);
+        // }
 
         public void CreateGUI()
         {
@@ -121,6 +123,8 @@ namespace NebulaTool.Window
                 case EditorLoadType.Item:
                     apiController.GetAllItems(selectedDatabase, selectedCollection);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(editorType), editorType, null);
             }
 
             CustomRepaint();
@@ -302,7 +306,7 @@ namespace NebulaTool.Window
                 else
                 {
                     EditorPrefs.SetString("dbname", selectedDatabase);
-                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.collection);
+                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.collection,selectedDatabase);
                     windowCreate.ShowWindow();
                 }
             };
@@ -437,9 +441,7 @@ namespace NebulaTool.Window
                 }
                 else
                 {
-                    EditorPrefs.SetString("dbname", selectedDatabase);
-                    EditorPrefs.SetString("collectionName", selectedCollection);
-                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.item);
+                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.item,selectedDatabase,selectedCollection);
                     windowCreate.ShowWindow();
                 }
             };
@@ -593,9 +595,21 @@ namespace NebulaTool.Window
             mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.DatabaseManagerStyle);
             icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaPath.DataPath + NebulaResourcesName.IconsDataName);
         }
-
+        
         public void RefreshPanel(EditorLoadType panelType) => DrawEditorLoad(panelType);
 
+        public BsonDocument GetFirstDoc()
+        {
+            if (itemList is not null && itemList.Docs.Count > 0)
+            {
+                Debug.Log("DOC GONDERİLİYOR");
+                var doc = itemList.Docs[0].AsBsonDocument;
+                return doc;
+            }
+                Debug.Log("DOC gonderilemedi");
+
+            return null;
+        }
         #endregion
     }
 }

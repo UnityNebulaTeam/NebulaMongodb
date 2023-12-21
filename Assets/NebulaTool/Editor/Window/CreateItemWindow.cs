@@ -16,14 +16,28 @@ namespace NebulaTool.Window
 {
     public class CreateItemWindow : EditorWindow
     {
-        private readonly CreateItemType createType;
+        private  CreateItemType createType;
         private string SelectedDatabase;
         private string SelectedColection;
         private BsonDocument doc = new();
         private bool doesNotExistDoc;
-        private ApiController apiController = new();
+        private ApiController apiController;
         private int fieldCount;
-        public CreateItemWindow(CreateItemType _type) => createType = _type;
+
+        public CreateItemWindow(CreateItemType _type)
+        {
+            createType = _type;
+            var valueString = createType.ToString();
+            EditorPrefs.SetString("createType", valueString);  
+        }
+        
+        public CreateItemWindow(CreateItemType _type,string selectedDatabase)
+        {
+            createType = _type;
+            var valueString = createType.ToString();
+            EditorPrefs.SetString("createType", valueString);  
+            EditorPrefs.SetString("dbname",selectedDatabase);
+        }
 
         /// <summary>
         /// Item oluştururken kullanılan constructor
@@ -31,7 +45,17 @@ namespace NebulaTool.Window
         /// <param name="_type">UI için tpye</param>
         /// <param name="selectedDatabase">Koleksiyonunun hangi veritabanına bağlı olduğunu belirt</param>
         /// <param name="selectedCollection">Veri hangi koleksiyon altında oluşturulacak</param>
-        public CreateItemWindow(CreateItemType _type, string selectedDatabase, string selectedCollection) => createType = _type;
+        public CreateItemWindow(CreateItemType _type,
+            string selectedDatabase, string selectedCollection)
+        {
+            createType = _type;
+            var valueString = createType.ToString();
+            EditorPrefs.SetString("createType", valueString);  
+            EditorPrefs.SetString("dbname",selectedDatabase);
+            EditorPrefs.SetString("collectionName",selectedCollection);
+            
+            
+        } 
 
         private StyleSheet mainStyle;
 
@@ -39,22 +63,22 @@ namespace NebulaTool.Window
         {
             var window = GetWindow<CreateItemWindow>();
             window.titleContent = new GUIContent($"Create {createType.ToString()}");
-            if (EditorPrefs.GetString("dbname") is not null)
-                SelectedDatabase = EditorPrefs.GetString("dbname");
-            if (EditorPrefs.GetString("collectionName") is not null)
-                SelectedColection = EditorPrefs.GetString("collectionName");
-
-            if (createType is CreateItemType.item)
-                apiController.GetAllItemsTypeBsonDocument(SelectedDatabase, SelectedColection);
+            PrepareData();
+            
             window.Show();
         }
 
         private void OnEnable()
         {
+            PrepareData();
             InitializeUI();
-            apiController.itemLoaded += ItemLoad;
-            apiController.NoneItemLoaded += NoneItemLoad;
             apiController.EditorDrawLoaded += DrawEditorLoad;
+        }
+
+        private void OnDestroy()
+        {
+            apiController.EditorDrawLoaded -= DrawEditorLoad;
+            ClearAllPlayerPrefs();
         }
 
         private void DrawEditorLoad(EditorLoadType type)
@@ -64,26 +88,37 @@ namespace NebulaTool.Window
             CloseWindow();
         }
 
-        private void NoneItemLoad(bool result)
+        private async void PrepareData()
         {
-            doesNotExistDoc = result;
-            CreateItemUI();
+            if(apiController is null)
+                apiController = new ApiController();
+            if (EditorPrefs.HasKey("dbname"))
+                SelectedDatabase = EditorPrefs.GetString("dbname");
+            if (EditorPrefs.HasKey("collectionName"))
+                SelectedColection = EditorPrefs.GetString("collectionName");
+            
+            if (EditorPrefs.HasKey("createType"))
+            {
+                var enumValue = EditorPrefs.GetString("createType");
+                createType = (CreateItemType)System.Enum.Parse(typeof(CreateItemType), enumValue);
+            }
+            
+            if (createType is CreateItemType.item)
+            {
+                doc = await apiController.GetFirstItem(SelectedDatabase, SelectedColection);
+                if (doc is not null)
+                {
+                    doesNotExistDoc = false;
+                    CreateItemUI();
+                }
+                else
+                {
+                    doesNotExistDoc = true;
+                    CreateItemUI();
+                }
+            }
         }
 
-        private void OnDestroy()
-        {
-            apiController.itemLoaded -= ItemLoad;
-            apiController.NoneItemLoaded -= NoneItemLoad;
-            apiController.EditorDrawLoaded -= DrawEditorLoad;
-        }
-
-        private void ItemLoad(BsonDocument document)
-        {
-            Debug.Log(document);
-            document["_id"] = new ObjectId(document["_id"].AsString);
-            doc = document;
-            CreateItemUI();
-        }
 
         private void InitializeUI()
         {

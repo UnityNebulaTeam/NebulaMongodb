@@ -24,8 +24,6 @@ namespace NebulaTool.API
         public event Action<List<DatabaseDto>> DatabaseListLoaded;
         public event Action<List<CollectionDto>> collectionListLoaded;
         public event Action<TableItemDto> itemListLoaded;
-        public event Action<BsonDocument> itemLoaded;
-        public event Action<bool> NoneItemLoaded;
         public event Action<EditorLoadType> EditorDrawLoaded;
 
         #region Database
@@ -352,44 +350,6 @@ namespace NebulaTool.API
 
         #region Item
 
-        public async Task GetAllItemsTypeBsonDocument(string dbName, string collectionName)
-        {
-            var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
-
-            //Custom Handler test edildi
-            using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
-            {
-                request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
-                var progress = request.SendWebRequest();
-                while(!progress.isDone)
-                    await Task.Yield();
-
-                var result = request.result;
-                if (result is UnityWebRequest.Result.Success)
-                {
-                    var data = request.downloadHandler.text;
-                    var items = BsonSerializer.Deserialize<BsonArray>(data);
-                    if (items.Count > 0)
-                        itemLoaded?.Invoke(items[0].AsBsonDocument);
-                    else
-                        NoneItemLoaded?.Invoke(true);
-                }
-                else
-                {
-                    if (request.responseCode is 401)
-                    {
-                        Debug.Log($"Token Geçersiz GetAllItemsTypeBsonDocument {request.responseCode}");
-                        AddRefreshTokenHandler(() => GetAllItemsTypeBsonDocument(dbName, collectionName));
-                    }
-                    else
-                    {
-                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
-                        Debug.Log($"Veri  - ApiErrorMessage {exception.Message}");
-                    }
-                }
-            }
-        }
-
         [Obsolete]
         public async Task CreateItem(string dbName, string tableName, List<FieldValuePair> fields)
         {
@@ -543,6 +503,46 @@ namespace NebulaTool.API
             }
         }
 
+        public async Task<BsonDocument> GetFirstItem(string dbName, string collectionName)
+        {
+            var apiConnectData = AssetDatabase.LoadAssetAtPath<ApiConnectionSO>(NebulaPath.DataPath + NebulaResourcesName.ApiConnectionData);
+            //Custom error handler test edildi
+            using (UnityWebRequest request = UnityWebRequest.Get(NebulaURL.MongoDB.itemURL + "?DbName=" + dbName + "&TableName=" + collectionName))
+            {
+                request.SetRequestHeader("Authorization", "Bearer " + apiConnectData.userInformation.token);
+                var progress = request.SendWebRequest();
+                while(!progress.isDone)
+                    await Task.Yield();
+                var result = request.result;
+                if (result is UnityWebRequest.Result.Success)
+                {
+                    var data = request.downloadHandler.text;
+                    var items = BsonSerializer.Deserialize<BsonArray>(data);
+                    if (items.Count > 0)
+                    {
+                        var bsonDoc = items[0].AsBsonDocument;
+                        return bsonDoc;
+                    }
+                }
+                else
+                {
+                    if (request.responseCode is 401)
+                    {
+                        Debug.Log($"Token Geçersiz GetAllItems {request.responseCode}"); 
+                        AddRefreshTokenHandler(() => GetAllItems(dbName, collectionName));
+                    }
+                    else
+                    {
+                        MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                        Debug.Log($"Veriler alınamadı  - ApiErrorMessage {exception.Message}");
+                        return null;
+                    }
+                }
+            }
+
+            return null;
+        }
+        
         #endregion
 
         #region Api
