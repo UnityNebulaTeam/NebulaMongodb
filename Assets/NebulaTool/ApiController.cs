@@ -229,6 +229,7 @@ namespace NebulaTool.API
                     else
                     {
                         MessageErrorException exception = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageErrorException>(request.downloadHandler.text);
+                       
                         Debug.Log($"Koleksiyon Oluşturulamadı  - ApiErrorMessage {exception.Message}");
                     }
                 }
