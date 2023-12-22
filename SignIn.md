@@ -4,9 +4,10 @@
 
 <ul>
   <li>"Giriş yap" menüsüne tıklayınız.</li>
-  <li>Login Image</li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/Login/menuItem.PNG"/></li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/Login/LoginWindow.PNG"/> </li>
   <li>Kullanıcı bilgilerini ve şifrenizi giriniz.</li>
-  <li>Login Validation</li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/Login/LoginWindow.PNG"/></li>
   <li>Tüm bilgileri doğru bir şekilde girdikten sonra "Giriş yap" butonuna tıkladıktan sonra artık Nebula aracını kullanmaya hazırsınız.</li>
 </ul>
 
@@ -14,9 +15,10 @@
 
 <ul>
   <li>Click on the "Log In" menu.</li>
-  <li>Login Image</li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/Login/menuItem.PNG"/></li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/Login/LoginWindow.PNG"/> </li>
   <li>Enter your user information and password.</li>
-  <li>Login Validation</li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/Login/LoginWindow.PNG"/></li>
   <li>After entering all the information correctly, once you click the "Log In" button, you are ready to start using the Nebula tool.</li>
 </ul>
 

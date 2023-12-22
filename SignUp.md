@@ -7,9 +7,8 @@
   <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/menuItem.PNG"/> </li>
   <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/SignUpWindow.PNG"/></li>
   <li>Kullanıcı bilgilerini giriniz.</li>
-  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/SignUpValidation.PNG"/> </li>
   <li>Şifre en az 6 karakterli, büyük harf içermeli ve bir işaret içermelidir. Lütfen buna dikkat ediniz. </li>
-  <li>PasswordValidation Image</li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/SignUpValidation.PNG"/> </li>
   <li>Tüm bilgileri doğru bir şekilde girdikten sonra "Kayıt Ol" butonuna tıkladıktan sonra artık Nebula aracını kullanmaya haızrsınız.</li>
   <li>
   Eğer daha önceden bir hesap oluşturduysanız tekrar kayıt olmak zorunda değilsiniz, login işlemi yaparak Nebula aracını kullanabilirsiniz.
