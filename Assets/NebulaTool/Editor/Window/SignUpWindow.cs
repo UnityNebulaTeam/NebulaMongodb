@@ -22,6 +22,7 @@ namespace NebulaTool.Window
         {
             var window = GetWindow<SignUpWindow>();
             window.titleContent = new GUIContent("SignUp Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 

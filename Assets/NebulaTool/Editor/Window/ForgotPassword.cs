@@ -18,6 +18,7 @@ namespace NebulaTool.Window
         {
             var window = GetWindow<ForgotPassword>();
             window.titleContent = new GUIContent("Forgot Password Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 

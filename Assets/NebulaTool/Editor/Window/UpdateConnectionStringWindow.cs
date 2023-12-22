@@ -28,6 +28,7 @@ namespace NebulaTool.Window
             }
             var window = GetWindow<UpdateConnectionStringWindow>();
             window.titleContent = new GUIContent("Update Connection String Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 
@@ -66,7 +67,7 @@ namespace NebulaTool.Window
 
             var connectionStringContainer = Create<VisualElement>("CustomPropFieldContainer");
             var connectionStringTitle = Create<Label>("CustomLabel");
-            connectionStringTitle.text = "ConnectionURL";
+            connectionStringTitle.text = "URL";
             var connectionStringTextField = Create<TextField>("CustomTextField");
             connectionStringTextField.SetPlaceholderText(CustomValidation.urlPlaceHolder);
             connectionStringContainer.Add(connectionStringTitle);

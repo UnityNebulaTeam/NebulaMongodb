@@ -30,6 +30,7 @@ namespace NebulaTool.Window
 
             var window = GetWindow<LoginWindow>();
             window.titleContent = new GUIContent("Login Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 

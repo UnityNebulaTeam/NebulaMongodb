@@ -143,30 +143,58 @@ flex-direction:column;
  color: black;
 }
 
+.CustomOperationButtonUpdate{
+ width:20px;
+ height:20px;
+ border-radius:5px;
+ transition:0.3s all;
+ border-width: 0px;
+ background-color: transparent;
+}
+
+.CustomOperationButtonUpdate:hover{
+ scale:1.1;
+}
+
 .CustomOperationButtonDelete{
  width:20px;
  height:20px;
  border-radius:5px;
  transition:0.3s all;
  color:white;
+ border-width: 0px;
+ background-color: transparent;
 }
 
 .CustomOperationButtonDelete:hover{
- background-color:	red;
  color: black;
+ scale:1.1;
 }
 
 .CustomOperationButtonCancel{
  width:20px;
  height:20px;
- border-radius:5px;
+ border-radius:15px;
  transition:0.3s all;
- color:white;
+ border-width: 0px;
+ background-color: transparent;
 }
 
 .CustomOperationButtonCancel:hover{
- background-color:red;
- color: black;
+ scale:1.1;
+}
+
+.ConfirmUpdateButton{
+ width:20px;
+ height:20px;
+ border-radius:15px;
+ transition:0.3s all;
+ border-width: 0px;
+ background-color: transparent;
+}
+
+.ConfirmUpdateButton:hover{
+ scale:1.1;
 }
 
 .CustomOperationButtonAdd{
@@ -176,9 +204,26 @@ flex-direction:column;
  transition:0.5s all;
  background-color:#55efc4;
  color:black;
+ -unity-font-style: bold;
 }
+
 .CustomOperationButtonAdd:hover{
  border-radius:10px;
  background-color:#00b894;
  color:white;
+ scale:1.5;
+}
+
+.CustomOperationButtonRefresh{
+ width:20px;
+ height:20px;
+ border-width: 0px;
+ background-color: transparent;
+ -unity-background-image-tint-color: aqua;
+transition:1s all;
+}
+
+.CustomOperationButtonRefresh:hover{
+rotate:360deg;
+ -unity-background-image-tint-color: aquamarine;
 }
