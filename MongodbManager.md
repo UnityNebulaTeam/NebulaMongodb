@@ -1,5 +1,8 @@
 # MongodbManager Window Page
 
+#### Üst kısımda yer alan yenilemele logosu sayesinde pencerenizi yenileyebilirsiniz.
+#### You can use refresh button - Up Panel.
+
 ###### Turkish
 
 <ul>
@@ -75,63 +78,72 @@
 ###### English
 
 <ul>
-
-<li>Database Management</li>
+  <li>Database Management</li>
     <ul>
-        <li>Create</li>
-            <ul>
-                <li> Give Create Database Information</li>
-                <li> Create Database Image</li>
-            </ul>
-        <li>Update</li>
-             <ul>
-                <li> Give Update Database Information</li>
-                <li> Update Database Image</li>
-             </ul>
-        <li>Delete</li>
-             <ul>
-                <li> Give Delete Database Information</li>
-                <li> Delete Database Image</li>
-             </ul>
+      <li>Create</li>
+        <ul>
+          <li>Click the + button in the Database window.</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/CreateDatabase.PNG"/></li>
+          <li>Enter Creation Information</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/CreateDatabase.PNG"/> </li>
+          <li>After entering the information completely, click the confirm button in the bottom right corner.</li>
+        </ul>
+      <li>Update</li>
+        <ul>
+          <li>You can update the name of your database by first selecting the database you want to update.</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/SelectedDatabase.PNG"/> </li>
+          <li>Then click the orange button on the right side.</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/UpdateDatabase.PNG"/> </li>
+          <li>If you confirm the operation, click the confirm (green) button on the right. If you want to cancel the operation, click the cancel (red) button.</li>
+        </ul>
+      <li>Delete</li>
+        <ul>
+          <li>You can delete your database using the red button on the right side of the database.</li>
+        </ul>
     </ul>
 
-<li>Collection Management</li>
+  <li>Collection Management</li>
     <ul>
-        <li>Create</li>
-            <ul>
-                <li> Give Create Collection Information</li>
-                <li> Create Collection Image</li>
-            </ul>
-        <li>Update</li>
-             <ul>
-                <li> Give Update Collection Information</li>
-                <li> Update Collection Image</li>
-             </ul>
-        <li>Delete</li>
-             <ul>
-                <li> Give Delete Collection Information</li>
-                <li> Delete Collection Image</li>
-             </ul>
+      <li>Create</li>
+        <ul>
+          <li>Click the + button in the Collection window.</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Collection/CreateCollection.PNG"/> </li>
+        </ul>
+      <li>Update</li>
+        <ul>
+          <li>The same process you did for the database is valid for updating the collection.</li>
+        </ul>
+      <li>Delete</li>
+        <ul>
+          <li>You can perform the collection deletion process by clicking the delete (red) button to the right of the collection button.</li>
+        </ul>
     </ul>
 
-<li>Item Management</li>
-      <ul>
-        <li>Create</li>
+  <li>Data Management</li>
+    <ul>
+      <li>Create</li>
+        <ul>
+          <li>Click the + button in the window where the data is located. If you have an existing data record, the window will open with the data ready. If you don't have any data records, a different window will open for you to add data.</li>
             <ul>
-                <li> Give Create Item Information</li>
-                <li> Create Item Image</li>
+            <li>If you have a reference data</li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveDoc.PNG"/></li>
+            <li>If you don't have reference data</li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveNotDoc.PNG"/></li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveNotDoc2.PNG"/></li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveNotDoc3.PNG"/></li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemFinal.PNG"/></li>
             </ul>
-        <li>Update</li>
-             <ul>
-                <li> Give Update Item Information</li>
-                <li> Update Item Image</li>
-             </ul>
-        <li>Delete</li>
-             <ul>
-                <li> Give Delete Item Information</li>
-                <li> Delete Item Image</li>
-             </ul>
+        </ul>
+      <li>Update</li>
+        <ul>
+          <li>All values of the data come in the text field. If you change this value and click the update button under your data, you will perform the update operation.</li>
+        </ul>
+      <li>Delete</li>
+        <ul>
+          <li>You can delete your data using the delete button at the bottom right of your data.</li>
+        </ul>
     </ul>
 </ul>
+
 
 #### [Main Page](README.md)
