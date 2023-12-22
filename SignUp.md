@@ -4,7 +4,8 @@
 
 <ul>
   <li>"Kayıt ol" menüsüne tıklayınız.</li>
-  <li>SignUp Image</li>
+  <li>![Menu Item](https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/menuItem.PNG)
+</li>
   <li>Kullanıcı bilgilerini giriniz.</li>
   <li>Validation Image</li>
   <li>Şifre en az 6 karakterli, büyük harf içermeli ve bir işaret içermelidir. Lütfen buna dikkat ediniz. </li>
