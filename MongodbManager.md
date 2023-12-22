@@ -4,21 +4,28 @@
 
 <ul>
   <li>Veritabanı Yönetimi</li>
+    <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/menuItem.PNG"/> </li>
+    <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/DatabaseManagerWindow.PNG"/> </li>
     <ul>
       <li>Oluştur</li>
         <ul>
+          <li>Veritabanı penceresinde bulunan + butonuna tıklayın</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/CreateDatabase.PNG"/></li>
           <li>Oluşturma Bilgilerini Gir</li>
-          <li>Veritabanı Oluşturma Görseli</li>
+         <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/CreateDatabase.PNG"/> </li>
+        <li>Bilgileri eksiksiz bir şekilde girdikten sonra, sağ alt köşede yer alan onayla butonuna tıklayınız.</li>
         </ul>
       <li>Güncelle</li>
         <ul>
-          <li>Güncelleme Bilgilerini Gir</li>
-          <li>Veritabanı Güncelleme Görseli</li>
-        </ul>
+          <li>Veritabanınızın ismini güncelleyebilirsiniz, bunun için öncelikle güncellemek istediğiniz veritabanını seçin.</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/SelectedDatabase.PNG"/> </li>
+        <li>Ardından sağ kısmında bulunan turuncu tuşa tıklayın.</li>  
+        <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Database/UpdateDatabase.PNG"/> </li>
+       <li>Eğer işlemi onaylıyorsanız, sağ kısımda yer alan onay (yeşil) butona tıklayın. İşlemi iptal etmek istiyorsanız vazgeç (cancel - kırmızı) butona tıklayınız.</li> 
+       </ul>
       <li>Sil</li>
         <ul>
-          <li>Silme Bilgilerini Gir</li>
-          <li>Veritabanı Silme Görseli</li>
+          <li>Veritabanın sağında yer alan kırmızı buton ile veritabanınızı silebilirsiniz.</li>
         </ul>
     </ul>
 
@@ -26,18 +33,16 @@
     <ul>
       <li>Oluştur</li>
         <ul>
-          <li>Oluşturma Bilgilerini Gir</li>
-          <li>Koleksiyon Oluşturma Görseli</li>
+          <li>Koleksiyon penceresinde yer alan + butonuna tıklayınız.</li>
+          <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Collection/CreateCollection.PNG"/> </li>
         </ul>
       <li>Güncelle</li>
         <ul>
-          <li>Güncelleme Bilgilerini Gir</li>
-          <li>Koleksiyon Güncelleme Görseli</li>
+          <li>Veritabanında yaptığınız işlemin aynısı koleksiyon güncelleme için de geçerlidir.</li>
         </ul>
       <li>Sil</li>
         <ul>
-          <li>Silme Bilgilerini Gir</li>
-          <li>Koleksiyon Silme Görseli</li>
+          <li>Koleksiyon butonunun sağında yer alan silme (kırmızı) butona tıklaykarak koleksiyon silme işlemini gerçekleştirebilirsiniz.</li>
         </ul>
     </ul>
 
@@ -45,18 +50,24 @@
     <ul>
       <li>Oluştur</li>
         <ul>
-          <li>Oluşturma Bilgilerini Gir</li>
-          <li>Öğe Oluşturma Görseli</li>
+          <li>Verilerin bulunduğu pencerede yer alan + butonuna tıklayınız. Eğer mevcut veri kaydınız var ise bu veriyi referans alıp pencere hazır bir şekilde açılacaktır. Eğer herhangi bir veri kaydı yok ise veri eklemeniz için farklı bir pencere açılacaktır.</li>
+            <ul>
+            <li>Eğer referans veri var ise</li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveDoc.PNG"/></li>
+            <li>Eğer referans veri yok ise</li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveNotDoc.PNG"/></li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveNotDoc2.PNG"/></li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemIfYouHaveNotDoc3.PNG"/></li>
+            <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/MongoManager/Item/CreateItemFinal.PNG"/></li>
+            </ul>
         </ul>
       <li>Güncelle</li>
         <ul>
-          <li>Güncelleme Bilgilerini Gir</li>
-          <li>Öğe Güncelleme Görseli</li>
+          <li>Verilerin tüm değerleri textfield içerisinde gelmektedir. Eğer bu değeri değiştirip, verilerinizin altında bulunan güncelle butonuna basarsanız güncelleme işlemini gerçekleştirmiş olursunuz.</li>
         </ul>
       <li>Sil</li>
         <ul>
-          <li>Silme Bilgilerini Gir</li>
-          <li>Öğe Silme Görseli</li>
+          <li>Verilerinizin sağ altında yer alan sil butonu sayesinde verilerinizi silebilirsiniz.</li>
         </ul>
     </ul>
 </ul>
@@ -121,7 +132,6 @@
                 <li> Delete Item Image</li>
              </ul>
     </ul>
-
 </ul>
 
 #### [Main Page](README.md)
