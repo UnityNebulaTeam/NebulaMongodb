@@ -13,7 +13,7 @@ namespace NebulaTool.Window
 
         private StyleSheet mainStyle;
 
-        [MenuItem("Nebula/SignIn/Forgot Password", priority = (int)CustomWindowPriorty.ChilOfdSignIn_ForgotPassword)]
+        [MenuItem("Nebula/Sign In/Forgot Password", priority = (int)CustomWindowPriorty.ChilOfdSignIn_ForgotPassword)]
         private static void ShowWindow()
         {
             var window = GetWindow<ForgotPassword>();

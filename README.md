@@ -37,4 +37,6 @@ database operations quickly, securely, and flexibly.
 
 #### [Update Connection Url](UpdateConnectionUrl.md)
 
+#### [TODO : Forgot Password](ForgotPassword.md)
+
 #### [How To Install Nebula Tool](NebulaInstall.md)
