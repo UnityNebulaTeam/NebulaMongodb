@@ -22,9 +22,8 @@
   <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/menuItem.PNG"/> </li>
   <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/SignUpWindow.PNG"/></li>
   <li>Enter user information.</li>
-  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/SignUpValidation.PNG"/> </li>
   <li>Password must be at least 6 characters long, containing an uppercase letter and a special character. Please pay attention to this requirement.</li>
-  <li>PasswordValidation Image</li>
+  <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/SignUpImages/SignUpValidation.PNG"/> </li>
   <li>After entering all the information correctly, once you click the "Sign Up" button, you are ready to start using the Nebula tool.</li>
   <li>If you have previously created an account, you don't need to sign up again. You can use the Nebula tool by logging in.</li>
 </ul>

@@ -8,7 +8,6 @@
   <li>ConnectionURL giriniz.</li>
   <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/UpdateURL/UpdateUrlWindowValidation.PNG"/></li>
   <li>Update butonuna tıklayın.</li>
-  <li>Update Connection Url Content Image</li>
 </ul>
 
 ###### English
@@ -19,7 +18,6 @@
   <li>Enter the Connection URL.</li>
   <li><img src="https://github.com/UnityNebulaTeam/NebulaMongodb/blob/docs/Images/UpdateURL/UpdateUrlWindowValidation.PNG"/></li>
   <li>Click the Update button.</li>
-  <li>Update Connection Url Content Image</li>
 </ul>
 
 #### [Main Page](README.md)
