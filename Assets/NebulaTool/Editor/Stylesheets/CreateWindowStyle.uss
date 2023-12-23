@@ -1,5 +1,4 @@
 :root{
-background-color:bisque;
 }
 
 .Container{
@@ -8,13 +7,53 @@ width:100%;
 border-width:1px;
 }
 
+.Container Button{
+    align-self: flex-end;
+}
+
 .ContainerPropItem{
 -unity-text-align:middle-center;
 flex-direction:row;
 width:100%;
 border-bottom-width:1px;
-border-color:black;
+border-color:white;
+    padding-bottom: 10px;
+    margin-top: 10px;
 }
+
+.AddMinusFieldContainer{
+    -unity-text-align:middle-center;
+    flex-direction:row;
+    width:100%;
+    border-bottom-width:1px;
+    border-color:whitesmoke;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-top: 10px;
+}
+
+.AddFieldButton{
+    width:25px;
+    height:25px;
+    border-radius:10px;
+    transition:0.2s all;
+}
+
+.AddFieldButton:hover{
+    background-color: lightgreen;
+}
+
+.MinusFieldButton{
+    width:25px;
+    height:25px;
+    border-radius:10px;
+    transition:0.2s all;
+}
+
+.MinusFieldButton:hover{
+    background-color: orangered;
+}
+
 
 .CustomValueField{
 width:75%;
@@ -24,8 +63,16 @@ width:75%;
 width:20%;
 }
 
+.DatabaseTitle{
+    -unity-text-align: middle-center;
+    border-bottom-width: 1px;
+    border-color: white;
+    padding-bottom: 10px;
+    margin-top: 5px;
+}
+
 .CustomLabel{
-color:black;
+    
 }
 
 .HelpboxContainer{
@@ -39,10 +86,26 @@ width:30px;
 height:30px;
 transition:0.5s all;
 border-radius:10px;
-
+margin-top: 10px;
 }
 
 .CustomOperationButton:hover{
-background-color:green;
+background-color:aqua;
 border-radius:20px;
+color: black;
+}
+
+.CustomOperationButtonOkey{
+    width:30px;
+    height:30px;
+    margin-top: 10px;
+    margin-right: 10px;
+    border-width: 0px;
+    background-color: transparent;
+    transition:0.5s all;
+    
+}
+.CustomOperationButtonOkey:hover{
+    scale:1.2;
+    rotate:360deg;
 }

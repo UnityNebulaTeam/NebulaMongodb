@@ -3,9 +3,9 @@ namespace NebulaTool.Enum
 {
     public enum CreateItemType
     {
-        db,
-        collection,
-        item
+        Database,
+        Collection,
+        Item
     }
 }
 

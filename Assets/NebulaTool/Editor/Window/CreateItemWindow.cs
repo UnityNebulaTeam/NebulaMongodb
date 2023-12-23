@@ -58,6 +58,7 @@ namespace NebulaTool.Window
         } 
 
         private StyleSheet mainStyle;
+        private IconSO icons;
 
         public void ShowWindow()
         {
@@ -103,7 +104,7 @@ namespace NebulaTool.Window
                 createType = (CreateItemType)System.Enum.Parse(typeof(CreateItemType), enumValue);
             }
             
-            if (createType is CreateItemType.item)
+            if (createType is CreateItemType.Item)
             {
                 doc = await apiController.GetFirstItem(SelectedDatabase, SelectedColection);
                 if (doc is not null)
@@ -123,6 +124,8 @@ namespace NebulaTool.Window
         private void InitializeUI()
         {
             mainStyle = AssetDatabase.LoadAssetAtPath<StyleSO>(NebulaPath.DataPath + NebulaResourcesName.StylesheetsDataName).GetStyle(StyleType.CreateWindowStyle);
+            icons = AssetDatabase.LoadAssetAtPath<IconSO>(NebulaPath.DataPath + NebulaResourcesName.IconsDataName);
+            
             rootVisualElement.styleSheets.Add(mainStyle);
         }
 
@@ -131,15 +134,15 @@ namespace NebulaTool.Window
         {
             switch (createType)
             {
-                case CreateItemType.db:
+                case CreateItemType.Database:
                     CreateDatabaseUI();
                     break;
 
-                case CreateItemType.collection:
+                case CreateItemType.Collection:
                     CreateCollectionUI();
                     break;
 
-                case CreateItemType.item:
+                case CreateItemType.Item:
                     CreateItemUI();
                     break;
             }
@@ -153,25 +156,31 @@ namespace NebulaTool.Window
             var root = rootVisualElement;
             var container = NebulaExtention.Create<VisualElement>("Container");
 
-            var dbName = NebulaExtention.Create<TextField>();
+            var dbContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+            var dbName = NebulaExtention.Create<TextField>("CustomValueField");
             dbName.SetPlaceholderText(CustomValidation.CreateDbPlaceHolder);
-            var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
-
-            var collectionName = NebulaExtention.Create<TextField>();
+            var dbTitle = NebulaExtention.Create<Label>("CustomLabel","CustomPropField");
+            dbTitle.text = "Database";
+            
+            var collectionContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+            var collectionName = NebulaExtention.Create<TextField>("CustomValueField");
             collectionName.SetPlaceholderText(CustomValidation.CreateCollectionPlaceHolder);
-            var colletionTitle = NebulaExtention.Create<Label>("CustomLabel");
+            var colletionTitle = NebulaExtention.Create<Label>("CustomLabel","CustomPropField");
+            colletionTitle.text = "Collection";
 
+            dbContainer.Add(dbTitle);
+            dbContainer.Add(dbName);
+            
+            collectionContainer.Add(colletionTitle);
+            collectionContainer.Add(collectionName);
+            
+            container.Add(dbContainer);
+            container.Add(collectionContainer);
 
-            container.Add(dbTitle);
-            container.Add(dbName);
-            container.Add(colletionTitle);
-            container.Add(collectionName);
-
-
-            var CreateButton = NebulaExtention.Create<Button>("CustomOperationButton");
+            var CreateButton = NebulaExtention.Create<Button>("CustomOperationButtonOkey");
             var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
 
-            CreateButton.text = "+";
+            CreateButton.style.backgroundImage = icons.GetIcon(IconType.Okey).texture;
             CreateButton.clicked += delegate
             {
                 helpBoxContainer.Clear();
@@ -203,8 +212,6 @@ namespace NebulaTool.Window
             };
 
             container.Add(CreateButton);
-
-
             root.Add(container);
         }
 
@@ -214,17 +221,24 @@ namespace NebulaTool.Window
             var root = rootVisualElement;
             var container = NebulaExtention.Create<VisualElement>("Container");
 
-            var dbTitle = NebulaExtention.Create<Label>("CustomLabel");
-            dbTitle.text = EditorPrefs.GetString("dbname");
+            var dbTitle = NebulaExtention.Create<Label>("CustomLabel","DatabaseTitle");
+            dbTitle.text = $"{EditorPrefs.GetString("dbname")} Database";
             container.Add(dbTitle);
-
-            var collectionNameInput = NebulaExtention.Create<TextField>("CustomTextField");
+            
+            var collectionContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+            var colletionTitle = NebulaExtention.Create<Label>("CustomLabel","CustomPropField");
+            colletionTitle.text = "Collection";
+            
+            var collectionNameInput = NebulaExtention.Create<TextField>("CustomValueField");
             collectionNameInput.SetPlaceholderText(CustomValidation.CreateCollectionPlaceHolder);
-            container.Add(collectionNameInput);
+            collectionContainer.Add(colletionTitle);
+            collectionContainer.Add(collectionNameInput);
+            
+            container.Add(collectionContainer);
 
-            var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+            var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonOkey");
             var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
-            createOperationButton.text = "+";
+            createOperationButton.style.backgroundImage = icons.GetIcon(IconType.Okey).texture;
             createOperationButton.clicked += delegate
             {
                 helpBoxContainer.Clear();
@@ -251,7 +265,7 @@ namespace NebulaTool.Window
                 }
                 else
                 {
-                    apiController.CreateTable(dbTitle.text, collectionNameInput.value);
+                    apiController.CreateTable(SelectedDatabase, collectionNameInput.value);
                 }
             };
             container.Add(createOperationButton);
@@ -296,11 +310,11 @@ namespace NebulaTool.Window
                     fields.Add(fieldValuePair);
                 }
 
-                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonOkey");
                 var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
 
-                
-                createOperationButton.text = "+";
+
+                createOperationButton.style.backgroundImage = icons.GetIcon(IconType.Okey).texture;
                 createOperationButton.clicked += delegate
                 {
                     helpBoxContainer.Clear();
@@ -320,19 +334,18 @@ namespace NebulaTool.Window
                         apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
                     }
                 };
-
+                container.Add(createOperationButton);
                 root.Add(container);
-                root.Add(createOperationButton);
                 root.Add(helpBoxContainer);
             }
 
             if (doesNotExistDoc)
             {
-                var propFieldContainer = NebulaExtention.Create<VisualElement>("ContainerPropItem");
+                var propFieldContainer = NebulaExtention.Create<VisualElement>("AddMinusFieldContainer");
                 var fieldCountLabel = NebulaExtention.Create<Label>("CustomLabel");
                 fieldCountLabel.text = $"Field Count {fieldCount}";
 
-                var addFieldButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var addFieldButton = NebulaExtention.Create<Button>("AddFieldButton");
                 addFieldButton.text = "+";
                 addFieldButton.clicked += delegate
                 {
@@ -340,7 +353,7 @@ namespace NebulaTool.Window
                     CreateItemUI();
                 };
 
-                var minusFieldCount = NebulaExtention.Create<Button>("CustomOperationButton");
+                var minusFieldCount = NebulaExtention.Create<Button>("MinusFieldButton");
                 minusFieldCount.text = "-";
                 minusFieldCount.clicked += delegate
                 {
@@ -375,14 +388,14 @@ namespace NebulaTool.Window
                     propContainer.Add(propValue);
 
                     container.Add(propContainer);
-                    root.Add(container);
+                    
                     fields.Add(fieldValuePair);
                 }
 
-                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
+                var createOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonOkey");
                 var helpBoxContainer = NebulaExtention.Create<VisualElement>("HelpboxContainer");
-                
-                createOperationButton.text = "Create";
+
+                createOperationButton.style.backgroundImage = icons.GetIcon(IconType.Okey).texture;
                 createOperationButton.clicked += delegate
                 {
                     helpBoxContainer.Clear();
@@ -402,7 +415,8 @@ namespace NebulaTool.Window
                         apiController.CreateItem(SelectedDatabase, SelectedColection, fields);
                     }
                 };
-                root.Add(createOperationButton);
+                container.Add(createOperationButton);
+                root.Add(container);
                 root.Add(helpBoxContainer);
             }
         }

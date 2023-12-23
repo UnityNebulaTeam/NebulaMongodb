@@ -17,11 +17,12 @@ namespace NebulaTool.Window
         private StyleSheet mainStyle;
         private ApiController apiController = new();
 
-        [MenuItem("Nebula/SignIn/SignUp", priority = (int)CustomWindowPriorty.SignUp)]
+        [MenuItem("Nebula/Sign In/Sign Up", priority = (int)CustomWindowPriorty.SignUp)]
         private static void ShowWindow()
         {
             var window = GetWindow<SignUpWindow>();
             window.titleContent = new GUIContent("SignUp Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 

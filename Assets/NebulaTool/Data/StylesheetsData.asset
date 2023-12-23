@@ -22,9 +22,6 @@ MonoBehaviour:
   - styleType: 1
     styles:
     - {fileID: 7433441132597879392, guid: c7d71ee0465011b4d8643ac87ce8812e, type: 3}
-  - styleType: 3
-    styles:
-    - {fileID: 7433441132597879392, guid: a5f0164bfa59e884c8acc6dd77a16ddf, type: 3}
   - styleType: 4
     styles:
     - {fileID: 7433441132597879392, guid: 28951d60c6c09fa4fa075175730eac95, type: 3}

@@ -19,7 +19,7 @@ namespace NebulaTool.Window
         private ApiController apiController = new();
         private StyleSheet mainStyle;
 
-        [MenuItem("Nebula/SignIn/Login", priority = (int)CustomWindowPriorty.ChilOfdSignIn_Login)]
+        [MenuItem("Nebula/Sign In/Login", priority = (int)CustomWindowPriorty.ChilOfdSignIn_Login)]
         private static void ShowWindow()
         {
             if (!NebulaExtention.IsConnectionDataExist())
@@ -30,6 +30,7 @@ namespace NebulaTool.Window
 
             var window = GetWindow<LoginWindow>();
             window.titleContent = new GUIContent("Login Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 

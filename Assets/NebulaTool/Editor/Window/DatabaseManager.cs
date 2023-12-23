@@ -43,7 +43,6 @@ namespace NebulaTool.Window
 
             Window = GetWindow<DatabaseManager>(DatabaseManagerTitle);
             EditorCoroutineUtility.StartCoroutineOwnerless(Window.InitializeApiCoroutine());
-            Window.minSize = new Vector2(300, 200);
             Window.Show();
         }
 
@@ -153,8 +152,8 @@ namespace NebulaTool.Window
         {
             var upPanel = NebulaExtention.Create<VisualElement>("UpPanelStyle");
 
-            var refreshButton = NebulaExtention.Create<Button>("CustomOperationButton");
-            refreshButton.text = "R";
+            var refreshButton = NebulaExtention.Create<Button>("CustomOperationButtonRefresh");
+            refreshButton.style.backgroundImage = icons.GetIcon(IconType.Refresh).texture;
             refreshButton.clicked += delegate { Refresh(); };
 
             var toolTitle = NebulaExtention.Create<Label>("CustomLabel");
@@ -180,7 +179,7 @@ namespace NebulaTool.Window
             createDButton.text = "+";
             createDButton.clicked += delegate
             {
-                CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.db);
+                CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.Database);
                 windowCreate.ShowWindow();
             };
 
@@ -203,7 +202,7 @@ namespace NebulaTool.Window
                     buttonWrapper.Add(dbTextField);
 
                     var cancelOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonCancel");
-                    cancelOperationButton.style.backgroundImage = icons.GetStyle(IconType.Cancel).texture;
+                    cancelOperationButton.style.backgroundImage = icons.GetIcon(IconType.Cancel).texture;
                     cancelOperationButton.clicked += delegate
                     {
                         isEditDB = !isEditDB;
@@ -211,8 +210,8 @@ namespace NebulaTool.Window
                     };
 
 
-                    var updateItemOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
-                    updateItemOperationButton.style.backgroundImage = icons.GetStyle(IconType.Okey).texture;
+                    var updateItemOperationButton = NebulaExtention.Create<Button>("ConfirmUpdateButton");
+                    updateItemOperationButton.style.backgroundImage = icons.GetIcon(IconType.Okey).texture;
                     updateItemOperationButton.clicked += delegate
                     {
                         if (selectedDatabase != dbTextField.value)
@@ -233,7 +232,7 @@ namespace NebulaTool.Window
                     var databaseButton = NebulaExtention.Create<Button>("CustomItemButton");
                     databaseButton.text = $"{db.name}";
                     databaseButton.style.color = databaseButton.text == selectedDatabase ? Color.black : Color.white;
-                    databaseButton.style.backgroundColor = databaseButton.text == selectedDatabase ? Color.green : Color.gray;
+                    databaseButton.style.backgroundColor = databaseButton.text == selectedDatabase ? Color.cyan : Color.gray;
                     databaseButton.clicked += delegate
                     {
                         if (selectedDatabase == databaseButton.text)
@@ -252,7 +251,7 @@ namespace NebulaTool.Window
                     };
                     buttonWrapper.Add(databaseButton);
                     var deleteOperationButtonOperation = NebulaExtention.Create<Button>("CustomOperationButtonDelete");
-                    deleteOperationButtonOperation.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
+                    deleteOperationButtonOperation.style.backgroundImage = icons.GetIcon(IconType.Delete).texture;
                     deleteOperationButtonOperation.clicked += delegate
                     {
                         if (NebulaExtention.ShowDisplayDialogForDelete("Are You Sure for delete this database ?", "Do you want to delete this db"))
@@ -261,8 +260,8 @@ namespace NebulaTool.Window
                             ClearEditorDataForDatabase();
                         }
                     };
-                    var updateOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
-                    updateOperationButton.style.backgroundImage = icons.GetStyle(IconType.Update).texture;
+                    var updateOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonUpdate");
+                    updateOperationButton.style.backgroundImage = icons.GetIcon(IconType.Update).texture;
                     updateOperationButton.clicked += delegate
                     {
                         if (!string.IsNullOrEmpty(selectedDatabase) && selectedDatabase == db.name)
@@ -310,7 +309,7 @@ namespace NebulaTool.Window
                 else
                 {
                     EditorPrefs.SetString("dbname", selectedDatabase);
-                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.collection,selectedDatabase);
+                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.Collection,selectedDatabase);
                     windowCreate.ShowWindow();
                 }
             };
@@ -329,7 +328,7 @@ namespace NebulaTool.Window
                     itemContainer.Add(collectionTextField);
 
                     var cancelOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonCancel");
-                    cancelOperationButton.style.backgroundImage = icons.GetStyle(IconType.Cancel).texture;
+                    cancelOperationButton.style.backgroundImage = icons.GetIcon(IconType.Cancel).texture;
                     cancelOperationButton.clicked += delegate
                     {
                         isEditCollection = !isEditCollection;
@@ -337,8 +336,8 @@ namespace NebulaTool.Window
                     };
 
 
-                    var updateItemOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
-                    updateItemOperationButton.style.backgroundImage = icons.GetStyle(IconType.Okey).texture;
+                    var updateItemOperationButton = NebulaExtention.Create<Button>("ConfirmUpdateButton");
+                    updateItemOperationButton.style.backgroundImage = icons.GetIcon(IconType.Okey).texture;
                     updateItemOperationButton.clicked += delegate
                     {
                         if (selectedCollection != collectionTextField.value)
@@ -353,7 +352,7 @@ namespace NebulaTool.Window
                     var collectionButton = NebulaExtention.Create<Button>("CustomItemButton");
                     collectionButton.text = $"{collection.name}";
                     collectionButton.style.color = collectionButton.text == selectedCollection ? Color.black : Color.white;
-                    collectionButton.style.backgroundColor = collectionButton.text == selectedCollection ? Color.green : Color.gray;
+                    collectionButton.style.backgroundColor = collectionButton.text == selectedCollection ? Color.cyan : Color.gray;
                     collectionButton.clicked += delegate
                     {
                         if (selectedCollection == collectionButton.text)
@@ -371,7 +370,7 @@ namespace NebulaTool.Window
                     };
 
                     var deleteOperationButtonOperation = NebulaExtention.Create<Button>("CustomOperationButtonDelete");
-                    deleteOperationButtonOperation.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
+                    deleteOperationButtonOperation.style.backgroundImage = icons.GetIcon(IconType.Delete).texture;
                     deleteOperationButtonOperation.clicked += delegate
                     {
                         var msg = collectionList.Count > 1
@@ -398,8 +397,8 @@ namespace NebulaTool.Window
                         }
                     };
 
-                    var updateOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
-                    updateOperationButton.style.backgroundImage = icons.GetStyle(IconType.Update).texture;
+                    var updateOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonUpdate");
+                    updateOperationButton.style.backgroundImage = icons.GetIcon(IconType.Update).texture;
                     updateOperationButton.clicked += delegate
                     {
                         if (!string.IsNullOrEmpty(selectedDatabase) && !string.IsNullOrEmpty(selectedCollection) && selectedCollection == collection.name)
@@ -445,7 +444,7 @@ namespace NebulaTool.Window
                 }
                 else
                 {
-                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.item,selectedDatabase,selectedCollection);
+                    CreateItemWindow windowCreate = new CreateItemWindow(CreateItemType.Item,selectedDatabase,selectedCollection);
                     windowCreate.ShowWindow();
                 }
             };
@@ -493,8 +492,8 @@ namespace NebulaTool.Window
                     }
 
                     var operationContainer = NebulaExtention.Create<VisualElement>("operationContainer");
-                    var updateOperationButton = NebulaExtention.Create<Button>("CustomOperationButton");
-                    updateOperationButton.style.backgroundImage = icons.GetStyle(IconType.Update).texture;
+                    var updateOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonUpdate");
+                    updateOperationButton.style.backgroundImage = icons.GetIcon(IconType.Update).texture;
                     updateOperationButton.clicked += delegate
                     {
                         foreach (var item in fieldValues)
@@ -513,7 +512,7 @@ namespace NebulaTool.Window
                     };
 
                     var deleteOperationButton = NebulaExtention.Create<Button>("CustomOperationButtonDelete");
-                    deleteOperationButton.style.backgroundImage = icons.GetStyle(IconType.Delete).texture;
+                    deleteOperationButton.style.backgroundImage = icons.GetIcon(IconType.Delete).texture;
                     deleteOperationButton.clicked += delegate
                     {
                         if (NebulaExtention.ShowDisplayDialogForDelete("Delete Item", "Are you sure delete this Item"))
