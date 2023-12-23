@@ -212,8 +212,6 @@ namespace NebulaTool.Window
             };
 
             container.Add(CreateButton);
-
-
             root.Add(container);
         }
 
@@ -267,7 +265,7 @@ namespace NebulaTool.Window
                 }
                 else
                 {
-                    apiController.CreateTable(dbTitle.text, collectionNameInput.value);
+                    apiController.CreateTable(SelectedDatabase, collectionNameInput.value);
                 }
             };
             container.Add(createOperationButton);
