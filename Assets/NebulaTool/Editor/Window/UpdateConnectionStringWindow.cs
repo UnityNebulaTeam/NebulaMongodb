@@ -28,6 +28,7 @@ namespace NebulaTool.Window
             }
             var window = GetWindow<UpdateConnectionStringWindow>();
             window.titleContent = new GUIContent("Update Connection String Window");
+            window.minSize = new Vector2(300, 200);
             window.Show();
         }
 
@@ -46,36 +47,17 @@ namespace NebulaTool.Window
 
             var container = Create<VisualElement>("Container");
 
-            var mailContainer = Create<VisualElement>("CustomPropFieldContainer");
-            var mailTitle = Create<Label>("CustomLabel");
-            mailTitle.text = "MAİL";
-            var eMailTextField = Create<TextField>("CustomTextField");
-            eMailTextField.SetPlaceholderText(CustomValidation.emailPlaceHolder);
-            mailContainer.Add(mailTitle);
-            mailContainer.Add(eMailTextField);
-
-
-            var passwordContainer = Create<VisualElement>("CustomPropFieldContainer");
-            var passwordTitle = Create<Label>("CustomLabel");
-            passwordTitle.text = "Password";
-            var passwordTextField = Create<TextField>("CustomTextField");
-            passwordTextField.SetPlaceholderText(CustomValidation.passwordPlaceHolder);
-            passwordContainer.Add(passwordTitle);
-            passwordContainer.Add(passwordTextField);
 
 
             var connectionStringContainer = Create<VisualElement>("CustomPropFieldContainer");
             var connectionStringTitle = Create<Label>("CustomLabel");
-            connectionStringTitle.text = "ConnectionURL";
+            connectionStringTitle.text = "URL";
             var connectionStringTextField = Create<TextField>("CustomTextField");
             connectionStringTextField.SetPlaceholderText(CustomValidation.urlPlaceHolder);
             connectionStringContainer.Add(connectionStringTitle);
             connectionStringContainer.Add(connectionStringTextField);
 
 
-
-            container.Add(mailContainer);
-            container.Add(passwordContainer);
             container.Add(connectionStringContainer);
 
             var SendContainer = Create<VisualElement>("CustomPropFieldContainer");
@@ -89,10 +71,7 @@ namespace NebulaTool.Window
             {
                 helpBoxContainer.Clear();
                 var values = new Dictionary<ValidationType, string>();
-                values.Add(ValidationType.Email, eMailTextField.value);
-                values.Add(ValidationType.Password, passwordTextField.value);
                 values.Add(ValidationType.ConnectionURL, connectionStringTextField.value);
-
                 var validationResult = CustomValidation.IsValid(values);
                 if (validationResult.Count > 0)
                 {
@@ -126,7 +105,6 @@ namespace NebulaTool.Window
 
             container.Add(SendContainer);
             root.Add(container);
-
         }
 
         private T Create<T>(params string[] classNames) where T : VisualElement, new()

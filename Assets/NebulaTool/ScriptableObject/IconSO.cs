@@ -13,7 +13,7 @@ namespace NebulaTool.ScritableSO
     {
         public List<IconData> icons;
 
-        public Sprite GetStyle(IconType type) => type switch
+        public Sprite GetIcon(IconType type) => type switch
         {
             IconType.Refresh => icons.FirstOrDefault(x => x.iconType == type).Icon,
             IconType.Cancel => icons.FirstOrDefault(x => x.iconType == type).Icon,
